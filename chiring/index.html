@@ -553,8 +553,9 @@ fn rayStrength(
 .gifted__charm{transform-origin:50% 8%;animation:tcf-charm-fade .9s cubic-bezier(.65,0,.35,1) .45s both,tcf-charm-drop 2.4s cubic-bezier(.22,1,.36,1) .45s both}
 @keyframes tcf-charm-fade{from{opacity:0}to{opacity:1}}
 @keyframes tcf-charm-drop{0%{transform:translateY(-16px) scale(.97) rotate(0)}30%{transform:translateY(-3px) scale(.99) rotate(2.2deg)}52%{transform:translateY(0) scale(1) rotate(-1.4deg)}72%{transform:rotate(.7deg)}88%{transform:rotate(-.25deg)}100%{transform:none}}
-.gifted__charm img{animation:charm-float 3.4s ease-in-out 2.6s infinite,tcf-charm-glow 4s ease-in-out 1.6s infinite}
-@keyframes tcf-charm-glow{0%,100%{filter:drop-shadow(0 0 4px color-mix(in srgb,var(--wish,#fff) 25%,transparent))}50%{filter:drop-shadow(0 0 14px color-mix(in srgb,var(--wish,#fff) 45%,transparent))}}
+.gifted__charm img{animation:charm-float 3.4s ease-in-out 2.6s infinite}
+/* 참이 나오면 문지른 자리의 동그란 빛은 사라져요 (원형 효과 없음) */
+.gifted:has(.gifted__charm) .wish-glow{opacity:0;transition:opacity .5s ease-out}
 .gifted__btn{animation-delay:1.5s}
 @media (prefers-reduced-motion:reduce){.gifted__charm,.gifted__charm img{animation:none}}
 </style>
