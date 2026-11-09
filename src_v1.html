@@ -1,0 +1,1393 @@
+<title>오늘의 운세 프로토타입</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,800..900&display=swap" />
+<style>
+  @font-face { font-family: "Pretendard"; font-weight: 400; font-display: block; src: url(__font_pretendard-regular__) format("woff2"); }
+  @font-face { font-family: "Pretendard"; font-weight: 500; font-display: block; src: url(__font_pretendard-medium__) format("woff2"); }
+  @font-face { font-family: "Pretendard"; font-weight: 600; font-display: block; src: url(__font_pretendard-semibold__) format("woff2"); }
+  @font-face { font-family: "Pretendard"; font-weight: 700; font-display: block; src: url(__font_pretendard-bold__) format("woff2"); }
+  /* 단일 다크 테마: 앱 화면 프로토타입 */
+  :root {
+    color-scheme: dark;
+    --mint: rgb(95, 254, 198);
+    --ease: cubic-bezier(.65, 0, .35, 1);        /* ease-in-out */
+    --ease-out: cubic-bezier(.22, 1, .36, 1);
+    --spring: cubic-bezier(.34, 1.45, .5, 1);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: #050505; }
+  body { display: grid; place-items: center; -webkit-font-smoothing: antialiased;
+         font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif; }
+  .phone {
+    position: relative; width: 402px; height: 874px; overflow: hidden; background: #0e0e0e;
+    border-radius: 48px; box-shadow: 0 0 0 10px #222, 0 30px 80px rgba(0,0,0,.6);
+    user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent;
+  }
+  html, body { overflow: hidden; }
+  .phone img { max-width: none; }   /* 게시 템플릿의 img{max-width:100%}가 키링 부품 이미지를 0px로 줄이지 않게 */
+  .phone { flex: none; transform-origin: 50% 50%; }
+  @media (max-width: 440px), (max-height: 900px) {
+    .phone { border-radius: 0; box-shadow: none; }
+    .replay { display: none; }
+  }
+  .scaler { position: absolute; left: 0; top: 0; width: 402px; height: 874px; transform-origin: 0 0; }
+  .layer { position: absolute; inset: 0; }
+  .abs { position: absolute; display: block; }
+  .no-anim, .no-anim * { transition: none !important; }
+
+  /* ── 홈 ───────────────────────────── */
+  #homeScroll { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; scrollbar-width: none; overscroll-behavior: contain; background: #0e0e0e; }
+  #homeScroll::-webkit-scrollbar { display: none; }
+  .home-content { position: relative; width: 402px; height: 1006px; }   /* 874 + 최대 스크롤 132 */
+  #homeHello, #homeTitle, #ctaCapture { will-change: transform, opacity; }
+  #home { transform-origin: 50% 40%; transform: scale(.94); opacity: 0;
+          transition: transform .7s var(--ease), opacity .7s var(--ease); }
+  .s-fortune #home { opacity: 1; transition-delay: .8s; }   /* 운세 화면 뒤에 미리 깔아 둠 */
+  .s-home #home { transform: none; opacity: 1; transition-delay: 0s; }
+  /* 홈 카드 3종: 누르면 살짝 눌리고 → 민트로 바뀐 뒤 → 다음 화면으로 */
+  .hcard { cursor: pointer; transition: transform .5s var(--spring); }
+  .hcard.pressed { transform: scale(.965); transition: transform .14s var(--ease-out); }
+  .hcard img { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .hcard .on { opacity: 0; transition: opacity .26s var(--ease); }
+  .hcard.sel .on { opacity: 1; }
+
+  /* ── 화면 이동 (push / back) ──────── */
+  :root { --nav: cubic-bezier(.6, 0, .2, 1); --nav-t: .6s; }
+  .inner { position: absolute; inset: 0; transition: transform var(--nav-t) var(--nav); }
+  .shade { position: absolute; inset: 0; background: #000; opacity: 0; pointer-events: none;
+           transition: opacity var(--nav-t) var(--nav); }
+  .under > .inner { transform: translateX(-28%); }
+  .under > .shade { opacity: .5; }
+  .push { background: #0e0e0e; transform: translateX(100%); visibility: hidden;
+          box-shadow: -16px 0 40px rgba(0,0,0,.45);
+          transition: transform var(--nav-t) var(--nav), visibility 0s linear var(--nav-t); }
+  .push.on { transform: none; visibility: visible; transition: transform var(--nav-t) var(--nav), visibility 0s; }
+  .shop { background: #fff; }
+  /* 상세 화면 요소가 차례로 자리 잡음 */
+  .d-in { opacity: 0; transform: translateY(14px); transition: opacity .3s var(--ease), transform .3s var(--ease); }
+  .d-hero { transform: scale(.94); transform-origin: 50% 45%; }
+  .push.on .d-in { opacity: 1; transform: none; transition: opacity .55s var(--ease), transform .7s var(--ease-out); }
+  .push.on .d-hero { transition-delay: .2s; } .push.on .d-body { transition-delay: .32s; }
+  .push.on .d-icons { transition-delay: .4s; } .push.on .d-btn { transition-delay: .48s; }
+  .hot { position: absolute; cursor: pointer; }
+  /* 공통 하단 내비 (팀원 앱 .bottom-nav 와 같은 값) */
+  .bottom-nav { position: absolute; left: 0; top: 780px; width: 402px; height: 94px; margin: 0; background: rgba(40, 40, 40, .9);
+                -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-radius: 30px 30px 0 0;
+                font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  .bottom-nav__list { display: grid; grid-template-columns: repeat(4, 1fr); padding: 12px 28px 0; margin: 0; list-style: none; }
+  .bottom-nav__item { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0; border: 0; background: none;
+                      color: #6e767c; font: inherit; font-size: 13px; font-weight: 400; line-height: 2; letter-spacing: -.065px; cursor: pointer; }
+  .bottom-nav__item.is-active { color: #fff; font-weight: 600; }
+  .bottom-nav__item svg { display: block; }
+  .home-indicator { position: absolute; bottom: 8px; left: 50%; width: 134px; height: 5px; margin-left: -67px; border-radius: 100px; background: #fff; }
+  #freqLayer { z-index: 40; background: #121212; visibility: hidden; }
+  .tab-freq #freqLayer { visibility: visible; }
+  #freqFrame { position: absolute; inset: 0; width: 402px; height: 874px; border: 0; display: block; background: #121212; }
+  /* ── 친구방 ── */
+  #friends { background: #0e0e0e; visibility: hidden; }
+  .tab-friends #friends { visibility: visible; }
+  #frScroll { position: absolute; left: 0; top: 104px; width: 402px; height: 770px; overflow-y: auto; overflow-x: hidden;
+              overscroll-behavior: contain; scrollbar-width: none; cursor: grab; -webkit-overflow-scrolling: touch; }
+  #frScroll::-webkit-scrollbar { display: none; }
+  #frScroll.dragging { cursor: grabbing; }
+  .fr-content { position: relative; width: 402px; height: 854px; }
+  /* 작은 글자는 HTML로 다시 그림 (배경색으로 이미지 글자를 덮음) */
+  .fr-text { position: absolute; background: #0e0e0e; color: #ececec; font-family: "Pretendard", -apple-system, sans-serif;
+             font-size: 14.5px; font-weight: 500; letter-spacing: -.35px; line-height: 24px; pointer-events: none; }
+  .fr-head-t { position: absolute; left: 140px; top: 64px; width: 122px; height: 34px; background: #0e0e0e; color: #fff; text-align: center;
+               font-family: "Pretendard", -apple-system, sans-serif; font-size: 18px; font-weight: 600; letter-spacing: -.4px; line-height: 34px; pointer-events: none; }
+  .fr-content > img { display: block; width: 402px; height: 854px; pointer-events: none; }
+  /* Lucky Moments: 가로 스크롤 (시안 세 장을 이어 붙인 띠, 최대 480px) */
+  #frRow { position: absolute; left: 0; top: 562px; width: 402px; height: 274px; overflow-x: auto; overflow-y: hidden;
+           scrollbar-width: none; overscroll-behavior-x: contain; background: #0e0e0e; }
+  #frRow::-webkit-scrollbar { display: none; }
+  #frRow img { display: block; width: 882px; height: 274px; pointer-events: none; }
+  .fr-row-in { position: relative; width: 882px; height: 274px; }
+  .moment-hot { position: absolute; top: 0; width: 160px; height: 274px; border: 0; padding: 0; background: transparent; cursor: pointer;
+                border-radius: 28px; transition: transform .4s var(--spring); }
+  .moment-hot:active { transform: scale(.97); transition: transform .12s; }
+  #luckyTalk, #luckyTalkCard { border-radius: 40px; transition: transform .4s var(--spring); }
+  #luckyTalkCard:active { transform: scale(.98); }
+
+  /* ── 행운 공구방 채팅 ── */
+  #scr-chat { background: #fff; }
+  /* 채팅은 위아래로 스크롤 (대화 A → 대화 B → 새 메시지) */
+  #chMsgs { position: absolute; left: 0; top: 187px; width: 402px; height: 581px; overflow-y: auto; overflow-x: hidden;
+            scrollbar-width: none; overscroll-behavior: contain; padding-bottom: 28px; box-sizing: border-box; }
+  #chMsgs::-webkit-scrollbar { display: none; }
+  .ch-spacer { height: 0; transition: height .55s var(--ease); }
+  .ranked .ch-spacer { height: 111px; }
+  .ch-thread { position: relative; width: 402px; height: 1025px; transition: height .4s var(--ease); }
+  .mode-b .ch-thread { margin-top: -548px; }          /* 운세 겹쳐보기 대화(B)부터 시작 */
+  .mode-b .ch-thread > img.thread-a { visibility: hidden; }
+  /* ── 채팅: 텍스트·말풍선은 HTML로 (어떤 해상도에서도 선명) ── */
+  #scr-chat { font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif; }
+  .ch-thread .bub, .ch-thread .nm-name, .ch-thread .av, .ch-thread .placecard, .ch-thread .mixcard { position: absolute; }
+  .bub { height: 40px; padding: 0 14px; display: flex; align-items: center; white-space: nowrap; border-radius: 20px;
+         font-size: 15px; font-weight: 500; letter-spacing: -.35px; line-height: 1; }
+  .bub.two { height: 67px; padding: 0 14px; border-radius: 20px; line-height: 23.5px; display: block; padding-top: 10px; }
+  .bub.you { left: 68px; background: #121212; color: #fff; }
+  .bub.me { right: 20px; background: #FFA1F9; color: #111; }
+  .nm-name { left: 69px; font-size: 12.5px; font-weight: 500; color: #3a3a3a; letter-spacing: -.1px; line-height: 15px; }
+  .av { left: 19px; width: 42px; height: 42px; pointer-events: none; }
+  .mixcard { left: 68px; width: 269px; height: 99px; border-radius: 22px; background: #121212; cursor: pointer;
+             transition: transform .4s var(--spring); }
+  .mixcard:active { transform: scale(.97); transition: transform .12s; }
+  .mixcard img { position: absolute; left: 14px; top: 10px; width: 112px; height: 37px; }
+  .mixcard span { position: absolute; left: 20px; top: 56px; color: #fff; font-size: 13.5px; font-weight: 500; letter-spacing: -.3px; }
+  .mix-go { position: absolute; right: 12px; bottom: 12px; width: 36px; height: 36px; border-radius: 50%; background: #fff; display: grid; place-items: center; }
+  .placecard { right: 20px; width: 268px; height: 138px; border-radius: 22px; background: #5EFFC7; }
+  .placecard img { position: absolute; left: 7px; top: 7px; width: 124px; height: 124px; border-radius: 16px; object-fit: cover; }
+  .pc-tag { position: absolute; left: 144px; top: 13px; font-family: "Archivo", "Arial Narrow", sans-serif; font-stretch: 70%;
+            font-weight: 800; font-size: 15px; letter-spacing: -.4px; color: #3f8f73; }
+  .placecard strong { position: absolute; left: 144px; top: 38px; font-size: 18px; font-weight: 700; color: #111; letter-spacing: -.5px; }
+  .pc-btn { position: absolute; left: 140px; top: 95px; width: 117px; height: 35px; border-radius: 18px; background: #121212; color: #fff;
+            display: grid; place-items: center; font-size: 14px; font-weight: 600; letter-spacing: -.3px; }
+  .mode-b .ch-thread > .thread-a { visibility: hidden; }
+  .ch-thread > .nm { position: absolute; inset: 0 auto auto 0; width: 402px; opacity: 0; transform: translateY(14px) scale(.96);
+                     transition: opacity .35s var(--ease), transform .5s var(--spring); pointer-events: none; }
+  .ch-thread > .nm.me { transform-origin: 100% 0; } .ch-thread > .nm.you { transform-origin: 0 0; }
+  .ch-thread > .nm.show { opacity: 1; transform: none; }
+  /* 상단: 상태바 · 제목 · 칩 · 순위 바 */
+  #chHead .ch-status { position: absolute; left: 0; top: 0; width: 402px; height: 54px; display: flex; align-items: center;
+                       justify-content: space-between; padding: 6px 30px 0 46px; font-size: 17px; font-weight: 600; color: #111; }
+  .ch-status .icons { display: flex; gap: 6px; align-items: center; }
+  .ch-back { position: absolute; left: 21px; top: 67px; }
+  .ch-title { position: absolute; left: 0; top: 64px; width: 402px; text-align: center; font-size: 20px; font-weight: 600; letter-spacing: -.6px; color: #111; line-height: 32px; }
+  .ch-title svg { vertical-align: -2px; } .ch-title em { font-style: normal; color: #b8b8bd; font-weight: 500; margin-left: 2px; }
+  .ch-chips { position: absolute; left: 20px; top: 130px; display: flex; gap: 9px; white-space: nowrap; }
+  .ch-chips span { height: 42px; padding: 0 23px; border-radius: 21px; background: #fff; color: #505055; font-size: 15px; font-weight: 500;
+                   letter-spacing: -.4px; display: flex; align-items: center; transition: background .3s var(--ease), color .3s var(--ease); }
+  .ranked .ch-chips .chip-rank { background: #FE39C7; color: #fff; }
+  .rk-row { position: absolute; left: 0; top: 198px; display: flex; }
+  .rk { width: 80px; padding-left: 27px; position: relative; }
+  .rk:first-child { margin-left: 0; }
+  .rk img { width: 62px; height: 62px; display: block; }
+  .rk b { display: block; width: 62px; text-align: center; margin-top: 6px; font-size: 13px; font-weight: 600; color: #111; letter-spacing: -.2px; }
+  /* 입력창 */
+  #chInput { position: absolute; left: 0; top: 760px; width: 402px; height: 114px;
+             background: linear-gradient(rgba(251,251,251,0), #F7F7F9 30%, #EFF0F4 64%); }
+  .ci-plus { position: absolute; left: 24px; top: 20px; width: 44px; height: 44px; border-radius: 50%; background: #fff; display: grid; place-items: center; }
+  .ci-field { position: absolute; left: 76px; top: 18px; width: 302px; height: 48px; border-radius: 24px; background: #fff;
+              padding-left: 17px; display: flex; align-items: center; font-size: 15px; color: #b5b5ba; letter-spacing: -.3px; }
+  .ci-send { position: absolute; right: 7px; top: 6px; width: 36px; height: 36px; border-radius: 50%; background: #111; display: grid; place-items: center; }
+  .ci-bar { position: absolute; left: 134px; bottom: 9px; width: 134px; height: 5px; border-radius: 3px; background: #111; }
+  
+  #chFade { position: absolute; left: 0; top: 728px; width: 402px; height: 40px; pointer-events: none;
+            background: linear-gradient(rgba(255,255,255,0), #fff); }
+  #chPanel { position: absolute; left: 0; top: 0; width: 402px; height: 186px; overflow: hidden; background: rgb(239,240,244);
+             border-radius: 0 0 26px 26px; transition: height .55s var(--ease); }
+  .ranked #chPanel { height: 300px; }
+  #chHead { position: absolute; left: 0; top: 0; width: 402px; height: 178px; pointer-events: none; }
+  #chChip { left: 152px; top: 124px; width: 136px; height: 52px; border-radius: 26px; }
+  #chMixChip { border-radius: 26px 0 0 26px; }
+  #chChip:active { background: rgba(0,0,0,.06); }
+
+  /* 딤 공통: 실제 채팅 위에 흐림 + 어두운 막 (시안 값에서 역산) */
+  .dim { position: absolute; inset: 0; z-index: 20; opacity: 0; visibility: hidden;
+         transition: opacity .35s var(--ease), visibility 0s linear .35s; }
+  #rkDim, #mxDim { background: #2b2b2b; }
+  .dimmed #rkDim, .mixing #mxDim { opacity: 1; visibility: visible; transition: opacity .35s var(--ease), visibility 0s; }
+  .dim .pop { opacity: 0; transform: translateY(12px); transition: opacity .2s var(--ease), transform .2s var(--ease); }
+  .dimmed #rkDim .pop, .mixing #mxDim .pop { opacity: 1; transform: none; transition: opacity .5s var(--ease), transform .7s var(--ease-out); }
+
+  /* 딤_0: 제목만 크게 등장 → 1.3초 뒤 위로 올라가며 작아지고, 1등 화면(딤_1)이 드러남 */
+  #rkTitle0 { opacity: 0; transform: scale(.9); transform-origin: 160.5px 68px; transition: opacity .2s, transform .2s; }
+  .dimmed #rkTitle0 { opacity: 1; transform: none; transition: opacity .55s var(--ease) .15s, transform .8s var(--ease-out) .15s; }
+  .dimmed.rk-reveal #rkTitle0 { opacity: 0; transform: translateY(-192px) scale(.77);
+       transition: transform .85s cubic-bezier(.65,0,.35,1), opacity .35s var(--ease) .9s; }
+  #rkBg1 { opacity: 0; transition: opacity .2s; }
+  .dimmed.rk-reveal #rkBg1 { opacity: 1; transition: opacity .55s var(--ease) .82s; }
+  #rkDim #rkOk, #rkDim #rkGift { pointer-events: none; }
+  .rk-reveal #rkDim #rkOk, .rk-reveal #rkDim #rkGift { pointer-events: auto; }
+  /* 순위 딤 이모지: 위에서 떨어지는 잎처럼 좌우로 살랑이며 내려와 제자리에 앉음 */
+  #rkDim .drop { opacity: 0; transform: translate3d(0, var(--y), 0) rotate(var(--r)); will-change: transform, opacity;
+                 transition: opacity .2s, transform .2s; }
+  .dimmed #rkDim .drop { opacity: 1; transform: none;
+                 transition: opacity .5s var(--ease) var(--dl), transform 1.5s cubic-bezier(.45, 0, .2, 1) var(--dl); }
+  /* 겹쳐보기 카드: 처음엔 가운데에 겹쳐 있다가(딤1) 자동으로 펼쳐짐(딤2) */
+  #mxDim .mxc { opacity: 0; transform: translate(var(--tx), calc(var(--ty) + 60px)) rotate(var(--r)) scale(var(--s));
+                transition: opacity .25s, transform .25s; }
+  .mixing #mxDim .mxc { opacity: 1; transform: translate(var(--tx), var(--ty)) rotate(var(--r)) scale(var(--s));
+                transition: opacity .45s var(--ease) calc(.25s + var(--d)), transform .8s var(--ease-out) calc(.25s + var(--d)); }
+  .mixing.spread #mxDim .mxc { transform: none; transition: transform .62s cubic-bezier(.3, 1.4, .55, 1) var(--d); }
+  #mxDim .mxc { cursor: pointer; }
+  #mxPicnic { z-index: 3; } #mxShirt, #mxPlaylist { z-index: 1; }
+  .mixing.spread #mxPicnic:active { transform: scale(.97); transition: transform .12s; }
+  .mixing.spread #mxDim .mx-intro { opacity: 0; transform: translateY(-10px) scale(.96); transition: opacity .22s var(--ease), transform .3s var(--ease); }
+  #mxDim .mx-after { opacity: 0; transform: translateY(10px); transition: opacity .2s, transform .2s; }
+  .mixing.spread #mxDim .mx-after { opacity: 1; transform: none; transition: opacity .4s var(--ease) .35s, transform .5s var(--ease-out) .35s; }
+  .fr-pad { height: 94px; }   /* 내비 높이만큼: 최대 스크롤 = 178px (시안 두 장의 차이) */
+  /* 모달(아래에서 올라옴)·페이드 화면 */
+  .push.modal { transform: translateY(100%); box-shadow: 0 -10px 40px rgba(0,0,0,.5); }
+  .push.modal.on { transform: none; }
+  .under-m > .inner { transform: scale(.94); border-radius: 28px; overflow: hidden; }
+  .under-m > .shade { opacity: .55; }
+  .push.fade { transform: none; opacity: 0; transition: opacity .7s var(--ease), visibility 0s linear .7s; }
+  .push.fade.on { opacity: 1; transition: opacity .7s var(--ease), visibility 0s; }
+  .c-in { opacity: 0; transform: translateY(12px); transition: opacity .4s var(--ease), transform .4s var(--ease); }
+  .push.on .c-in { opacity: 1; transform: none; transition: opacity .6s var(--ease), transform .8s var(--ease-out); }
+
+  /* ── 카메라 ─────────────────────── */
+  #vf { left: 18px; top: 203px; width: 366px; height: 448px; overflow: hidden;
+        -webkit-mask: url(__img_cam_mask__) 0 0 / 100% 100%; mask: url(__img_cam_mask__) 0 0 / 100% 100%; }
+  #vfPhoto { position: absolute; inset: 0; width: 100%; height: 100%; transform-origin: 50% 50%;
+             animation: handheld 7s var(--ease) infinite alternate; }
+  @keyframes handheld {   /* 들고 있는 카메라의 미세한 흔들림 */
+    0%   { transform: scale(1.035) translate(-2px, 1px) rotate(-.15deg); }
+    35%  { transform: scale(1.04) translate(2.5px, -1.5px) rotate(.1deg); }
+    70%  { transform: scale(1.032) translate(-1px, 2px) rotate(.2deg); }
+    100% { transform: scale(1.038) translate(1.5px, -1px) rotate(-.05deg); }
+  }
+  .shot #vfPhoto { animation-play-state: paused; }
+  #vfFlash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+  /* 촬영: 뷰파인더만 짧고 부드럽게 하얘졌다가 돌아옴 + 화면이 멈춤 */
+  .flash #vfFlash { animation: flash .42s ease-out; }
+  @keyframes flash { 0% { opacity: 0; } 14% { opacity: .78; } 100% { opacity: 0; } }
+  #shutter.hint i { animation: hint .5s var(--ease) 2; }
+  @keyframes hint { 50% { transform: scale(.88); } }
+  #shutter { left: 166px; top: 681px; width: 70px; height: 70px; border-radius: 50%; background: #000; cursor: pointer; }
+  #shutter i { position: absolute; left: 4px; top: 4px; width: 62px; height: 62px; border-radius: 50%; background: #fff;
+               transition: transform .45s var(--spring); }
+  #shutter.pressed i { transform: scale(.84); transition: transform .1s var(--ease-out); }
+  #thumb { left: 51px; top: 686px; width: 60px; height: 60px; border-radius: 22px; overflow: hidden; }
+  #thumb img { width: 100%; height: 100%; object-fit: cover; }
+  #thumb.got { animation: thumbIn .5s var(--spring); }
+  @keyframes thumbIn { 0% { transform: scale(.8); } 100% { transform: scale(1); } }
+  #fly { left: 18px; top: 203px; width: 366px; height: 448px; border-radius: 120px; overflow: hidden; z-index: 60;
+         visibility: hidden; pointer-events: none; box-shadow: 0 10px 30px rgba(0,0,0,.5); }
+  #fly img { width: 100%; height: 100%; object-fit: cover; }
+  #fly.go { visibility: visible; left: 51px; top: 686px; width: 60px; height: 60px; border-radius: 22px;
+            transition: left .6s var(--ease), top .6s var(--ease), width .6s var(--ease), height .6s var(--ease), border-radius .6s var(--ease); }
+
+
+  .tile.c-in { transform: translateY(18px) scale(.96); }
+
+  /* ── 모아보기: 곡면(원통 안쪽) 위에 펼쳐진 사진 띠 ── */
+  #pano { position: absolute; left: 0; top: 228px; width: 402px; height: 540px; perspective: 340px;
+          perspective-origin: 50% 46%; cursor: grab; touch-action: pan-y; overflow: hidden; }
+  #pano.dragging { cursor: grabbing; }
+  #panoRing { position: absolute; left: 50%; top: 46%; transform-style: preserve-3d; }
+  .pcard { position: absolute; width: 132px; height: 132px; margin: -66px 0 0 -66px; border-radius: 32%; overflow: hidden;
+           background: #222; backface-visibility: hidden; will-change: transform, opacity; }
+  .pcard img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+
+  /* ── 저녁: 이전 Spin Shutter·키링 프로토타입 (이 화면 안에만 적용) ── */
+  #scr-evening { background: #121212; color: #fff; overflow: hidden; }
+  #scr-evening * { pointer-events: none; }
+  .ev-status { position: absolute; top: 0; left: 0; right: 0; height: 54px; z-index: 50; display: flex; align-items: center;
+    justify-content: space-between; padding: 6px 30px 0 46px; font-size: 17px; font-weight: 600; letter-spacing: -.2px; }
+  .ev-status .icons { display: flex; gap: 6px; align-items: center; }
+  .ev-title { position: absolute; top: 112px; left: 20px; z-index: 40; font-size: 28px; line-height: 1.36; font-weight: 600; letter-spacing: -.6px; }
+  .ev-title span { display: block; opacity: 0; will-change: transform, opacity, filter; }
+  .ev-card { position: absolute; left: 0; top: 0; width: 148px; height: 148px; margin: -74px 0 0 -74px;
+    border-radius: 30%; overflow: hidden; background: #2a2a2a; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+  .ev-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ev-keyring { position: absolute; left: 36px; top: 243px; width: 330px; height: 495px; z-index: 300; opacity: 0; will-change: transform, opacity; }
+  .ev-part { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
+  .ev-part img { position: absolute; display: block; }
+  .ev-sheen { position: absolute; display: block; -webkit-mask-size: 100% 100%; mask-size: 100% 100%;
+    background: linear-gradient(112deg, rgba(255,255,255,0) 42%, rgba(255,255,255,.75) 50%, rgba(255,255,255,0) 58%);
+    background-size: 320% 100%; background-repeat: no-repeat; background-position: 130% 0; mix-blend-mode: soft-light; opacity: .9; }
+  .ev-spark { position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; opacity: 0;
+    background: radial-gradient(circle, #fff 0 8%, rgba(255,255,255,.55) 14%, rgba(255,255,255,0) 40%),
+      linear-gradient(90deg, rgba(255,255,255,0) 0, #fff 50%, rgba(255,255,255,0) 100%) center / 100% 1.5px no-repeat,
+      linear-gradient(0deg, rgba(255,255,255,0) 0, #fff 50%, rgba(255,255,255,0) 100%) center / 1.5px 100% no-repeat;
+    mix-blend-mode: screen; }
+  .ev-twinkle .ev-spark { animation: twinkle 2.6s ease-in-out infinite; }
+  .ev-btns { position: absolute; left: 20px; top: 785px; width: 362px; display: flex; gap: 10px; z-index: 60; opacity: 0;
+             transform: translateY(12px); transition: opacity .3s var(--ease), transform .3s var(--ease); }
+  .ev-btns.show { opacity: 1; transform: none; transition: opacity .6s var(--ease), transform .8s var(--ease-out); }
+  #scr-evening .ev-btns.show, #scr-evening .ev-btns.show * { pointer-events: auto; }
+  .ev-btn { flex: 1; height: 55px; border: 0; border-radius: 28px; background: #f4f2f5; color: #111; cursor: pointer;
+            font-family: "Pretendard", -apple-system, sans-serif; font-size: 17px; font-weight: 600; letter-spacing: -.4px;
+            transition: transform .4s var(--spring); }
+  .ev-btn.ghost { background: #363636; color: #adadad; }
+  .ev-btn:active { transform: scale(.96); transition: transform .12s; }
+  .ev-home { position: absolute; bottom: 8px; left: 50%; width: 134px; height: 5px; margin-left: -67px; border-radius: 3px; background: #fff; opacity: .55; z-index: 50; }
+
+  /* ── 참 ─────────────────────────── */
+  #charmStage { left: 0; top: 0; width: 402px; height: 874px; perspective: 700px; pointer-events: none; }
+  #charm { position: absolute; left: 100px; top: 300px; width: 212px; height: 300px; opacity: 0;
+           transform-origin: 170px 28px; will-change: transform, opacity, filter; }
+  #charm img { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #charm .sheen { position: absolute; inset: 0;
+    -webkit-mask: url(__img_charm__) 0 0 / 100% 100%; mask: url(__img_charm__) 0 0 / 100% 100%;
+    background: linear-gradient(115deg, rgba(255,255,255,0) 40%, rgba(255,255,255,.85) 50%, rgba(255,255,255,0) 60%) no-repeat;
+    background-size: 300% 100%; background-position: 130% 0; mix-blend-mode: soft-light; }
+  #charm .spark { position: absolute; width: 26px; height: 26px; margin: -13px 0 0 -13px; opacity: 0;
+    background:
+      radial-gradient(circle, #fff 0 8%, rgba(255,255,255,.55) 14%, rgba(255,255,255,0) 40%),
+      linear-gradient(90deg, rgba(255,255,255,0), #fff 50%, rgba(255,255,255,0)) center / 100% 1.5px no-repeat,
+      linear-gradient(0deg, rgba(255,255,255,0), #fff 50%, rgba(255,255,255,0)) center / 1.5px 100% no-repeat;
+    mix-blend-mode: screen; }
+  #charm.twinkle .spark { animation: twinkle 2.4s ease-in-out infinite; }
+  @keyframes twinkle { 0%, 100% { opacity: .2; transform: scale(.5) rotate(0); } 50% { opacity: 1; transform: scale(1.15) rotate(20deg); } }
+  .press { transition: transform .4s var(--spring); }
+  .press.pressed { transform: scale(.97); transition: transform .12s var(--ease-out); }
+
+  /* ── 오늘의운세_딤 → 딤2 ───────────── */
+  #dim { transition: opacity .45s var(--ease); }
+  /* 민트 배경이 화면을 덮은 뒤 딤 화면은 치워 둠 */
+  .s-fortune #dim { opacity: 0; pointer-events: none; transition: opacity 0s linear .8s; }
+  /* X로 닫을 때: 운세 화면은 건너뛰고(움직임 없이 숨김) 딤만 부드럽게 사라지며 홈이 드러남 */
+  .x-close #fortune, .x-close #fortune * { visibility: hidden !important; transition: none !important; }
+  .x-close #dim { transition: opacity .45s var(--ease) !important; }
+  .x-close #home { transition: opacity .45s var(--ease), transform .6s var(--ease) !important; }
+  #modal { left: 58px; top: 225px; width: 298px; height: 355px; overflow: hidden;
+           -webkit-mask: url(__img_modal_mask__) 0 0 / 100% 100%; mask: url(__img_modal_mask__) 0 0 / 100% 100%;
+           transform: scale(.985); transition: transform 1.8s var(--ease); }
+  #modal img { position: absolute; inset: 0; width: 100%; height: 100%; transform: scale(1.08);
+               transition: transform 1.9s var(--ease), opacity 1.9s var(--ease); }
+  #modal img.sharp { opacity: 0; }
+  .s-clear #modal { transform: none; }
+  .s-clear #modal img { transform: none; }
+  .s-clear #modal img.sharp { opacity: 1; }
+  .s-fortune #modal, .s-home #modal { visibility: hidden; }
+
+  .sticker {
+    position: absolute; left: 58px; top: 340px; width: 298px; text-align: center; z-index: 2;
+    font-family: "Archivo", "Arial Narrow", Impact, sans-serif; font-stretch: 62%; font-weight: 900;
+    font-size: 47px; line-height: .98; letter-spacing: -1.6px; color: #46fdd2;
+    -webkit-text-stroke: 9px #000; paint-order: stroke fill;
+    filter: drop-shadow(0 2px 0 #2a0008);
+    transition: opacity .7s var(--ease), transform .9s var(--ease), filter .7s var(--ease);
+  }
+  .sticker span { display: inline-block; }
+  #dim2 { opacity: 0; transition: opacity 1.9s var(--ease); }
+  .s-clear #dim2 { opacity: 1; }
+  .s-clear .sticker { opacity: 0; transform: scale(1.08); filter: blur(8px); transition-delay: .25s; }
+
+  .reveal { opacity: 0; transform: translateY(8px); pointer-events: none;
+            transition: opacity .45s var(--ease), transform .55s var(--ease-out); }
+  .s-clear .reveal { opacity: 1; transform: none; pointer-events: auto; transition-delay: 1.45s; }
+  .s-clear #dimBtn.reveal { transition-delay: 1.6s; }
+  .s-fortune .reveal, .s-home .reveal { opacity: 0 !important; transition-delay: 0s !important; pointer-events: none; }
+  #dimBtn, #dimX { cursor: pointer; }
+  #dimBtn:active { transform: scale(.95); transition: transform .12s; }
+
+  /* ── 오늘의운세_화면 ───────────────── */
+  #fortune { pointer-events: none; transition: transform .65s var(--ease); }
+  .s-fortune #fortune { pointer-events: auto; cursor: pointer; }
+  .s-home #fortune { transform: translateY(100%); visibility: hidden; transition: transform .65s var(--ease), visibility 0s linear .65s; }
+  #fBg { position: absolute; inset: 0; background: var(--mint);
+         clip-path: circle(0px at 206px 410px); transition: clip-path .75s var(--ease); }
+  .s-fortune #fBg, .s-home #fBg { clip-path: circle(1000px at 206px 410px); }
+  /* 공유 요소: 모달 카드가 운세 카드로 */
+  #morph { left: 60px; top: 228px; width: 293px; height: 348px; visibility: hidden;
+           transition: left .75s var(--ease), top .75s var(--ease), width .75s var(--ease), height .75s var(--ease); }
+  #morph img { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #morphTo { opacity: 0; transition: opacity .4s var(--ease) .22s; }
+  .s-fortune #morph, .s-home #morph { visibility: visible; left: 34px; top: 206px; width: 334px; height: 345px; }
+  .s-fortune #morphTo, .s-home #morphTo { opacity: 1; }
+  /* 전환이 끝나면 원래(딤) 카드는 숨김 → 비율이 달라 아래로 삐져나오던 기둥이 보이지 않음 */
+  #morph img:first-child { transition: opacity .25s var(--ease) .55s; }
+  .s-fortune #morph img:first-child, .s-home #morph img:first-child { opacity: 0; }
+  .f-in { opacity: 0; transform: translateY(10px); transition: opacity .5s var(--ease), transform .6s var(--ease-out); }
+  .s-fortune .f-in, .s-home .f-in { opacity: 1; transform: none; }
+  #fSticker { transform: translateY(-16px) rotate(-4deg) scale(.9); transform-origin: 50% 80%;
+              transition: opacity .35s var(--ease), transform .6s var(--spring); }
+  .s-fortune #fSticker, .s-home #fSticker { transform: none; }
+
+  .replay-wrap { position: fixed; right: 16px; bottom: 16px; z-index: 100; display: flex; gap: 8px; }
+  .replay-wrap .replay { position: static; }
+  #replayFortune { opacity: .6; }
+  .replay {
+    position: fixed; right: 16px; bottom: 16px; z-index: 100; font: inherit; font-size: 13px;
+    padding: 8px 14px; border-radius: 999px; border: 1px solid #333; background: #1d1d1d; color: #ddd; cursor: pointer;
+  }
+</style>
+<div class="phone" id="phone">
+ <div class="scaler" id="scaler">
+
+  <!-- 4·5. 홈_기본 / 홈_탭했을 때 -->
+  <div class="layer" id="home">
+   <div class="inner">
+    <!-- 홈은 위아래 스크롤: 카드는 그대로 132px, 제목·설명은 53px만 올라가고 '오늘은'·담기 버튼은 사라짐 -->
+    <div id="homeScroll">
+     <div class="home-content">
+      <img class="abs" id="homeHello" src="__img_home_hello__" style="left:0;top:104px;width:402px;height:60px" alt="오늘은">
+      <img class="abs" id="homeTitle" src="__img_home_title__" style="left:0;top:164px;width:402px;height:102px" alt="木의 기운이 필요한 날">
+      <div class="abs hcard" data-go="item" role="button" aria-label="Lucky Item" style="left:14px;top:364px;width:374px;height:189px">
+        <img src="__img_item_off__" alt=""><img class="on" src="__img_item_on__" alt="">
+      </div>
+      <div class="abs hcard" data-go="place" role="button" aria-label="Lucky Place" style="left:14px;top:553px;width:374px;height:175px">
+        <img src="__img_place_off__" alt=""><img class="on" src="__img_place_on__" alt="">
+      </div>
+      <div class="abs hcard" data-go="music" role="button" aria-label="Lucky Music" style="left:14px;top:728px;width:374px;height:176px">
+        <img src="__img_music_off__" alt=""><img class="on" src="__img_music_on__" alt="">
+      </div>
+      <img class="abs press" id="ctaCapture" role="button" aria-label="오늘의 행운 담기" src="__img_home_cta__" style="left:124px;top:298px;width:154px;height:54px;cursor:pointer" alt="오늘의 행운 담기">
+     </div>
+    </div>
+    <img class="abs" src="__img_home_head__" style="left:0;top:0;width:402px;height:104px" alt="OCT 19 SUN">
+   </div>
+   <div class="shade"></div>
+  </div>
+
+  <!-- 친구방 (하단 내비 탭) -->
+  <div class="layer" id="friends">
+   <div class="inner">
+    <div id="frScroll">
+      <div class="fr-content">
+        <img src="__img_fr_strip__" alt="Lucky Talk, Lucky Moments" draggable="false">
+        <div class="fr-text" style="left:16px;top:79px;width:260px;height:24px">친구들과 운세를 보며 이야기를 나눠봐요</div>
+        <div class="hot" id="luckyTalk" style="left:0;top:10px;width:402px;height:100px" aria-label="Lucky Talk"></div>
+        <div class="hot" id="luckyTalkCard" style="left:18px;top:125px;width:366px;height:325px" aria-label="행운 공구방"></div>
+        <div id="frRow"><div class="fr-row-in"><img src="__img_fr_row__" alt="Lucky Moments" draggable="false">
+          <button class="moment-hot" data-moment="unahynn" style="left:20px" aria-label="Unahynn의 스토리 보기"></button>
+          <button class="moment-hot" data-moment="sumin" style="left:190px" aria-label="Sumin의 스토리 보기"></button>
+          <button class="moment-hot" data-moment="minhee" style="left:361px" aria-label="Minhee의 스토리 보기"></button>
+          <button class="moment-hot" data-moment="ssu" style="left:531px" aria-label="SSU의 스토리 보기"></button>
+          <button class="moment-hot" data-moment="kwon" style="left:702px" aria-label="Kwon의 스토리 보기"></button>
+        </div></div>
+      </div>
+      <div class="fr-pad"></div>
+    </div>
+    <img class="abs" src="__img_fr_head__" style="left:0;top:0;width:402px;height:104px" alt="친구방">
+    <div class="fr-head-t">친구방</div>
+   </div>
+   <div class="shade"></div>
+  </div>
+
+  <!-- 하단 내비: 홈·친구방·주파수 모두 같은 모양 (팀원 앱 내비와 동일) -->
+  <nav class="bottom-nav" id="appNav" aria-label="하단 메뉴"><ul class="bottom-nav__list"><li><button type="button" data-tab="home" class="bottom-nav__item"><svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.0098 3H15.0116V4.45584H16.0125V6.06766H17.0134V7.17687H18.0142V8.28609H19.0151V9.3953H20.016V10.5045H21.0169V11.6137H22.0178V12.7229H23.0187V13.8321H24.0196V14.9414H25.0205V16.0506H26.0214V17.1598H21.7752V25.9295H17.0134V19.3782H11.008V25.9295H6.36752V17.1598H2V16.0506H3.00089V14.9414H4.00178V13.8321H5.00267V12.7229H6.00356V11.6137H7.00445V10.5045H8.00534V9.3953H9.00623V8.28609H10.0071V7.17687H11.008V6.06766H12.0089V4.45584H13.0098V3Z"></path><rect x="9.03906" y="16.4648" width="10.1909" height="9.46296"></rect></svg><span>홈</span></button></li><li><button type="button" data-tab="myluck" class="bottom-nav__item"><svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor" aria-hidden="true"><path d="M15 13H13V11H11V9H9V3L13 3V5H15V3H19V9H17V11H15V13ZM15 13H17V11H19V9H25V13H23V15H25V19H19V17H17V15H15V13ZM9 19H3V15H5V13H3L3 9H9V11H11V13H13V15H11V17H9V19ZM9 19H11V17H13V15H15V17H17V19H19V25H15V23H13V25H9V19Z"></path></svg><span>내 행운</span></button></li><li><button type="button" data-tab="friends" class="bottom-nav__item"><svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.4116 3H16.9702V3.93174H17.8967V4.86348H18.8231V5.79521H19.7495V10.4539H18.8231V11.3856H17.8967V12.3174H16.9702V13.2491H11.4116V12.3174H10.4851V11.3856H9.55866V10.4539H8.63222V5.79521H9.55866V4.86348H10.4851V3.93174H11.4116V3ZM11.4116 15.1126H16.9702V16.0443H18.8231V16.9761H20.676V17.9078H21.6024V18.8395H22.5289V19.7713H23.4553V21.6348H24.3818V26.2934H23.4553V26.2094H4.92644V26.2934H4V21.6348H4.92644V19.7713H5.85289V18.8395H6.77933V17.9078H7.70578V16.9761H9.55866V16.0443H11.4116V15.1126Z"></path></svg><span>친구방</span></button></li><li><button type="button" data-tab="frequency" class="bottom-nav__item is-active" aria-current="page"><svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2322 0H15.2744V5.06944H16.2955V9.125H20.38V11.1528H19.3589V12.1667H22.4222V13.1806H26.5066V15.2083H22.4222V16.2222H19.3589V17.2361H20.38V19.2639H16.2955V23.3194H15.2744V28H13.2322V23.3194H12.2111V19.2639H8.12666V17.2361H9.14777V16.2222H6.08444V15.2083H2V13.1806H6.08444V12.1667H9.14777V11.1528H8.12666V9.125H12.2111V5.06944H13.2322V0Z"></path></svg><span>주파수</span></button></li></ul><div class="home-indicator"></div></nav>
+
+  <!-- 주파수 (팀원 앱 chiring/ 을 폰 화면 안에 그대로) -->
+  <div class="layer" id="freqLayer"><iframe id="freqFrame" title="주파수" src="about:blank"></iframe></div>
+
+  <!-- 1·2. 오늘의운세_딤 / 딤2 -->
+  <div class="layer" id="dim">
+    <!-- 딤1(흐린 카드 + 날짜) → 딤2(선명한 카드)로 자연스럽게 바뀜: 시안 이미지 그대로 -->
+    <img class="abs" src="__img_dim1_full__" style="left:0;top:0;width:402px;height:874px" alt="OCT 19 SUN">
+    <img class="abs" id="dim2" src="__img_dim2_clean__" style="left:0;top:0;width:402px;height:874px" alt="오늘의 행운 아이템">
+    <img class="abs reveal" id="dimX" src="__img_dim_x__" style="left:316px;top:214px;width:46px;height:50px" alt="닫기">
+    <img class="abs reveal" id="dimBtn" src="__img_dim_btn__" style="left:120px;top:600px;width:164px;height:72px" alt="보러가기">
+  </div>
+
+  <!-- 3. 오늘의운세_화면 -->
+  <div class="layer" id="fortune">
+    <div id="fBg">
+      <img class="abs" src="__img_f_status__" style="left:0;top:0;width:402px;height:52px" alt="">
+      <img class="abs" src="__img_f_home__" style="left:120px;top:848px;width:162px;height:24px" alt="">
+    </div>
+    <div class="abs" id="morph">
+      <img src="__img_modal_card__" alt="">
+      <img id="morphTo" src="__img_f_card__" alt="">
+    </div>
+    <img class="abs f-in" src="__img_f_header__" style="left:0;top:52px;width:402px;height:58px;transition-delay:.45s" alt="">
+    <img class="abs f-in" id="fSticker" src="__img_f_sticker__" style="left:122px;top:138px;width:166px;height:120px;transition-delay:.62s" alt="Today's Lucky">
+    <img class="abs f-in" src="__img_f_title__" style="left:40px;top:570px;width:322px;height:44px;transition-delay:.7s" alt="">
+    <img class="abs f-in" src="__img_f_body__" style="left:28px;top:614px;width:346px;height:54px;transition-delay:.78s" alt="">
+    <img class="abs f-in" src="__img_f_chip1__" style="left:80px;top:690px;width:242px;height:64px;transition-delay:.88s" alt="">
+    <img class="abs f-in" src="__img_f_chip2__" style="left:44px;top:752px;width:314px;height:62px;transition-delay:.96s" alt="">
+  </div>
+
+  <!-- Lucky Item -->
+  <div class="layer push" id="scr-item">
+   <div class="inner">
+    <img class="abs" src="__img_d_item_head__" style="left:0;top:0;width:402px;height:112px" alt="">
+    <img class="abs d-in d-hero" src="__img_d_item_hero__" style="left:18px;top:110px;width:366px;height:370px" alt="">
+    <img class="abs d-in d-body" src="__img_d_item_body__" style="left:28px;top:482px;width:346px;height:56px" alt="">
+    <img class="abs d-in d-icons" src="__img_d_item_icons__" style="left:18px;top:606px;width:366px;height:136px" alt="">
+    <div class="abs d-in d-btn" style="left:14px;top:774px;width:374px;height:74px">
+      <img class="abs press" data-next="shop1" role="button" aria-label="내 양산 찾기" src="__img_d_item_btn__" style="left:0;top:0;width:374px;height:74px;cursor:pointer" alt="내 양산 찾기">
+    </div>
+    <img class="abs" src="__img_d_item_bar__" style="left:120px;top:848px;width:162px;height:24px" alt="">
+    <div class="hot back" style="left:0;top:56px;width:72px;height:48px" aria-label="뒤로"></div>
+   </div>
+   <div class="shade"></div>
+  </div>
+
+  <!-- Lucky Place -->
+  <div class="layer push" id="scr-place">
+   <div class="inner">
+    <img class="abs" src="__img_d_place_head__" style="left:0;top:0;width:402px;height:112px" alt="">
+    <img class="abs d-in d-hero" src="__img_d_place_hero__" style="left:18px;top:110px;width:366px;height:370px" alt="">
+    <img class="abs d-in d-body" src="__img_d_place_body__" style="left:28px;top:482px;width:346px;height:56px" alt="">
+    <img class="abs d-in d-icons" src="__img_d_place_icons__" style="left:18px;top:606px;width:366px;height:136px" alt="">
+    <div class="abs d-in d-btn" style="left:14px;top:774px;width:374px;height:74px">
+      <img class="abs press" data-next="placelink" role="button" aria-label="가는 길 찾아보기" src="__img_d_place_btn__" style="left:0;top:0;width:374px;height:74px;cursor:pointer" alt="가는 길 찾아보기">
+    </div>
+    <img class="abs" src="__img_d_place_bar__" style="left:120px;top:848px;width:162px;height:24px" alt="">
+    <div class="hot back" style="left:0;top:56px;width:72px;height:48px" aria-label="뒤로"></div>
+   </div>
+   <div class="shade"></div>
+  </div>
+
+  <!-- Lucky Music -->
+  <div class="layer push" id="scr-music">
+   <div class="inner">
+    <img class="abs" src="__img_d_music_head__" style="left:0;top:0;width:402px;height:112px" alt="">
+    <img class="abs d-in d-hero" src="__img_d_music_hero__" style="left:18px;top:110px;width:366px;height:370px" alt="">
+    <img class="abs d-in d-body" src="__img_d_music_body__" style="left:28px;top:482px;width:346px;height:56px" alt="">
+    <img class="abs d-in d-icons" src="__img_d_music_icons__" style="left:18px;top:606px;width:366px;height:136px" alt="">
+    <div class="abs d-in d-btn" style="left:14px;top:774px;width:374px;height:74px">
+      <img class="abs press" data-next="musiclink" role="button" aria-label="지금 들어보기" src="__img_d_music_btn__" style="left:0;top:0;width:374px;height:74px;cursor:pointer" alt="지금 들어보기">
+    </div>
+    <img class="abs" src="__img_d_music_bar__" style="left:120px;top:848px;width:162px;height:24px" alt="">
+    <div class="hot back" style="left:0;top:56px;width:72px;height:48px" aria-label="뒤로"></div>
+   </div>
+   <div class="shade"></div>
+  </div>
+
+  <!-- Lucky Place_연결 -->
+  <div class="layer push shop" id="scr-placelink">
+   <div class="inner">
+    <img class="abs" src="__img_place_link__" style="left:0;top:0;width:402px;height:874px" alt="">
+    <div class="hot back" style="left:0;top:48px;width:64px;height:50px" aria-label="뒤로"></div>
+   </div>
+   <div class="shade"></div>
+  </div>
+
+  <!-- Lucky Music_연결 -->
+  <div class="layer push" id="scr-musiclink">
+   <div class="inner">
+    <img class="abs" src="__img_music_link__" style="left:0;top:0;width:402px;height:874px" alt="">
+    <div class="hot back" style="left:0;top:48px;width:64px;height:50px" aria-label="뒤로"></div>
+   </div>
+   <div class="shade"></div>
+  </div>
+
+  <!-- 오늘행운담기_버튼: 카메라 (아래에서 올라오는 모달) -->
+  <div class="layer push modal" id="scr-cam" data-kind="modal">
+   <div class="inner">
+    <img class="abs" src="__img_cam_base__" style="left:0;top:0;width:402px;height:874px" alt="">
+    <div class="abs" id="vf">
+      <img id="vfPhoto" src="__img_cam_photo__" alt="">
+      <div id="vfFlash"></div>
+    </div>
+    <img class="abs" src="__img_cam_chip__" style="left:176px;top:585px;width:50px;height:50px" alt="">
+    <div class="abs" id="thumb"><img id="thumbImg" src="__img_cam_thumb__" alt=""></div>
+    <div class="abs" id="shutter" role="button" aria-label="촬영"><i></i></div>
+    <div class="hot" id="captureBtn" style="left:14px;top:776px;width:374px;height:72px" aria-label="행운 담기"></div>
+    <div class="hot back" style="left:0;top:56px;width:64px;height:50px" aria-label="닫기"></div>
+   </div>
+   <div class="shade"></div>
+  </div>
+
+  <!-- 오늘 행운 담기_참 -->
+  <div class="layer push fade" id="scr-charm" data-kind="fade">
+   <div class="inner">
+    <img class="abs" src="__img_charm_bg__" style="left:0;top:0;width:402px;height:874px" alt="">
+    <img class="abs c-in" src="__img_charm_title__" style="left:14px;top:80px;width:374px;height:96px;transition-delay:.15s" alt="장소 인증 완료! 오늘의 장소 Charm">
+    <div class="abs" id="charmStage">
+      <div id="charm">
+        <img src="__img_charm__" alt="오늘의 장소 Charm">
+        <i class="sheen" id="charmSheen"></i>
+        <i class="spark" style="left:63px;top:52px"></i>
+      </div>
+    </div>
+    <img class="abs c-in press" id="charmOk" src="__img_charm_btn__" style="left:14px;top:776px;width:374px;height:72px;transition-delay:.15s;cursor:pointer" role="button" alt="확인">
+   </div>
+  </div>
+
+
+  <!-- 오늘의 행운 담기 (결과) -->
+  <div class="layer push fade" id="scr-result" data-kind="fade">
+   <div class="inner">
+    <img class="abs" src="__img_r_head__" style="left:0;top:0;width:402px;height:112px" alt="">
+    <img class="abs c-in" src="__img_r_title__" style="left:14px;top:126px;width:374px;height:102px;transition-delay:.15s" alt="불(火) 기운이 가득 채워졌어요">
+    <img class="abs c-in" id="rTrio" src="__img_r_trio__" style="left:0;top:250px;width:402px;height:220px;transition-delay:.4s" alt="">
+    <img class="abs c-in" src="__img_r_sub__" style="left:60px;top:488px;width:282px;height:78px;transition-delay:.75s" alt="오늘의 행운 인증 완료">
+    <img class="abs c-in tile" src="__img_r_tile1__" style="left:18px;top:602px;width:124px;height:158px;transition-delay:.9s" alt="">
+    <img class="abs c-in tile" src="__img_r_tile2__" style="left:142px;top:602px;width:122px;height:158px;transition-delay:1s" alt="">
+    <img class="abs c-in tile" src="__img_r_tile3__" style="left:264px;top:602px;width:122px;height:158px;transition-delay:1.1s" alt="">
+    <img class="abs c-in press" id="resultOk" src="__img_r_btn__" style="left:14px;top:776px;width:374px;height:72px;transition-delay:1.25s;cursor:pointer" role="button" alt="확인">
+    <img class="abs" src="__img_r_bar__" style="left:120px;top:848px;width:162px;height:24px" alt="">
+   </div>
+   <div class="shade"></div>
+  </div>
+
+  <!-- 오늘의 행운 담기_확인버튼: 모은 사진이 곡면 위로 펼쳐짐 -->
+  <div class="layer push" id="scr-collect">
+   <div class="inner">
+    <div id="pano"><div id="panoRing"></div></div>
+    <img class="abs" src="__img_c_head__" style="left:0;top:0;width:402px;height:206px" alt="오늘의 행운을 한곳에 모았어요">
+    <img class="abs c-in press" id="collectOk" src="__img_c_btn__" style="left:14px;top:776px;width:374px;height:72px;transition-delay:1.3s;cursor:pointer" role="button" alt="확인">
+    <img class="abs" src="__img_c_bar__" style="left:120px;top:848px;width:162px;height:24px" alt="">
+    <div class="hot back" style="left:0;top:56px;width:64px;height:50px" aria-label="뒤로"></div>
+   </div>
+   <div class="shade"></div>
+  </div>
+
+  <!-- 저녁: 오늘의 행운이 이만큼 모였어요 → 키링 (이전 프로토타입) -->
+  <div class="layer push fade" id="scr-evening" data-kind="fade">
+    <div class="ev-status">
+      <span>9:41</span>
+      <span class="icons">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="#fff"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="#fff"><path d="M8 2.6c2.3 0 4.4.9 6 2.4l1.2-1.2A10.2 10.2 0 0 0 8 .9 10.2 10.2 0 0 0 .8 3.8L2 5c1.6-1.5 3.7-2.4 6-2.4Zm0 3.4c1.4 0 2.6.5 3.6 1.4l1.2-1.2A6.8 6.8 0 0 0 8 4.3a6.8 6.8 0 0 0-4.8 1.9l1.2 1.2C5.4 6.5 6.6 6 8 6Zm0 3.3c-.6 0-1.1.2-1.4.6L8 11.3l1.4-1.4c-.3-.4-.8-.6-1.4-.6Z"/></svg>
+        <svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="#fff" opacity=".4"/><rect x="2" y="2" width="20" height="9" rx="2" fill="#fff"/><path d="M25 4.5v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2Z" fill="#fff" opacity=".4"/></svg>
+      </span>
+    </div>
+    <h1 class="ev-title" id="ev-t1"><span>오늘의 행운이</span><span>이만큼 모였어요</span></h1>
+    <h1 class="ev-title" id="ev-t2"><span>오늘의 행운을 담은</span><span>나만의 키링 완성!</span></h1>
+    <div id="ev-stage"></div>
+    <div class="ev-keyring" id="ev-keyring"></div>
+    <div class="ev-btns" id="evBtns">
+      <button class="ev-btn ghost" id="evShare" type="button">친구에게 공유</button>
+      <button class="ev-btn" id="evHome" type="button">홈으로 가기</button>
+    </div>
+    <div class="ev-home"></div>
+  </div>
+
+  <!-- 행운 공구방: 운세 순위 비교 · 운세 겹쳐보기 -->
+  <div class="layer push" id="scr-chat">
+   <div class="inner">
+    <div id="chMsgs">
+      <div class="ch-spacer"></div>
+      <div class="ch-thread" id="chThread">
+<div class="nm-name thread-a" style="top:18px">Dayun</div><img class="av thread-a" src="__img_av_dayun__" style="top:37px" alt="">
+<div class="bub you two thread-a" style="top:37px">헐 ㄹㅈㄷ 수민이 오늘 시험인데<br>운세 1등 뜸ㅋㅋㅋㅋ</div>
+<div class="bub you thread-a" style="top:110px">이 정도면 합격 스포아님?</div>
+<div class="bub me thread-a" style="top:169px">아 뭐야 나 꼴등임</div>
+<div class="bub me thread-a" style="top:215px">진심 멘헤라될것같아</div>
+<div class="nm-name thread-a" style="top:264px">Sumin</div><img class="av thread-a" src="__img_av_sumin__" style="top:283px" alt="">
+<div class="bub you thread-a" style="top:283px">아싸 오늘 운빨 미쳤다</div>
+<div class="bub you thread-a" style="top:329px">언니가 부적 쏜다 다들 받아가</div>
+<div class="bub me thread-a" style="top:389px">제발요 제발저요 저 아니면 안돼요</div>
+<div class="bub me thread-a" style="top:434px">나 오늘 발푠데 실력 밤티임ㅠ</div>
+<div class="nm-name thread-a" style="top:477px">Sumin</div><img class="av thread-a" src="__img_av_sumin__" style="top:496px" alt="">
+<div class="bub you thread-a" style="top:496px">기달기달 기운풀충전해서 보내줄게</div>
+<div class="nm-name" style="top:562px">dayun</div><img class="av" src="__img_av_dayun__" style="top:581px" alt="">
+<div class="bub you" style="top:581px">님들 내일 날씨 야르네</div>
+<div class="bub you" style="top:627px">접선하실?</div>
+<div class="bub me" style="top:687px">ㅇㅇㅇ 개좋지</div>
+<div class="bub me" style="top:735px">어디가지 성수? 용산?</div>
+<div class="nm-name" style="top:798px">sumin</div><img class="av" src="__img_av_sumin__" style="top:817px" alt="">
+<div class="bub you" style="top:817px">에 진짜 날씨 야르링이네</div>
+<div class="bub you" style="top:864px">기달려봐 운세한테 코스 맡겨봄</div>
+<div class="mixcard" id="mixBubble" role="button" aria-label="Lucky mix 겹치는 운세 확인하기" style="top:911px">
+          <img src="__img_ch_mix_logo__" alt="Lucky mix"><span>겹치는 운세 확인하기</span>
+          <i class="mix-go"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
+        </div>
+<div class="nm me" data-bottom="1070"><div class="bub me" style="top:1030px">오 누울 자리까지 정해줌 아자스</div></div>
+<div class="nm me" data-bottom="1219"><div class="placecard" style="top:1081px">
+          <img src="__img_ch_place_photo__" alt="마포 한강공원">
+          <b class="pc-tag">Lucky place</b><strong>마포 한강공원</strong><span class="pc-btn">길 찾기</span>
+        </div></div>
+<div class="nm me" data-bottom="1268"><div class="bub me" style="top:1228px">한강 야르다ㅋㅋㅋ 낼 여기 ㄱ?</div></div>
+<div class="nm you" data-bottom="1359"><div class="nm-name" style="top:1300px">dayun</div><img class="av" src="__img_av_dayun__" style="top:1319px" alt=""><div class="bub you" style="top:1319px">기운 받으면서 엽떡먹방 드가자</div></div>
+<div class="nm you" data-bottom="1428"><div class="nm-name" style="top:1369px">sumin</div><img class="av" src="__img_av_sumin__" style="top:1388px" alt=""><div class="bub you" style="top:1388px">나도 좋아 케케크룽</div></div>
+<div class="nm you" data-bottom="1476"><div class="bub you" style="top:1436px">내일 마포에서 봐 ~~!~!</div></div>
+      </div>
+    </div>
+    <div id="chFade"></div>
+    <div id="chPanel">
+      <div class="rk-row">
+        <div class="rk"><img src="__img_rk_av1__" alt=""><b>Sumin</b></div>
+        <div class="rk"><img src="__img_rk_av2__" alt=""><b>Dayun</b></div>
+        <div class="rk"><img src="__img_rk_av3__" alt=""><b>Yujin</b></div>
+      </div>
+    </div>
+    <div id="chHead">
+      <div class="ch-status"><span>9:41</span><span class="icons">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="#111"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="#111"><path d="M8 2.6c2.3 0 4.4.9 6 2.4l1.2-1.2A10.2 10.2 0 0 0 8 .9 10.2 10.2 0 0 0 .8 3.8L2 5c1.6-1.5 3.7-2.4 6-2.4Zm0 3.4c1.4 0 2.6.5 3.6 1.4l1.2-1.2A6.8 6.8 0 0 0 8 4.3a6.8 6.8 0 0 0-4.8 1.9l1.2 1.2C5.4 6.5 6.6 6 8 6Zm0 3.3c-.6 0-1.1.2-1.4.6L8 11.3l1.4-1.4c-.3-.4-.8-.6-1.4-.6Z"/></svg>
+        <svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="#111" opacity=".35"/><rect x="2" y="2" width="20" height="9" rx="2" fill="#111"/><path d="M25 4.5v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2Z" fill="#111" opacity=".4"/></svg></span></div>
+      <svg class="ch-back" viewBox="0 0 24 24" width="26" height="26"><path d="M15 4 7 12l8 8" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="ch-title">행운 공구방 <svg viewBox="0 0 20 20" width="18" height="18"><g fill="#111"><circle cx="10" cy="5.2" r="3.6"/><circle cx="10" cy="14.8" r="3.6"/><circle cx="5.2" cy="10" r="3.6"/><circle cx="14.8" cy="10" r="3.6"/></g><circle cx="10" cy="10" r="1.4" fill="#EFF0F4"/></svg> <em>3</em></div>
+      <div class="ch-chips"><span>기운 선물하기</span><span class="chip-rank">운세 순위 비교</span><span>운세 겹쳐보기</span></div>
+    </div>
+    <div id="chInput">
+      <i class="ci-plus"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 5v14M5 12h14" stroke="#9a9a9a" stroke-width="1.6" stroke-linecap="round"/></svg></i>
+      <div class="ci-field">메시지를 남겨보세요<i class="ci-send"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i></div>
+      <i class="ci-bar"></i>
+    </div>
+    <div class="hot" id="chChip" role="button" aria-label="운세 순위 비교"></div>
+    <div class="hot" id="chMixChip" role="button" aria-label="운세 겹쳐보기" style="left:298px;top:124px;width:104px;height:52px"></div>
+    <div class="hot to-freq" role="button" aria-label="기운 선물하기" style="left:20px;top:124px;width:126px;height:52px;border-radius:26px"></div>
+    <div class="hot back" style="left:0;top:56px;width:64px;height:50px" aria-label="뒤로"></div>
+
+    <!-- 운세 순위 비교_딤: 1등 카드 등장 + 오행 이모지가 위에서 내려오며 축하 -->
+    <div id="rkDim" class="dim">
+      <img class="abs" src="__img_rk_bg0__" style="left:0;top:0;width:402px;height:874px" alt="">
+      <img class="abs" id="rkBg1" src="__img_rk_bg__" style="left:0;top:0;width:402px;height:874px" alt="오늘의 행운 담당은? 1st Sumin, 2 Dayun, 3 Yujin">
+      <img class="abs" id="rkTitle0" src="__img_rk_title0__" style="left:40px;top:340px;width:322px;height:92px" alt="행운 공구방 · 오늘의 행운 담당은?">
+      <!-- 화면 속 이모지 4개만: 화면 위에서 살랑이며 내려와 제자리에 앉음 -->
+      <img class="abs drop" src="__img_rk_fire__" style="left:229px;top:66px;width:63px;height:70px;--y:-170px;--r:-28deg;--dl:1.75s" alt="">
+      <img class="abs drop" src="__img_rk_gem__" style="left:30px;top:129px;width:69px;height:64px;--y:-230px;--r:24deg;--dl:1.79s" alt="">
+      <img class="abs drop" src="__img_rk_leaf1__" style="left:256px;top:271px;width:54px;height:64px;--y:-380px;--r:-36deg;--dl:1.83s" alt="">
+      <img class="abs drop" src="__img_rk_leaf2__" style="left:304px;top:300px;width:64px;height:74px;--y:-410px;--r:30deg;--dl:1.87s" alt="">
+      <div class="hot" id="rkOk" style="left:18px;top:782px;width:182px;height:60px" aria-label="확인"></div>
+      <div class="hot press" id="rkGift" style="left:204px;top:782px;width:182px;height:60px" aria-label="기운 선물하기"></div>
+    </div>
+
+    <!-- 운세 겹쳐보기_딤1 → 딤2: 겹쳐 있던 카드가 자동으로 펼쳐짐 -->
+    <div id="mxDim" class="dim">
+      <img class="abs" src="__img_mx_bg__" style="left:0;top:0;width:402px;height:874px" alt="">
+      <img class="abs pop mx-intro" src="__img_mx_title__" style="left:96px;top:145px;width:214px;height:75px;transition-delay:.08s" alt="Lucky mix">
+      <img class="abs pop mx-intro" src="__img_mx_sub__" style="left:70px;top:225px;width:262px;height:45px;transition-delay:.16s" alt="오늘 우리에게 필요한 기운은?">
+      <img class="abs mxc" id="mxShirt" src="__img_mx_shirt__" style="left:36px;top:452px;width:210px;height:246px;--tx:-13px;--ty:-127px;--r:5deg;--s:1;--d:.12s" alt="하늘색 셔츠">
+      <img class="abs mxc" id="mxPlaylist" src="__img_mx_playlist__" style="left:196px;top:298px;width:184px;height:230px;--tx:-5px;--ty:57px;--r:18deg;--s:1;--d:.06s" alt="자신감 만땅 플리">
+      <img class="abs mxc" id="mxPicnic" src="__img_mx_picnic__" style="left:36px;top:92px;width:196px;height:244px;--tx:63px;--ty:352px;--r:-10deg;--s:1.04;--d:0s;cursor:pointer" role="button" alt="느긋한 피크닉">
+      <img class="abs mx-after" src="__img_mx_caption__" style="left:90px;top:730px;width:225px;height:40px" alt="카드를 눌러 자세히 확인해 보세요">
+      <img class="abs mx-after" src="__img_mx_ok__" style="left:16px;top:780px;width:184px;height:66px" alt="">
+      <img class="abs mx-after press" id="mxShare" src="__img_mx_share__" style="left:202px;top:780px;width:184px;height:66px;cursor:pointer" alt="결과 공유하기">
+      <div class="hot" id="mxOk" style="left:18px;top:782px;width:182px;height:60px" aria-label="확인"></div>
+    </div>
+   </div>
+   <div class="shade"></div>
+  </div>
+
+  <!-- 운세겹쳐보기_오늘의 행운 장소 연결 (Mapo River) -->
+  <div class="layer push" id="scr-mixplace">
+   <div class="inner">
+    <img class="abs" src="__img_mp_head__" style="left:0;top:0;width:402px;height:112px" alt="오늘의 행운 장소">
+    <img class="abs d-in d-hero" src="__img_mp_hero__" style="left:18px;top:110px;width:366px;height:370px" alt="Mapo River">
+    <img class="abs d-in d-body" src="__img_mp_body__" style="left:28px;top:482px;width:346px;height:56px" alt="">
+    <img class="abs d-in d-icons" src="__img_mp_icons__" style="left:18px;top:606px;width:366px;height:136px" alt="자신감 UP, 여유로운 마음, 나무의 기운">
+    <div class="abs d-in d-btn" style="left:14px;top:776px;width:374px;height:72px">
+      <img class="abs press" id="mpOk" role="button" src="__img_mp_ok__" style="left:0;top:0;width:188px;height:72px;cursor:pointer" alt="확인">
+      <img class="abs press" id="shareToChat" role="button" src="__img_mp_share__" style="left:188px;top:0;width:186px;height:72px;cursor:pointer" alt="장소 공유하기">
+    </div>
+    <img class="abs" src="__img_mp_bar__" style="left:120px;top:848px;width:162px;height:24px" alt="">
+    <div class="hot back" style="left:0;top:56px;width:72px;height:48px" aria-label="뒤로"></div>
+   </div>
+   <div class="shade"></div>
+  </div>
+
+  <!-- Lucky Item_연결1: 양산 검색 결과 -->
+  <div class="layer push shop" id="scr-shop1">
+   <div class="inner">
+    <img class="abs" src="__img_shop1__" style="left:0;top:0;width:402px;height:874px" alt="">
+    <div class="hot back" style="left:0;top:60px;width:64px;height:52px" aria-label="뒤로"></div>
+    <div class="hot" data-next="shop2" style="left:0;top:186px;width:402px;height:592px" aria-label="상품 보기"></div>
+   </div>
+   <div class="shade"></div>
+  </div>
+
+  <!-- Lucky Item_연결2: 상품 상세 -->
+  <div class="layer push shop" id="scr-shop2">
+   <div class="inner">
+    <img class="abs" src="__img_shop2__" style="left:0;top:0;width:402px;height:874px" alt="">
+    <div class="hot back" style="left:0;top:50px;width:64px;height:50px" aria-label="뒤로"></div>
+   </div>
+   <div class="shade"></div>
+  </div>
+
+ </div>
+</div>
+<div class="replay-wrap"><button class="replay" id="replayFortune">운세부터 다시 보기</button><button class="replay" id="replay">↻ 처음부터</button></div>
+
+<script>
+const phone = document.getElementById("phone");
+const scaler = document.getElementById("scaler");
+function fit() {   // 비율을 유지한 채 창 안에 맞춤
+  const s = Math.min(1, innerWidth / 402, innerHeight / 874);
+  phone.style.transform = `scale(${s})`;
+}
+addEventListener("resize", fit); fit();
+
+let timer;
+function go(state) {
+  if (state === "fortune" || state === "home") markFortuneSeen();   // 운세를 한 번 봤음
+  phone.classList.remove("s-clear", "s-fortune", "s-home");
+  const add = { clear: ["s-clear"], fortune: ["s-clear", "s-fortune"], home: ["s-clear", "s-fortune", "s-home"] }[state] || [];
+  phone.classList.add(...add);
+}
+// 페이지를 열 때는 항상 오늘의운세_딤1부터. 한 번 본 뒤 '처음부터'를 누르면 홈_기본에서 시작 (오늘의 운세는 하루 한 번)
+let fortuneSeen = false;
+function markFortuneSeen() { fortuneSeen = true; }
+let startSeq = 0;
+function start(forceFortune) {
+  clearTimeout(timer); const seq = ++startSeq;
+  phone.classList.add("no-anim");
+  phone.classList.remove("x-close");
+  resetNav();
+  const toHome = fortuneSeen && !forceFortune;
+  go(toHome ? "home" : "dim");
+  void phone.offsetWidth;
+  // 화면이 실제로 그려진 다음(두 프레임 뒤)에 애니메이션을 다시 켬 → 되돌아가는 모션이 보이지 않음
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    if (seq !== startSeq) return;
+    phone.classList.remove("no-anim");
+    // 1 → 2: 탭 없이 블러가 서서히 걷힘
+    if (!toHome) timer = setTimeout(() => go("clear"), 1100);
+  }));
+}
+
+// 2 → 3: 보러가기
+document.getElementById("dimBtn").addEventListener("click", () => {
+  if (phone.classList.contains("s-clear") && !phone.classList.contains("s-fortune")) go("fortune");
+});
+// 딤 화면의 X: 바로 홈으로
+document.getElementById("dimX").addEventListener("click", () => {
+  if (!phone.classList.contains("s-clear") || phone.classList.contains("s-fortune")) return;
+  markFortuneSeen(); clearTimeout(timer);
+  phone.classList.add("x-close", "s-fortune", "s-home");
+});
+// 3 → 4: 운세 화면 탭
+document.getElementById("fortune").addEventListener("click", () => {
+  if (phone.classList.contains("s-fortune") && !phone.classList.contains("s-home")) go("home");
+});
+// ── 하단 내비 탭: 홈 ↔ 친구방 (내 행운·주파수는 아직 화면 없음)
+let tab = "home";
+const frScroll = document.getElementById("frScroll");
+function setTab(name, instant) {
+  if (name === tab && !instant) { if (name === "friends") frScroll.scrollTo({ top: 0, behavior: "smooth" }); return; }
+  tab = name;
+  const owned = instant && !phone.classList.contains("no-anim");   // 이미 바깥에서 애니메이션을 끈 상태면 건드리지 않음
+  if (owned) phone.classList.add("no-anim");
+  phone.classList.toggle("tab-friends", name === "friends");
+  if (name === "friends") frScroll.scrollTop = 0;
+  syncNav(name);
+  if (owned) { void phone.offsetWidth; phone.classList.remove("no-anim"); }
+}
+const appNav = document.getElementById("appNav");
+function syncNav(name) {
+  appNav.querySelectorAll(".bottom-nav__item").forEach(b => {
+    const on = b.dataset.tab === name; b.classList.toggle("is-active", on);
+    if (on) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
+  });
+}
+appNav.querySelectorAll(".bottom-nav__item").forEach(b => b.addEventListener("click", () => {
+  if (stack.length > 1 || !phone.classList.contains("s-home")) return;
+  const k = b.dataset.tab;
+  if (k === "frequency") openFreq("frequency");
+  else if (k === "home" || k === "friends") setTab(k);
+}));
+// 데스크톱에서도 마우스로 끌어서 스크롤 (터치·트랙패드·휠은 기본 스크롤). 5px 넘게 움직여야 드래그로 판단 → 탭은 그대로 동작
+function dragScroll(el, axis) {
+  let down = false, moved = false, p0 = 0, s0 = 0, v = 0, last = 0, lastT = 0, raf = 0, id = 0;
+  const k = () => phone.getBoundingClientRect().height / 874;
+  const pos = e => axis === "y" ? e.clientY : e.clientX;
+  const get = () => axis === "y" ? el.scrollTop : el.scrollLeft;
+  const set = v => { if (axis === "y") el.scrollTop = v; else el.scrollLeft = v; };
+  el.addEventListener("pointerdown", e => {
+    if (e.pointerType !== "mouse") return;
+    e.stopPropagation();
+    down = true; moved = false; p0 = last = pos(e); s0 = get(); lastT = performance.now(); v = 0; id = e.pointerId; cancelAnimationFrame(raf);
+  });
+  el.addEventListener("pointermove", e => {
+    if (!down) return;
+    if (!moved && Math.abs(pos(e) - p0) > 5) { moved = true; el.setPointerCapture(id); el.classList.add("dragging"); }
+    if (!moved) return;
+    set(s0 - (pos(e) - p0) / k());
+    const now = performance.now(); v = (pos(e) - last) / k() / Math.max(8, now - lastT) * 16; last = pos(e); lastT = now;
+  });
+  const up = () => {
+    if (!down) return; down = false; el.classList.remove("dragging");
+    if (!moved) return;
+    const glide = () => { if (Math.abs(v) < .3) return; set(get() - v); v *= .93; raf = requestAnimationFrame(glide); };
+    raf = requestAnimationFrame(glide);
+  };
+  el.addEventListener("pointerup", up); el.addEventListener("pointercancel", up);
+  // 드래그 직후의 click은 무시
+  el.addEventListener("click", e => { if (moved) { e.stopPropagation(); e.preventDefault(); moved = false; } }, true);
+}
+dragScroll(frScroll, "y");
+dragScroll(document.getElementById("frRow"), "x");
+
+// ── 홈 스크롤: 카드는 그대로 따라가고, 제목·설명은 53/132 속도로만 올라가며 '오늘은'·담기 버튼은 사라짐
+const homeScroll = document.getElementById("homeScroll"), homeHello = document.getElementById("homeHello"),
+      homeTitle = document.getElementById("homeTitle"), ctaEl = document.getElementById("ctaCapture");
+function onHomeScroll() {
+  const sc = Math.max(0, homeScroll.scrollTop), p = Math.min(1, sc / 132);
+  const lift = sc - 53 * p;                                  // 스크롤에 끌려 올라간 만큼 되돌려 53px만 이동
+  homeHello.style.transform = homeTitle.style.transform = `translateY(${lift}px)`;
+  homeHello.style.opacity = Math.max(0, 1 - p * 1.8).toFixed(3);
+  ctaEl.style.opacity = Math.max(0, 1 - p * 2.4).toFixed(3);
+  ctaEl.style.pointerEvents = p > .4 ? "none" : "";
+}
+homeScroll.addEventListener("scroll", onHomeScroll, { passive: true });
+dragScroll(homeScroll, "y");
+
+// ── 화면 스택: 홈 → Lucky 상세 → 연결1 → 연결2
+const NAV_MS = 600;
+const screen = id => document.getElementById(id === "home" ? (tab === "friends" ? "friends" : "home") : "scr-" + id);
+let stack = ["home"], busy = false;
+function lock(ms) { busy = true; setTimeout(() => busy = false, ms); }
+function push(id) {
+  if (busy || !id) return;
+  const kind = screen(id).dataset.kind;
+  screen(stack[stack.length - 1]).classList.add(kind === "modal" ? "under-m" : "under");
+  screen(id).classList.add("on");
+  stack.push(id); lock(NAV_MS);
+}
+// 지금 화면을 다른 화면으로 바꿈 (카메라 → 참): 새 화면이 위에서 페이드인 된 뒤 이전 화면을 치움
+function replaceTop(id, ms = 700) {
+  const prev = screen(stack[stack.length - 1]);
+  screen(id).classList.add("on"); stack[stack.length - 1] = id;
+  setTimeout(() => { prev.classList.add("no-anim"); prev.classList.remove("on"); void prev.offsetWidth; prev.classList.remove("no-anim"); }, ms);
+}
+function pop() {
+  if (busy || stack.length < 2) return;
+  screen(stack.pop()).classList.remove("on");
+  const top = stack[stack.length - 1];
+  screen(top).classList.remove("under", "under-m");
+  // 홈으로 돌아오면 선택했던 카드는 원래 색으로
+  if (top === "home") setTimeout(() => document.querySelectorAll(".hcard.sel").forEach(c => c.classList.remove("sel")), NAV_MS * .7);
+  lock(NAV_MS);
+}
+function resetNav() {
+  stack = ["home"]; setTab("home", true);
+  if (phone.classList.contains("tab-freq")) { phone.classList.remove("tab-freq"); if (typeof freqSend === "function") freqSend("chiring:reset"); }
+  if (typeof homeScroll !== "undefined") { homeScroll.scrollTop = 0; onHomeScroll(); }
+  document.querySelectorAll(".push.on, .under, .under-m, .hcard.sel").forEach(e => e.classList.remove("on", "under", "under-m", "sel"));
+  resetCamera(); stopCharm(); if (typeof resetChat === "function") resetChat();
+  if (typeof stopPano === "function") { stopPano(); window.evStop && window.evStop(); }
+}
+
+function pressable(el) {
+  el.addEventListener("pointerdown", () => el.classList.add("pressed"));
+  ["pointerup", "pointerleave", "pointercancel"].forEach(ev => el.addEventListener(ev, () => el.classList.remove("pressed")));
+}
+// 4 → 상세: 카드가 민트로 바뀌는 걸 잠깐 보여 준 뒤 이동
+document.querySelectorAll(".hcard").forEach(card => {
+  pressable(card);
+  card.addEventListener("click", () => {
+    if (busy || stack.length > 1 || tab !== "home" || !phone.classList.contains("s-home")) return;
+    card.classList.add("sel"); lock(420);
+    setTimeout(() => { busy = false; push(card.dataset.go); }, 420);
+  });
+});
+// 상세 화면 하단 버튼 (Lucky Place·Music의 다음 화면은 아직 없음 → 눌림 반응만)
+document.querySelectorAll(".press").forEach(btn => {
+  pressable(btn);
+  btn.addEventListener("click", () => push(btn.dataset.next));
+});
+document.querySelectorAll(".hot[data-next]").forEach(h => h.addEventListener("click", () => push(h.dataset.next)));
+document.querySelectorAll(".back").forEach(b => b.addEventListener("click", pop));
+
+// ── 친구방 Lucky Talk → 행운 공구방 채팅
+const chat = document.getElementById("scr-chat"), chMsgs = document.getElementById("chMsgs"), chThread = document.getElementById("chThread");
+const THREAD_H = 1025;
+let rankSeen = false, chatTimers = [];
+function resetChat() {
+  chatTimers.forEach(clearTimeout); chatTimers = [];
+  chat.classList.add("no-anim");
+  chat.classList.remove("ranked", "dimmed", "rk-reveal", "mixing", "spread", "mode-b");
+  chat.querySelectorAll(".nm.show").forEach(m => m.classList.remove("show"));
+  chThread.style.height = THREAD_H + "px"; chMsgs.scrollTop = 0; rankSeen = false;
+  void chat.offsetWidth; chat.classList.remove("no-anim");
+}
+function openChat() {
+  if (busy || stack.length > 1 || tab !== "friends") return;
+  resetChat(); push("chat");
+}
+document.getElementById("luckyTalk").addEventListener("click", openChat);
+document.getElementById("luckyTalkCard").addEventListener("click", openChat);
+dragScroll(chMsgs, "y");
+
+// 운세 순위 비교: 처음엔 딤(순위 발표) → 확인 후엔 버튼으로 순위 바를 닫고/열기
+function celebrate() {}   // 이모지는 .dimmed 전환으로 함께 내려옴
+document.getElementById("chChip").addEventListener("click", () => {
+  if (busy || stack[stack.length - 1] !== "chat" || chat.classList.contains("mixing")) return;
+  if (chat.classList.contains("ranked")) chat.classList.remove("ranked");
+  else if (rankSeen) chat.classList.add("ranked");
+  else {
+    chat.classList.remove("rk-reveal"); chat.classList.add("dimmed");
+    chatTimers.push(setTimeout(() => chat.classList.add("rk-reveal"), 1350));
+  }
+});
+document.getElementById("rkOk").addEventListener("click", () => {
+  rankSeen = true; chat.classList.remove("dimmed", "rk-reveal");
+  setTimeout(() => chat.classList.add("ranked"), 220);   // 딤이 걷히는 동안 순위 바가 내려옴
+});
+
+// 운세 겹쳐보기: 버블이나 버튼 → 딤1(겹친 카드) → 자동으로 펼쳐짐(딤2)
+function spreadMix() { if (chat.classList.contains("mixing")) chat.classList.add("spread"); }
+function openMix() {
+  if (busy || stack[stack.length - 1] !== "chat" || chat.classList.contains("dimmed") || chat.classList.contains("mixing")) return;
+  chat.classList.remove("spread"); chat.classList.add("mixing");
+  // 딤 아래에서 채팅을 '운세 겹쳐보기' 대화로 바꿔 둠 (딤에 가려 보이지 않음)
+  setTimeout(() => { chat.classList.remove("ranked"); if (!chat.classList.contains("mode-b")) { chat.classList.add("mode-b"); chMsgs.scrollTop = 0; } }, 360);
+  chatTimers.push(setTimeout(spreadMix, 1600));   // 자동으로 펼쳐짐 (겹친 카드를 누르면 바로)
+}
+function closeMix() { chat.classList.remove("mixing", "spread"); }
+document.getElementById("mixBubble").addEventListener("click", openMix);
+document.getElementById("chMixChip").addEventListener("click", openMix);
+document.getElementById("mxOk").addEventListener("click", closeMix);
+// '느긋한 피크닉' → 오늘의 행운 장소
+["mxShirt", "mxPlaylist"].forEach(id => document.getElementById(id).addEventListener("click", spreadMix));
+document.getElementById("mxPicnic").addEventListener("click", () => {
+  if (!chat.classList.contains("spread")) { spreadMix(); return; }
+  if (busy) return;
+  push("mixplace"); setTimeout(closeMix, 650);
+});
+// 채팅방에 공유하기 → 채팅으로 돌아와 내가 장소를 보내고, 친구들이 답장 (화면이 따라 내려감)
+function showMsg(i) {
+  const m = chThread.querySelectorAll(".nm")[i];
+  chThread.style.height = (+m.dataset.bottom + 56) + "px";   // 마지막 메시지가 입력창 위 흐림 영역에 가리지 않게
+  requestAnimationFrame(() => {
+    m.classList.add("show");
+    chMsgs.scrollTo({ top: chMsgs.scrollHeight, behavior: "smooth" });
+  });
+}
+document.getElementById("mpOk").addEventListener("click", pop);
+document.getElementById("shareToChat").addEventListener("click", () => {
+  if (busy || stack[stack.length - 1] !== "mixplace") return;
+  pop();
+  chatTimers.forEach(clearTimeout); chatTimers = [];
+  chat.querySelectorAll(".nm.show").forEach(m => m.classList.remove("show"));
+  chatTimers.push(setTimeout(() => chMsgs.scrollTo({ top: chMsgs.scrollHeight, behavior: "smooth" }), 500));
+  [900, 1500, 2100, 3400, 4500, 5300].forEach((t, i) => chatTimers.push(setTimeout(() => showMsg(i), t)));
+});
+
+// ── 오늘의 행운 담기
+const ctaCapture = document.getElementById("ctaCapture");
+ctaCapture.addEventListener("click", () => {
+  if (stack.length === 1 && tab === "home" && phone.classList.contains("s-home")) { resetCamera(); push("cam"); }
+});
+
+// ── 카메라: 셔터 → 뷰파인더가 잠깐 하얘지고 화면이 멈춤(찍힘) → '행운 담기'로 참 화면
+const cam = document.getElementById("scr-cam"), shutter = document.getElementById("shutter");
+let captured = false;
+pressable(shutter);
+function capture() {
+  if (stack[stack.length - 1] !== "cam" || busy) return;
+  captured = true;
+  cam.classList.remove("flash"); void cam.offsetWidth;   // 다시 찍어도 플래시가 다시 재생되게
+  cam.classList.add("shot", "flash");
+}
+function resetCamera() { captured = false; cam.classList.remove("shot", "flash"); shutter.classList.remove("hint"); }
+shutter.addEventListener("click", capture);
+document.getElementById("captureBtn").addEventListener("click", () => {
+  if (stack[stack.length - 1] !== "cam" || busy) return;
+  if (!captured) {                      // 아직 안 찍었으면 셔터를 살짝 눌러 보이며 안내
+    shutter.classList.remove("hint"); void shutter.offsetWidth; shutter.classList.add("hint"); return;
+  }
+  replaceTop("charm"); startCharm();
+});
+
+// ── 참 등장: 키링과 같은 진자 물리 — 고리 구멍에 매달린 채 떠오르며 흔들리다 잦아듦
+const charm = document.getElementById("charm"), charmSheen = document.getElementById("charmSheen");
+const PIV = { x: 170, y: 28 };            // 참 이미지 안의 고리 구멍 (#charm 기준)
+const C = { g: 14000, L: 135, damping: 2.3, maxA: .9 };
+let charmRAF = 0;
+function startCharm() {
+  cancelAnimationFrame(charmRAF);
+  const t0 = performance.now() + 1150;   // 참 없는 화면(제목만)을 잠깐 보여 준 뒤 등장
+  let a = .09, w = 0, last = null, hist = [];
+  const path = t => {                     // 고리 위치: 아래에서 떠올라 제자리로
+    const k = Math.min(1, Math.max(0, t / 1100)), e = 1 - Math.pow(1 - k, 3);
+    return [ 0, (1 - e) * -16 ];             // 살짝 위에서 내려와 고리에 걸리듯 자리 잡음
+  };
+  const DT = 1 / 240; let simT = 0;
+  function frame(now) {
+    const t = (now - t0) / 1000;
+    if (t < 0) { charmRAF = requestAnimationFrame(frame); return; }
+    while (simT + DT <= t) {
+      simT += DT;
+      const P = path(simT * 1000); hist.push(P); if (hist.length > 3) hist.shift();
+      let ax = 0, ay = 0;
+      if (hist.length === 3) { ax = (hist[2][0] - 2 * hist[1][0] + hist[0][0]) / (DT * DT); ay = (hist[2][1] - 2 * hist[1][1] + hist[0][1]) / (DT * DT); }
+      const breeze = .7 * Math.sin(simT * 1.4) * Math.min(1, Math.max(0, simT - 2) / 2);
+      const acc = -((C.g - ay) * Math.sin(a) + ax * Math.cos(a)) / C.L - C.damping * w + breeze;
+      w += acc * DT; a = Math.max(-C.maxA, Math.min(C.maxA, a + w * DT));
+    }
+    const P = path(t * 1000);
+    // 번쩍임·블러·튀어오름 없이: 천천히 나타나며 아주 조금 커지고, 살짝 흔들리다 멈춤
+    const vis = Math.min(1, t / .8), vis3 = -(Math.cos(Math.PI * vis) - 1) / 2;
+    const sc = .97 + .03 * (1 - Math.pow(1 - Math.min(1, t / 1.1), 3));
+    const ry = 9 * Math.exp(-t / .9) * Math.sin(2 * Math.PI * .8 * t);
+    charm.style.opacity = vis3.toFixed(3);
+    charm.style.filter = "none";
+    charm.style.transform = `translate(${P[0]}px,${P[1]}px) rotate(${a}rad) rotateY(${ry}deg) scale(${sc})`;
+    const ks = Math.min(1, Math.max(0, (t - 1.2) / 1.6)), sweep = -(Math.cos(Math.PI * ks) - 1) / 2;
+    charmSheen.style.backgroundPosition = `${130 - sweep * 160 + a * 200}% 0`;
+    charm.classList.toggle("twinkle", t > 1.6);
+    charmRAF = requestAnimationFrame(frame);
+  }
+  charmRAF = requestAnimationFrame(frame);
+}
+function stopCharm() { cancelAnimationFrame(charmRAF); charm.style.opacity = 0; charm.classList.remove("twinkle"); }
+
+
+// ── 참 '확인' → 결과 화면
+document.getElementById("charmOk").addEventListener("click", () => {
+  if (busy || stack[stack.length - 1] !== "charm") return;
+  replaceTop("result"); lock(700); setTimeout(stopCharm, 750);
+});
+// ── 결과 '확인' → 모아보기 (오른쪽에서 밀려 들어옴)
+document.getElementById("resultOk").addEventListener("click", () => {
+  if (stack[stack.length - 1] !== "result") return;
+  push("collect"); startPano();
+});
+
+/* ── 모아보기: 원통 안쪽 곡면 위의 사진 띠
+   처음엔 가운데에 한 장처럼 겹쳐 있다가 양옆으로 촤르륵 펼쳐지고,
+   이후 천천히 흐름. 좌우로 끌면 돌아가고 놓으면 관성으로 멈춤. */
+const PANO = ["coffee", "poster", "girl", "place", "item", "music", "beads", "blob", "doll", "bunny", "umbrella"];
+const PANO_IMG = { coffee: "__img_col_coffee__", poster: "__img_col_poster__", girl: "__img_col_girl__",
+  place: "__img_col_place__", item: "__img_col_item__", music: "__img_col_music__", beads: "__img_col_beads__",
+  blob: "__img_col_blob__", doll: "__img_col_doll__", bunny: "__img_col_bunny__", umbrella: "__img_col_umbrella__" };
+const PV = { R: 262, Z0: 232, step: 33, spread: 1300, speed: 1.4 };   // 반지름·카메라 위치·카드 간격(도)·초당 카드 수
+const panoEl = document.getElementById("pano"), panoRing = document.getElementById("panoRing");
+const pcards = PANO.map((k, i) => {
+  const el = document.createElement("div"); el.className = "pcard";
+  el.innerHTML = `<img src="${PANO_IMG[k]}" alt="">`; panoRing.appendChild(el);
+  return { el, i, seed: (Math.sin(i * 12.9898) * 43758.5453) % 1 };
+});
+const CENTER = PANO.indexOf("item");
+let panoRAF = 0, panoT0 = 0, panoRot = 0, panoVel = 0, dragging = false, lastX = 0, lastT = 0, lastFrame = 0;
+const easeIO = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+function renderPano(now) {
+  const t = now - panoT0, dt = Math.min(.05, (now - lastFrame) / 1000); lastFrame = now;
+  if (!dragging) {
+    const ramp = Math.min(1, Math.max(0, (t - 1700) / 1400)), rampE = ramp * ramp * (3 - 2 * ramp);
+    const auto = -PV.speed * PV.step * rampE;   // 펼쳐진 뒤 부드럽게 가속해 빠르게 흐름
+    panoVel += (auto - panoVel) * Math.min(1, dt * 1.6);
+    panoRot += panoVel * dt;
+  }
+  const span = PANO.length * PV.step;
+  pcards.forEach(c => {
+    const d = Math.abs(c.i - CENTER);
+    const k = easeIO(Math.min(1, Math.max(0, (t - 250 - d * 55) / PV.spread)));   // 가운데부터 바깥으로
+    let a = (c.i - CENTER) * PV.step + panoRot;
+    a = ((a + span / 2) % span + span) % span - span / 2;                        // 끝없이 이어지는 띠
+    const ang = a * k;
+    const pile = (1 - k) * (c.seed * 16 - 8);                                     // 겹쳐 있을 때 살짝 흐트러진 각도
+    const visible = Math.abs(ang) < 74;
+    c.el.style.visibility = visible ? "visible" : "hidden";
+    if (!visible) return;
+    const z = PV.Z0 * k + 120 * (1 - k);
+    c.el.style.transform = `translateZ(${z}px) rotateY(${ang}deg) translateZ(${-PV.R}px) rotateZ(${pile}deg) scale(${.82 + .18 * k})`;
+    c.el.style.opacity = Math.min(1, (t - d * 55) / 300 + .0).toFixed(3);
+    c.el.style.zIndex = String(100 - Math.round(Math.abs(ang)));
+  });
+  panoRAF = requestAnimationFrame(renderPano);
+}
+function startPano() { cancelAnimationFrame(panoRAF); panoT0 = lastFrame = performance.now(); panoRot = 0; panoVel = 0; panoRAF = requestAnimationFrame(renderPano); }
+function stopPano() { cancelAnimationFrame(panoRAF); }
+panoEl.addEventListener("pointerdown", e => { dragging = true; lastX = e.clientX; lastT = performance.now(); panoVel = 0; panoEl.classList.add("dragging"); panoEl.setPointerCapture(e.pointerId); });
+panoEl.addEventListener("pointermove", e => {
+  if (!dragging) return;
+  const scale = phone.getBoundingClientRect().width / 402, dx = (e.clientX - lastX) / scale, now = performance.now();
+  const dRot = dx * .16; panoRot += dRot; panoVel = dRot / Math.max(.008, (now - lastT) / 1000);
+  lastX = e.clientX; lastT = now;
+});
+["pointerup", "pointercancel"].forEach(ev => panoEl.addEventListener(ev, () => { dragging = false; panoEl.classList.remove("dragging"); panoVel = Math.max(-120, Math.min(120, panoVel)); }));
+
+// ── 키링 등장 사운드 (작은 볼륨). 브라우저는 탭 없이 소리를 막으므로, '확인' 탭 순간에 미리 재생 권한을 받아 둠
+const keyringSound = new Audio("__snd_keyring__");
+keyringSound.preload = "auto"; keyringSound.volume = .55;
+let soundUnlocked = false;
+function unlockSound() {
+  if (soundUnlocked) return;
+  keyringSound.muted = true;
+  const p = keyringSound.play();
+  const done = () => { keyringSound.pause(); keyringSound.currentTime = 0; keyringSound.muted = false; soundUnlocked = true; };
+  if (p && p.then) p.then(done).catch(() => { keyringSound.muted = false; }); else done();
+}
+function playKeyringSound() {
+  try { keyringSound.muted = false; keyringSound.currentTime = 0; const p = keyringSound.play(); if (p && p.catch) p.catch(() => {}); } catch (e) {}
+}
+function stopKeyringSound() { try { keyringSound.pause(); keyringSound.currentTime = 0; } catch (e) {} }
+
+document.getElementById("collectOk").addEventListener("click", () => {
+  unlockSound();
+  if (busy || stack[stack.length - 1] !== "collect") return;
+  replaceTop("evening", 800); lock(800); setTimeout(stopPano, 800); window.evStart();
+});
+
+/* ── 저녁: 이전 프로토타입 (Spin Shutter → 키링). 이름 충돌을 막으려고 함수 안에 가둠 */
+(function () {
+  const ease = {
+    inOutCubic: t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2,
+    inOutSine: t => -(Math.cos(Math.PI * t) - 1) / 2,
+    outCubic: t => 1 - Math.pow(1 - t, 3),
+    inCubic: t => t * t * t,
+  };
+  const clamp01 = t => Math.max(0, Math.min(1, t));
+  const seg = (t, a, b) => clamp01((t - a) / (b - a));
+  const lerp = (a, b, t) => a + (b - a) * t;
+  const mixColor = (a, b, t) => `rgb(${a.map((v, i) => Math.round(lerp(v, b[i], t))).join(",")})`;
+  const root = document.getElementById("scr-evening");
+  const T = { openA: 0, openB: 1500, driftA: 1000, driftB: 2900, spinA: 2600, spinB: 4200, popAt: 4000,
+              cardsOutA: 3950, cardsOutB: 4500, ringA: 4000, ringB: 5600, t1OutA: 3000, t1OutB: 3700,
+              t2InA: 4900, t2InB: 5900, sheenA: 5600, sheenB: 7200 };
+  // 오늘 모은 사진들로 궤도를 구성
+  const PHOTOS = [PANO_IMG.bunny, PANO_IMG.girl, PANO_IMG.poster, PANO_IMG.item, PANO_IMG.doll,
+                  PANO_IMG.place, PANO_IMG.blob, PANO_IMG.music, PANO_IMG.coffee];
+  const ORB = { cx: 205, cy: 512, rx: 236, ry: 92, tilt: -12 * Math.PI / 180, backScale: .74, backOpacity: .42, backBlur: 1.2,
+                introSpin: Math.PI * 1.15, drift: .6, spinTurns: Math.PI * 2 * 2.6 };
+  const stage = document.getElementById("ev-stage");
+  const cards = PHOTOS.map((src, i) => {
+    const el = document.createElement("div"); el.className = "ev-card"; el.innerHTML = `<img src="${src}" alt="">`;
+    stage.appendChild(el); return { el, base: (i / PHOTOS.length) * Math.PI * 2 + .3 };
+  });
+  function project(theta, r) {
+    const x = ORB.rx * r * Math.sin(theta), y = -ORB.ry * r * Math.cos(theta);
+    const c = Math.cos(ORB.tilt), s = Math.sin(ORB.tilt);
+    const tangent = Math.atan2(ORB.ry * Math.sin(theta), ORB.rx * Math.cos(theta));
+    return { x: ORB.cx + x * c - y * s, y: ORB.cy + x * s + y * c, depth: (Math.cos(theta) + 1) / 2, angle: (ORB.tilt + tangent * .28) * 180 / Math.PI };
+  }
+  const spinCurve = k => Math.pow(k, 3.2);
+  function renderOrbit(t) {
+    const open = ease.inOutCubic(seg(t, T.openA, T.openB)), ks = seg(t, T.spinA, T.spinB);
+    const rot = (1 - open) * -ORB.introSpin + ease.inOutSine(seg(t, T.driftA, T.driftB)) * ORB.drift + spinCurve(ks) * ORB.spinTurns;
+    const speed = ORB.spinTurns * 3.2 * Math.pow(ks, 2.2) / ((T.spinB - T.spinA) / 1000);
+    const out = ease.inCubic(seg(t, T.cardsOutA, T.cardsOutB));
+    const radius = lerp(.12, 1, open) * (1 + out * .22);
+    const hidden = t > T.cardsOutB + 50;
+    stage.style.display = hidden ? "none" : "";
+    if (hidden) { cards.forEach(c => { c.el.style.filter = "none"; }); return; }
+    cards.forEach((c, i) => {
+      const p = project(c.base + rot, radius);
+      const scale = lerp(ORB.backScale, 1, p.depth) * lerp(.4, 1, open);
+      const opacity = lerp(ORB.backOpacity, 1, p.depth) * clamp01(open * 2.2) * (1 - out);
+      const blur = (1 - p.depth) * ORB.backBlur + (1 - open) * 7 + Math.min(9, speed * .32);
+      const angle = p.angle + (1 - open) * 36 * (i % 2 ? 1 : -1);
+      c.el.style.transform = `translate3d(${p.x}px,${p.y}px,0) rotate(${angle}deg) scale(${scale})`;
+      c.el.style.opacity = opacity.toFixed(3);
+      c.el.style.filter = `blur(${blur.toFixed(2)}px) brightness(${(1 + Math.min(.5, speed * .015)).toFixed(2)})`;
+      c.el.style.zIndex = String(Math.round(p.depth * 100));
+    });
+  }
+  const PARTS = {"ring": {"box": [252, 61, 200, 277], "com": [344.5, 197.0]}, "leaf": {"box": [90, 243, 188, 279], "com": [178.4, 389.8]}, "pearl": {"box": [251, 258, 72, 130], "com": [289.3, 320.4]}, "flower": {"box": [81, 284, 281, 450], "com": [212.2, 583.9]}, "key": {"box": [241, 287, 188, 581], "com": [339.6, 589.7]}, "bow": {"box": [375, 308, 132, 151], "com": [437.1, 388.6]}, "snow": {"box": [402, 419, 237, 319], "com": [507.2, 595.0]}};
+  const PIVOT = { ring: { at: [350, 84], parent: null }, leaf: { at: [255, 258], parent: "ring" }, pearl: { at: [292, 272], parent: "ring" },
+    flower: { at: [350, 292], parent: "ring" }, key: { at: [372, 298], parent: "ring" },
+    bow: { at: [415, 300], parent: "ring", comOverride: [488, 540] }, snow: { at: [447, 438], parent: "bow" } };
+  const ORDER = ["ring", "leaf", "pearl", "flower", "snow", "bow", "key"];
+  const SPARKS = { ring: [[350, 82]], leaf: [[138, 328]], bow: [[488, 352]], flower: [[100, 585]], snow: [[598, 655]], key: [[265, 822]] };
+  const IMG = { ring: "__img_ev_part_ring__", leaf: "__img_ev_part_leaf__", pearl: "__img_ev_part_pearl__", flower: "__img_ev_part_flower__",
+                key: "__img_ev_part_key__", bow: "__img_ev_part_bow__", snow: "__img_ev_part_snow__" };
+  const PHYS = { g: 14000, damping: 3.8, rootDamping: 5.5, rootHold: 40, maxAngle: .45 };   // 흔들림을 작고 빨리 잦아들게
+  const keyring = document.getElementById("ev-keyring");
+  const nodes = {};
+  ORDER.forEach(name => {
+    const info = PARTS[name], pv = PIVOT[name], half = v => v.map(n => n / 2);
+    const [bx, by, bw, bh] = half(info.box), p = half(pv.at), com = half(pv.comOverride || info.com);
+    const el = document.createElement("div"); el.className = "ev-part";
+    const maskCss = `-webkit-mask-image:url(${IMG[name]});mask-image:url(${IMG[name]});`;
+    el.innerHTML = `<img src="${IMG[name]}" style="left:${bx}px;top:${by}px;width:${bw}px;height:${bh}px" alt="">` +
+      `<i class="ev-sheen" style="left:${bx}px;top:${by}px;width:${bw}px;height:${bh}px;${maskCss}"></i>` +
+      (SPARKS[name] || []).map((s, k) => `<i class="ev-spark" style="left:${s[0] / 2}px;top:${s[1] / 2}px;animation-delay:${(k + ORDER.indexOf(name)) * .43}s"></i>`).join("");
+    keyring.appendChild(el);
+    nodes[name] = { el, sheen: el.querySelector(".ev-sheen"), parent: pv.parent, p, L: Math.max(20, Math.hypot(com[0] - p[0], com[1] - p[1])),
+                    a: 0, w: 0, P: [0, 0], hist: [], breezePhase: (ORDER.indexOf(name) * 1.7) % 6.28 };
+  });
+  const REST = { x: 175, y: 42 };
+  function rootPath(t) {
+    const k = ease.outCubic(seg(t, T.ringA, T.ringB));
+    const x = lerp(REST.x - 9, REST.x, k), y = lerp(REST.y + 4, REST.y, k);
+    const s = (t - T.ringB) / 1000, idle = clamp01(s / 2);
+    return [x + idle * (1.6 * Math.sin(s * .9) + .8 * Math.sin(s * 1.73 + 1)), y + idle * (1.1 * Math.sin(s * 1.1 + .4))];
+  }
+  function resetPhysics() {
+    ORDER.forEach(n => { const o = nodes[n]; o.a = 0; o.w = 0; o.hist = []; });
+    nodes.ring.a = .08; nodes.ring.w = .6;
+    nodes.leaf.a = .17; nodes.pearl.a = .2; nodes.flower.a = .14; nodes.key.a = .1; nodes.bow.a = .12; nodes.snow.a = .18;
+    ["leaf", "pearl", "flower", "key", "bow", "snow"].forEach(n => nodes[n].w = .9);
+  }
+  const rot = (v, a) => [v[0] * Math.cos(a) - v[1] * Math.sin(a), v[0] * Math.sin(a) + v[1] * Math.cos(a)];
+  function stepPhysics(t, dt) {
+    const ts = t / 1000;
+    for (const n of ORDER) {
+      const o = nodes[n];
+      if (!o.parent) o.P = rootPath(t);
+      else { const par = nodes[o.parent], d = rot([o.p[0] - par.p[0], o.p[1] - par.p[1]], par.a); o.P = [par.P[0] + d[0], par.P[1] + d[1]]; }
+      o.hist.push(o.P); if (o.hist.length > 3) o.hist.shift();
+      let ax = 0, ay = 0;
+      if (o.hist.length === 3) { const [p2, p1, p0] = o.hist; ax = (p0[0] - 2 * p1[0] + p2[0]) / (dt * dt); ay = (p0[1] - 2 * p1[1] + p2[1]) / (dt * dt); }
+      let acc = -((PHYS.g - ay) * Math.sin(o.a) + ax * Math.cos(o.a)) / o.L;
+      acc += !o.parent ? -PHYS.rootHold * o.a - PHYS.rootDamping * o.w : -PHYS.damping * o.w;
+      acc += .45 * Math.sin(ts * 1.3 + o.breezePhase) * clamp01((t - T.ringB) / 2000);
+      o.w += acc * dt; o.a = Math.max(-PHYS.maxAngle, Math.min(PHYS.maxAngle, o.a + o.w * dt));
+    }
+  }
+  function renderKeyring(t) {
+    const vis = ease.outCubic(seg(t, T.popAt, T.popAt + 800)), ks = seg(t, T.popAt, T.popAt + 1400);
+    const pop = 1 + 2.4 * Math.pow(ks - 1, 3) + 1.4 * Math.pow(ks - 1, 2);
+    keyring.style.opacity = vis.toFixed(3);
+    keyring.style.transformOrigin = "50% 45%";
+    keyring.style.transform = `scale(${lerp(.82, 1, pop)})`;
+    keyring.style.filter = vis < 1 ? `blur(${((1 - vis) * 8).toFixed(2)}px) brightness(${(1 + (1 - vis) * .8).toFixed(2)})` : "none";
+    const sheenK = ease.inOutSine(seg(t, T.sheenA, T.sheenB));
+
+    for (const n of ORDER) {
+      const o = nodes[n];
+      o.el.style.transform = `translate(${o.P[0]}px,${o.P[1]}px) rotate(${o.a}rad) translate(${-o.p[0]}px,${-o.p[1]}px)`;
+      o.sheen.style.backgroundPosition = `${130 - sheenK * 160 + o.a * 260}% 0`;
+    }
+  }
+  const t1 = [...root.querySelectorAll("#ev-t1 span")], t2 = [...root.querySelectorAll("#ev-t2 span")];
+  function textState(el, k, dir) { el.style.opacity = k.toFixed(3); el.style.transform = `translateY(${(1 - k) * 14 * dir}px)`; el.style.filter = `blur(${((1 - k) * 6).toFixed(2)}px)`; }
+  function renderChrome(t) {
+    t1.forEach((el, i) => {
+      const kin = ease.inOutCubic(seg(t, 700 + i * 140, 1600 + i * 140)), kout = ease.inOutCubic(seg(t, T.t1OutA + i * 90, T.t1OutB + i * 90));
+      textState(el, kin * (1 - kout), kout > 0 ? -1 : 1);
+    });
+    t2.forEach((el, i) => textState(el, ease.inOutCubic(seg(t, T.t2InA + i * 140, T.t2InB + i * 140)), 1));
+    evBtns.classList.toggle("show", t > T.t2InB + 300);
+    root.style.background = mixColor([18, 18, 18], [9, 7, 7], ease.inOutSine(seg(t, T.spinA, T.ringB)));
+    keyring.classList.toggle("ev-twinkle", t > T.sheenA);
+  }
+  let start = 0, simT = 0, raf = 0;
+  const DT = 1000 / 240;
+  let sndPlayed = false;
+  function frame(now) {
+    const t = now - start;
+    // 키링 등장 소리: 소리가 차오르는 정점이 키링이 나타나는 순간과 맞도록 0.35초 먼저 재생
+    if (!sndPlayed && t >= T.popAt - 350) { sndPlayed = true; playKeyringSound(); }
+    renderOrbit(t); renderChrome(t);
+    if (t >= T.ringA - 50) {
+      if (simT < T.ringA - 50) { simT = T.ringA - 50; resetPhysics(); }
+      let guard = 0;
+      while (simT + DT <= t && guard++ < 400) { simT += DT; stepPhysics(simT, DT / 1000); }
+      renderKeyring(t);
+    } else { keyring.style.opacity = 0; simT = 0; }
+    raf = requestAnimationFrame(frame);
+  }
+  const evBtns = document.getElementById("evBtns");
+  window.evStart = () => { cancelAnimationFrame(raf); start = performance.now() + 500; simT = 0; sndPlayed = false; raf = requestAnimationFrame(frame); };
+  window.evStop = () => { cancelAnimationFrame(raf); stopKeyringSound(); };
+  renderOrbit(-1); renderChrome(-1);
+})();
+
+// 키링 '홈으로 가기' → 맨 처음 화면(오늘의운세_딤1)부터
+document.getElementById("evHome").addEventListener("click", () => {
+  if (stack[stack.length - 1] !== "evening") return;
+  window.evStop(); start(true);
+});
+document.getElementById("evShare").addEventListener("click", () => {});
+document.getElementById("replay").addEventListener("click", () => start(false));
+document.getElementById("replayFortune").addEventListener("click", () => start(true));
+// 이미지(약 6MB)가 모두 준비된 뒤 시작 → 딤1이 확실히 보이고 블러가 걷히는 장면을 놓치지 않음
+// 팀원 앱(친구방·주파수: chiring/)과 연결 — 주파수 탭·기운 선물하기 → 팀원 앱, 팀원 앱의 홈 → #home 으로 돌아옴
+const freqFrame = document.getElementById("freqFrame");
+// 주파수(팀원 앱)는 한 번만 불러 두고, 화면 전환은 신호(postMessage)로 → 다시 불러오지 않아 빈 화면·무반응이 생기지 않음
+let freqLoaded = false, freqQueue = [];
+function freqSend(msg) {
+  if (freqLoaded) { try { freqFrame.contentWindow.postMessage(msg, "*"); } catch (e) {} }
+  else freqQueue.push(msg);
+}
+freqFrame.addEventListener("load", () => {
+  if (!freqFrame.getAttribute("src") || freqFrame.getAttribute("src") === "about:blank") return;
+  freqLoaded = true; const q = freqQueue; freqQueue = []; q.forEach(freqSend);
+});
+function ensureFreq() { if (!freqFrame.dataset.started) { freqFrame.dataset.started = "1"; freqFrame.src = "chiring/index.html#frequency"; } }
+function openFreq(where) {
+  ensureFreq();
+  if (typeof where === "string" && where.startsWith("moment-")) freqSend("chiring:moment:" + where.slice(7));
+  phone.classList.add("tab-freq");                 // 누르면 항상 바로 보임
+}
+function closeFreq(to) {
+  if (stack.length > 1) { resetNav(); }
+  setTab(to === "friends" ? "friends" : "home", true);
+  phone.classList.remove("tab-freq");
+  freqSend("chiring:reset");                       // 다음에 열 때 주파수 첫 화면부터 (안 보이는 동안 정리)
+}
+addEventListener("load", () => setTimeout(ensureFreq, 800));
+document.querySelectorAll(".to-freq").forEach(el => el.addEventListener("click", () => { if (!busy) openFreq("frequency"); }));
+// 친구방 Lucky Moments 카드 → 팀원 앱의 스토리 화면
+document.querySelectorAll(".moment-hot").forEach(el => el.addEventListener("click", () => {
+  if (stack.length > 1 || tab !== "friends" || phone.classList.contains("tab-freq")) return;
+  openFreq("moment-" + el.dataset.moment);
+}));
+addEventListener("message", e => {
+  if (e.data === "chiring:home") closeFreq("home");
+  if (e.data === "chiring:friends") closeFreq("friends");
+});
+function boot() {
+  const h = location.hash.slice(1);
+  if (h === "home" || h === "friends") {   // 다른 화면에서 돌아올 때는 오늘의 운세를 건너뜀
+    fortuneSeen = true; start(false);
+    if (h === "friends") setTab("friends", true);
+  } else start(false);
+}
+if (document.readyState === "complete") boot(); else addEventListener("load", boot, { once: true });
+</script>

@@ -90,15 +90,15 @@
               overscroll-behavior: contain; scrollbar-width: none; cursor: grab; -webkit-overflow-scrolling: touch; }
   #frScroll::-webkit-scrollbar { display: none; }
   #frScroll.dragging { cursor: grabbing; }
-  .fr-content { position: relative; width: 402px; height: 854px; }
+  .fr-content { position: relative; width: 402px; height: 810px; }
   /* 작은 글자는 HTML로 다시 그림 (배경색으로 이미지 글자를 덮음) */
   .fr-text { position: absolute; background: #0e0e0e; color: #ececec; font-family: "Pretendard", -apple-system, sans-serif;
              font-size: 14.5px; font-weight: 500; letter-spacing: -.35px; line-height: 24px; pointer-events: none; }
   .fr-head-t { position: absolute; left: 140px; top: 64px; width: 122px; height: 34px; background: #0e0e0e; color: #fff; text-align: center;
                font-family: "Pretendard", -apple-system, sans-serif; font-size: 18px; font-weight: 600; letter-spacing: -.4px; line-height: 34px; pointer-events: none; }
-  .fr-content > img { display: block; width: 402px; height: 854px; pointer-events: none; }
+  .fr-content > img { display: block; pointer-events: none; }
   /* Lucky Moments: 가로 스크롤 (시안 세 장을 이어 붙인 띠, 최대 480px) */
-  #frRow { position: absolute; left: 0; top: 562px; width: 402px; height: 274px; overflow-x: auto; overflow-y: hidden;
+  #frRow { position: absolute; left: 0; top: 536px; width: 402px; height: 274px; overflow-x: auto; overflow-y: hidden;
            scrollbar-width: none; overscroll-behavior-x: contain; background: #0e0e0e; }
   #frRow::-webkit-scrollbar { display: none; }
   #frRow img { display: block; width: 882px; height: 274px; pointer-events: none; }
@@ -389,6 +389,108 @@
               transition: opacity .35s var(--ease), transform .6s var(--spring); }
   .s-fortune #fSticker, .s-home #fSticker { transform: none; }
 
+
+  /* ═════ 시나리오 1 (1107 디자인) ═════ */
+  /* 홈 캐러셀 */
+  #home { isolation: isolate; }   /* 캐러셀 카드가 다른 화면(친구방 등) 위로 올라오지 않게 */
+  #carousel { position: absolute; left: 0; top: 400px; width: 402px; height: 375px; touch-action: pan-y; }
+  .ccard { position: absolute; left: 67px; top: 23px; width: 266px; height: 266px; border-radius: 34px; overflow: hidden; cursor: pointer;
+           transform-origin: 50% 50%; transition: transform .55s cubic-bezier(.65,0,.35,1), box-shadow .55s var(--ease); will-change: transform;
+           font-family: "Pretendard", -apple-system, sans-serif; }
+  .ccard[data-slot="0"] { z-index: 3; box-shadow: 0 0 46px rgba(150, 175, 255, .28); }
+  .ccard[data-slot="-1"], .ccard[data-slot="1"] { z-index: 1; }
+  .ccard[data-slot="-1"] { transform: translate(-147px, 53.5px) scale(.8); }
+  .ccard[data-slot="1"] { transform: translate(147px, 53.5px) scale(.8); }
+  .cc-bg, .cc-gray { position: absolute; inset: 0; }
+  .ccard::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.55); pointer-events: none; transition: opacity .45s var(--ease); }
+  .ccard:not([data-slot="0"])::after { opacity: 0; }
+  .cc-item { background: radial-gradient(130% 78% at 50% 108%, #24e2ff 0%, #3d9cff 34%, #9fb0ff 60%, rgba(160,178,255,0) 78%), linear-gradient(#6db7fe 0%, #8db4ff 30%, #adb1ff 52%, #9fb2ff 100%); }
+  .cc-place { background: radial-gradient(130% 78% at 50% 108%, #24f5b8 0%, #3ed8b4 34%, #a5ecd9 60%, rgba(160,235,215,0) 78%), linear-gradient(#73e8cf 0%, #8deed8 30%, #b8f2e4 52%, #a6efdc 100%); }
+  .cc-music { background: radial-gradient(130% 78% at 50% 108%, #ff5ccf 0%, #e07bff 34%, #f2b3ff 60%, rgba(240,180,255,0) 78%), linear-gradient(#f3a6ff 0%, #f6b6ff 30%, #fcc8f4 52%, #f4b8ff 100%); }
+  .cc-gray { background: #707070; opacity: 0; transition: opacity .45s var(--ease); }
+  .ccard:not([data-slot="0"]) .cc-gray { opacity: 1; }
+  .cc-t { position: absolute; left: 31px; top: 35px; height: 37.5px; width: auto; }
+  .cc-s { position: absolute; left: 30px; top: 78px; margin: 0; font-size: 16.5px; font-weight: 600; letter-spacing: -.45px; color: #121a1b; white-space: nowrap; }
+  .cc-go { position: absolute; left: 195px; top: 195px; width: 51px; height: 51px; border-radius: 50%; background: #fff; display: grid; place-items: center;
+           transition: opacity .35s var(--ease); }
+  .ccard:not([data-slot="0"]) .cc-go { opacity: 0; }
+  .ccard[data-slot="0"].pressed { transform: scale(.97); transition: transform .12s var(--ease-out); }
+
+  /* 오늘의운세_화면: 딤2와 같은 자리의 카드라 부드럽게 겹쳐 바뀜 */
+  #fortune { opacity: 0; visibility: hidden; transform: none; transition: opacity .55s var(--ease), visibility 0s linear .55s; }
+  .s-fortune #fortune { opacity: 1; visibility: visible; transform: none; transition: opacity .55s var(--ease), visibility 0s; }
+  .s-home #fortune { opacity: 0; visibility: hidden; transform: none; transition: opacity .45s var(--ease), visibility 0s linear .45s; }
+
+  /* 카메라 (새 뷰파인더·셔터 위치) */
+  #vf { left: 16px; top: 200px; width: 372px; height: 452px; overflow: hidden;
+        -webkit-mask: url(__img_n_cam_mask__) 0 0 / 100% 100%; mask: url(__img_n_cam_mask__) 0 0 / 100% 100%; }
+  #shutter { left: 161.5px; top: 676px; width: 81px; height: 81px; background: transparent; }
+  #shutter::before { content: ""; position: absolute; left: 6.5px; top: 6.5px; width: 68px; height: 68px; border-radius: 50%; background: #000; }
+  #shutter i { left: 8.5px; top: 8.5px; width: 64px; height: 64px; }
+
+  /* 참 (새 위치) */
+  #charm { left: 110px; top: 320px; width: 190px; height: 290px; transform-origin: 159px 35px; }
+
+  /* 채팅 */
+  #scr-chat { background: #121212; }
+  #chMsgs { top: 190px; height: 570px; padding-bottom: 0; }
+  .ch-thread { height: 500px; }
+  .ch-thread img { position: absolute; display: block; pointer-events: none; }
+  .ch-thread img.nm { opacity: 0; transform: translateY(14px) scale(.97); transform-origin: 100% 100%; transition: opacity .35s var(--ease), transform .5s var(--spring); }
+  .ch-thread img.nm.show { opacity: 1; transform: none; }
+  #mixBubble { transition: transform .4s var(--spring); }
+  #mixBubble:active { transform: scale(.97); }
+  #mxDim { background: #1a0f1a; }
+  /* 겹쳐보기 카드: 물음표 묶음에서 세 장이 탄력 있게 펼쳐짐 */
+  #mxDim .mxc2 { opacity: 0; cursor: pointer; transform: translate(var(--tx), var(--ty)) rotate(var(--r)) scale(.82);
+                 transition: opacity .2s, transform .2s; }
+  .mixing.spread #mxDim .mxc2 { opacity: 1; transform: none;
+                 transition: opacity .3s var(--ease), transform .62s cubic-bezier(.3, 1.35, .55, 1); }
+  .mixing.spread #mxPlace { transition-delay: .05s, .05s; } .mixing.spread #mxMusic { transition-delay: .1s, .1s; }
+  .mixing.spread #mxDim .mxc2:active { transform: scale(.96); transition: transform .12s; }
+  #mxStack { cursor: pointer; }
+
+
+  /* ═════ 시나리오 2 ═════ */
+  /* 채팅: 대화 A 아래에 대화 B. 겹쳐보기를 열면 B부터 보이게 */
+  .thread-b { position: absolute; left: 0; top: 498px; width: 402px; height: 500px; }
+  .ch-thread { height: 998px; }
+  .ch-spacer { height: 0; transition: height .55s var(--ease); }
+  .ranked .ch-spacer { height: 102px; }
+  .mode-b .ch-thread { margin-top: -498px; }
+  .mode-b .ch-thread > .thread-a { visibility: hidden; }
+  #rkPanel { position: absolute; left: 0; top: 0; width: 402px; height: 292px; overflow: hidden; pointer-events: none;
+             opacity: 0; clip-path: inset(0 0 102px 0 round 0 0 26px 26px); transition: opacity .25s var(--ease) .3s, clip-path .55s var(--ease); }
+  #rkPanel img { display: block; width: 402px; height: 292px; }
+  .ranked #rkPanel { opacity: 1; clip-path: inset(0 0 0 0 round 0 0 26px 26px); transition: opacity .2s var(--ease), clip-path .55s var(--ease); }
+  /* 순위 딤 */
+  #rkDim { background: #141414; }
+  #rkBg1 { opacity: 0; transition: opacity .2s; }
+  .dimmed.rk-reveal #rkBg1 { opacity: 1; transition: opacity .6s var(--ease) .5s; }
+  #rkTitle { opacity: 0; transform: translateY(14px); transition: opacity .2s, transform .2s; }
+  .dimmed #rkTitle { opacity: 1; transform: none; transition: opacity .55s var(--ease) .15s, transform .8s var(--ease-out) .15s; }
+  .dimmed.rk-reveal #rkTitle { transform: translateY(-179px); transition: transform .85s cubic-bezier(.65,0,.35,1); }
+  /* 1등 발표: 카드가 톡 튀어나오는 순간 스티커도 위에서 함께 떨어져 '쿵' 하고 자리 잡음 */
+  #rkCard { opacity: 0; transform: translateY(34px) scale(.78); transform-origin: 50% 40%; transition: opacity .2s, transform .2s; }
+  .dimmed.rk-reveal #rkCard { opacity: 1; transform: none; transition: opacity .35s var(--ease) .62s, transform .85s cubic-bezier(.3,1.55,.5,1) .62s; }
+  .dimmed.rk-reveal #rkDim .drop { opacity: 1; transform: none; transition: opacity .25s linear calc(.58s + var(--dl)), transform .9s cubic-bezier(.25,1.35,.45,1) calc(.58s + var(--dl)); }
+  .dimmed:not(.rk-reveal) #rkDim .drop { opacity: 0; transform: translate3d(0, var(--y), 0) rotate(var(--r)); }
+  #rkOk, #rkGift { pointer-events: none; }
+  .dimmed.rk-reveal #rkOk, .dimmed.rk-reveal #rkGift { pointer-events: auto; }
+  /* 키링_2 */
+  #evFinal { position: absolute; inset: 0; z-index: 70; pointer-events: none; }
+  #evFinal .hot { pointer-events: none; }
+  #evFinal.show .hot { pointer-events: auto; }
+  #evKeyBg { opacity: 0; transition: opacity .2s; }
+  #evFinal.show #evKeyBg { opacity: 1; transition: opacity 1s var(--ease); }
+  #evKey { opacity: 0; transform-origin: 118px 14px; will-change: transform, opacity; }
+  #evKeyTitle, #evKeyBtns { opacity: 0; transform: translateY(12px); transition: opacity .2s, transform .2s; }
+  #evFinal.show #evKeyTitle { opacity: 1; transform: none; transition: opacity .8s var(--ease) .9s, transform 1s var(--ease-out) .9s; }
+  #evFinal.show #evKeyBtns { opacity: 1; transform: none; transition: opacity .7s var(--ease) 1.5s, transform .9s var(--ease-out) 1.5s; }
+  #ev-keyring, #ev-t2 { display: none !important; }
+  #scr-evening .ev-btns { display: none; }
+
+  .phone, .scaler { overflow: clip; }   /* 폰 화면 자체가 스크롤되어 밀리지 않게 */
   .replay-wrap { position: fixed; right: 16px; bottom: 16px; z-index: 100; display: flex; gap: 8px; }
   .replay-wrap .replay { position: static; }
   #replayFortune { opacity: .6; }
@@ -396,6 +498,46 @@
     position: fixed; right: 16px; bottom: 16px; z-index: 100; font: inherit; font-size: 13px;
     padding: 8px 14px; border-radius: 999px; border: 1px solid #333; background: #1d1d1d; color: #ddd; cursor: pointer;
   }
+
+  /* ── 기본 버튼들 (하트·공유·재생 등): 눌림 반응 + 토글 + 안내 토스트 */
+  .sb { position: absolute; cursor: pointer; border-radius: 999px; z-index: 6; -webkit-tap-highlight-color: transparent; --s: 22px; }
+  .sb::before { content: ""; position: absolute; inset: 0; border-radius: inherit; background: var(--rip, rgba(255,255,255,.16));
+    opacity: 0; transform: scale(.7); transition: opacity .4s var(--ease), transform .5s var(--ease); pointer-events: none; }
+  .sb.light { --rip: rgba(0,0,0,.07); }
+  .sb.rip::before { opacity: 1; transform: none; transition: opacity .08s linear, transform .25s var(--ease-out); }
+  .sb .ic { position: absolute; left: 50%; top: 50%; width: var(--s); height: var(--s); margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+    opacity: 0; transform: scale(.4); transition: opacity .18s var(--ease), transform .4s var(--spring); pointer-events: none; }
+  .sb.on .ic { opacity: 1; transform: none; }
+  .sb.pop .ic { animation: sbPop .45s var(--ease); }
+  @keyframes sbPop { 0% { transform: scale(.4); } 55% { transform: scale(1.28); } 100% { transform: scale(1); } }
+  .sb .burst { position: absolute; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px; border-radius: 50%; background: #ff4f74; opacity: 0; pointer-events: none; }
+  .sb.pop .burst { animation: sbBurst .55s var(--ease-out); }
+  @keyframes sbBurst { 0% { opacity: 1; transform: rotate(var(--a)) translateY(-6px) scale(1); } 100% { opacity: 0; transform: rotate(var(--a)) translateY(-24px) scale(.4); } }
+  #toast { position: absolute; left: 50%; bottom: 122px; z-index: 999; transform: translate(-50%, 12px); max-width: 340px; padding: 11px 18px;
+    border-radius: 22px; background: rgba(38, 38, 42, .94); color: #fff; font-size: 13.5px; font-weight: 500; letter-spacing: -.2px; line-height: 1.35;
+    white-space: nowrap; text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,.28); opacity: 0; pointer-events: none;
+    transition: opacity .28s var(--ease), transform .4s var(--ease); }
+  #toast.show { opacity: 1; transform: translate(-50%, 0); }
+  /* 카메라 배율 1x ↔ 2x, 전환 */
+  #vfPhoto { scale: 1; transition: scale .55s var(--ease); }
+  #scr-cam.zoom2 #vfPhoto { scale: 1.6; }
+  #zoomChip { position: absolute; left: 178px; top: 588px; width: 46px; height: 46px; border-radius: 50%; background: #1f1f1d; color: #fff;
+    font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity .2s var(--ease); pointer-events: none; }
+  #scr-cam.zoom2 #zoomChip { opacity: 1; }
+  #vf.flip { animation: vfFlip .6s var(--ease); }
+  @keyframes vfFlip { 0% { transform: none; } 50% { transform: perspective(900px) rotateY(90deg); filter: brightness(.4) blur(3px); } 100% { transform: none; } }
+  /* 채팅 입력: 실제로 글을 써서 보낼 수 있음 */
+  #chInEmpty { opacity: 0; transition: opacity .15s linear; pointer-events: none; }
+  #scr-chat.typing #chInEmpty { opacity: 1; }
+  #chIn { position: absolute; left: 44px; top: 785px; width: 274px; height: 38px; border: 0; outline: 0; background: transparent; color: #fff;
+    font: inherit; font-size: 16px; letter-spacing: -.3px; caret-color: #fff; padding: 0; z-index: 6; }
+  #chSend { position: absolute; left: 329px; top: 783px; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; z-index: 6; transition: transform .3s var(--spring); }
+  #chSend.pressed { transform: scale(.88); transition: transform .1s var(--ease-out); }
+  .ch-thread > .mine { position: absolute; right: 20px; max-width: 250px; padding: 10px 16px; border-radius: 14px; background: #efefef; color: #111;
+    font-size: 14.5px; line-height: 19px; letter-spacing: -.2px; white-space: pre-wrap; word-break: break-all;
+    opacity: 0; transform: translateY(12px) scale(.96); transform-origin: 100% 100%; transition: opacity .3s var(--ease), transform .45s var(--spring); }
+  .ch-thread > .mine.show { opacity: 1; transform: none; }
+  .mx-sb { pointer-events: none !important; } .spread .mx-sb { pointer-events: auto !important; }
 </style>
 <div class="phone" id="phone">
  <div class="scaler" id="scaler">
@@ -403,24 +545,18 @@
   <!-- 4·5. 홈_기본 / 홈_탭했을 때 -->
   <div class="layer" id="home">
    <div class="inner">
-    <!-- 홈은 위아래 스크롤: 카드는 그대로 132px, 제목·설명은 53px만 올라가고 '오늘은'·담기 버튼은 사라짐 -->
-    <div id="homeScroll">
-     <div class="home-content">
-      <img class="abs" id="homeHello" src="__img_home_hello__" style="left:0;top:104px;width:402px;height:60px" alt="오늘은">
-      <img class="abs" id="homeTitle" src="__img_home_title__" style="left:0;top:164px;width:402px;height:102px" alt="木의 기운이 필요한 날">
-      <div class="abs hcard" data-go="item" role="button" aria-label="Lucky Item" style="left:14px;top:364px;width:374px;height:189px">
-        <img src="__img_item_off__" alt=""><img class="on" src="__img_item_on__" alt="">
-      </div>
-      <div class="abs hcard" data-go="place" role="button" aria-label="Lucky Place" style="left:14px;top:553px;width:374px;height:175px">
-        <img src="__img_place_off__" alt=""><img class="on" src="__img_place_on__" alt="">
-      </div>
-      <div class="abs hcard" data-go="music" role="button" aria-label="Lucky Music" style="left:14px;top:728px;width:374px;height:176px">
-        <img src="__img_music_off__" alt=""><img class="on" src="__img_music_on__" alt="">
-      </div>
-      <img class="abs press" id="ctaCapture" role="button" aria-label="오늘의 행운 담기" src="__img_home_cta__" style="left:124px;top:298px;width:154px;height:54px;cursor:pointer" alt="오늘의 행운 담기">
-     </div>
+    <img class="abs" src="__img_n_home_base__" style="left:0;top:0;width:402px;height:874px" alt="2026. 10. 19 SUN 오늘은 물의 기운이 필요한 날">
+    <div class="sb" data-fx="toast" data-msg="설정은 곧 열려요" role="button" aria-label="설정" style="left:334px;top:60px;width:44px;height:44px;"></div>
+    <div class="hot" id="ctaCapture" role="button" aria-label="오늘의 행운 담기" style="left:136px;top:356px;width:130px;height:40px;border-radius:20px"></div>
+    <!-- Lucky 캐러셀: 가운데 카드를 누르면 상세, 옆 카드를 누르거나 좌우로 밀면 회전 -->
+    <div id="carousel">
+      <div class="ccard" data-go="item" data-slot="0"><div class="cc-bg cc-item"></div><div class="cc-gray"></div>
+        <img class="cc-t" src="__img_n_t_item__" alt="Lucky Item"><p class="cc-s">기운을 채워줄 오늘의 물건</p><i class="cc-go"><svg viewBox="0 0 24 24" width="24" height="24"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></i></div>
+      <div class="ccard" data-go="place" data-slot="-1"><div class="cc-bg cc-place"></div><div class="cc-gray"></div>
+        <img class="cc-t" src="__img_n_t_place__" alt="Lucky Place"><p class="cc-s">행운을 가져다줄 오늘의 장소</p><i class="cc-go"><svg viewBox="0 0 24 24" width="24" height="24"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></i></div>
+      <div class="ccard" data-go="music" data-slot="1"><div class="cc-bg cc-music"></div><div class="cc-gray"></div>
+        <img class="cc-t" src="__img_n_t_music__" alt="Lucky Music"><p class="cc-s">기운이 차오르는 오늘의 음악</p><i class="cc-go"><svg viewBox="0 0 24 24" width="24" height="24"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></i></div>
     </div>
-    <img class="abs" src="__img_home_head__" style="left:0;top:0;width:402px;height:104px" alt="OCT 19 SUN">
    </div>
    <div class="shade"></div>
   </div>
@@ -430,10 +566,9 @@
    <div class="inner">
     <div id="frScroll">
       <div class="fr-content">
-        <img src="__img_fr_strip__" alt="Lucky Talk, Lucky Moments" draggable="false">
-        <div class="fr-text" style="left:16px;top:79px;width:260px;height:24px">친구들과 운세를 보며 이야기를 나눠봐요</div>
-        <div class="hot" id="luckyTalk" style="left:0;top:10px;width:402px;height:100px" aria-label="Lucky Talk"></div>
-        <div class="hot" id="luckyTalkCard" style="left:18px;top:125px;width:366px;height:325px" aria-label="행운 공구방"></div>
+        <img src="__img_n_fr_top__" style="width:402px;height:544px" alt="운세 수다방 · 오늘의 행운 모먼트" draggable="false">
+        <div class="hot" id="luckyTalk" style="left:0;top:16px;width:300px;height:76px" aria-label="운세 수다방"></div>
+        <div class="hot" id="luckyTalkCard" style="left:103px;top:122px;width:196px;height:317px;border-radius:30px" aria-label="행운 공구방 입장하기"></div>
         <div id="frRow"><div class="fr-row-in"><img src="__img_fr_row__" alt="Lucky Moments" draggable="false">
           <button class="moment-hot" data-moment="unahynn" style="left:20px" aria-label="Unahynn의 스토리 보기"></button>
           <button class="moment-hot" data-moment="sumin" style="left:190px" aria-label="Sumin의 스토리 보기"></button>
@@ -444,56 +579,46 @@
       </div>
       <div class="fr-pad"></div>
     </div>
-    <img class="abs" src="__img_fr_head__" style="left:0;top:0;width:402px;height:104px" alt="친구방">
-    <div class="fr-head-t">친구방</div>
+    <img class="abs" src="__img_n_fr_head__" style="left:0;top:0;width:402px;height:104px" alt="친구방">
    </div>
    <div class="shade"></div>
   </div>
 
   <!-- 하단 내비: 홈·친구방·주파수 모두 같은 모양 (팀원 앱 내비와 동일) -->
-  <nav class="bottom-nav" id="appNav" aria-label="하단 메뉴"><ul class="bottom-nav__list"><li><button type="button" data-tab="home" class="bottom-nav__item"><svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.0098 3H15.0116V4.45584H16.0125V6.06766H17.0134V7.17687H18.0142V8.28609H19.0151V9.3953H20.016V10.5045H21.0169V11.6137H22.0178V12.7229H23.0187V13.8321H24.0196V14.9414H25.0205V16.0506H26.0214V17.1598H21.7752V25.9295H17.0134V19.3782H11.008V25.9295H6.36752V17.1598H2V16.0506H3.00089V14.9414H4.00178V13.8321H5.00267V12.7229H6.00356V11.6137H7.00445V10.5045H8.00534V9.3953H9.00623V8.28609H10.0071V7.17687H11.008V6.06766H12.0089V4.45584H13.0098V3Z"></path><rect x="9.03906" y="16.4648" width="10.1909" height="9.46296"></rect></svg><span>홈</span></button></li><li><button type="button" data-tab="myluck" class="bottom-nav__item"><svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor" aria-hidden="true"><path d="M15 13H13V11H11V9H9V3L13 3V5H15V3H19V9H17V11H15V13ZM15 13H17V11H19V9H25V13H23V15H25V19H19V17H17V15H15V13ZM9 19H3V15H5V13H3L3 9H9V11H11V13H13V15H11V17H9V19ZM9 19H11V17H13V15H15V17H17V19H19V25H15V23H13V25H9V19Z"></path></svg><span>내 행운</span></button></li><li><button type="button" data-tab="friends" class="bottom-nav__item"><svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.4116 3H16.9702V3.93174H17.8967V4.86348H18.8231V5.79521H19.7495V10.4539H18.8231V11.3856H17.8967V12.3174H16.9702V13.2491H11.4116V12.3174H10.4851V11.3856H9.55866V10.4539H8.63222V5.79521H9.55866V4.86348H10.4851V3.93174H11.4116V3ZM11.4116 15.1126H16.9702V16.0443H18.8231V16.9761H20.676V17.9078H21.6024V18.8395H22.5289V19.7713H23.4553V21.6348H24.3818V26.2934H23.4553V26.2094H4.92644V26.2934H4V21.6348H4.92644V19.7713H5.85289V18.8395H6.77933V17.9078H7.70578V16.9761H9.55866V16.0443H11.4116V15.1126Z"></path></svg><span>친구방</span></button></li><li><button type="button" data-tab="frequency" class="bottom-nav__item is-active" aria-current="page"><svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2322 0H15.2744V5.06944H16.2955V9.125H20.38V11.1528H19.3589V12.1667H22.4222V13.1806H26.5066V15.2083H22.4222V16.2222H19.3589V17.2361H20.38V19.2639H16.2955V23.3194H15.2744V28H13.2322V23.3194H12.2111V19.2639H8.12666V17.2361H9.14777V16.2222H6.08444V15.2083H2V13.1806H6.08444V12.1667H9.14777V11.1528H8.12666V9.125H12.2111V5.06944H13.2322V0Z"></path></svg><span>주파수</span></button></li></ul><div class="home-indicator"></div></nav>
+  <nav class="bottom-nav" id="appNav" aria-label="하단 메뉴"><ul class="bottom-nav__list"><li><button type="button" data-tab="home" class="bottom-nav__item"><svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.0098 3H15.0116V4.45584H16.0125V6.06766H17.0134V7.17687H18.0142V8.28609H19.0151V9.3953H20.016V10.5045H21.0169V11.6137H22.0178V12.7229H23.0187V13.8321H24.0196V14.9414H25.0205V16.0506H26.0214V17.1598H21.7752V25.9295H17.0134V19.3782H11.008V25.9295H6.36752V17.1598H2V16.0506H3.00089V14.9414H4.00178V13.8321H5.00267V12.7229H6.00356V11.6137H7.00445V10.5045H8.00534V9.3953H9.00623V8.28609H10.0071V7.17687H11.008V6.06766H12.0089V4.45584H13.0098V3Z"></path><rect x="9.03906" y="16.4648" width="10.1909" height="9.46296"></rect></svg><span>홈</span></button></li><li><button type="button" data-tab="myluck" class="bottom-nav__item"><svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor" aria-hidden="true"><path d="M15 13H13V11H11V9H9V3L13 3V5H15V3H19V9H17V11H15V13ZM15 13H17V11H19V9H25V13H23V15H25V19H19V17H17V15H15V13ZM9 19H3V15H5V13H3L3 9H9V11H11V13H13V15H11V17H9V19ZM9 19H11V17H13V15H15V17H17V19H19V25H15V23H13V25H9V19Z"></path></svg><span>아카이브</span></button></li><li><button type="button" data-tab="friends" class="bottom-nav__item"><svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.4116 3H16.9702V3.93174H17.8967V4.86348H18.8231V5.79521H19.7495V10.4539H18.8231V11.3856H17.8967V12.3174H16.9702V13.2491H11.4116V12.3174H10.4851V11.3856H9.55866V10.4539H8.63222V5.79521H9.55866V4.86348H10.4851V3.93174H11.4116V3ZM11.4116 15.1126H16.9702V16.0443H18.8231V16.9761H20.676V17.9078H21.6024V18.8395H22.5289V19.7713H23.4553V21.6348H24.3818V26.2934H23.4553V26.2094H4.92644V26.2934H4V21.6348H4.92644V19.7713H5.85289V18.8395H6.77933V17.9078H7.70578V16.9761H9.55866V16.0443H11.4116V15.1126Z"></path></svg><span>친구방</span></button></li><li><button type="button" data-tab="frequency" class="bottom-nav__item is-active" aria-current="page"><svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2322 0H15.2744V5.06944H16.2955V9.125H20.38V11.1528H19.3589V12.1667H22.4222V13.1806H26.5066V15.2083H22.4222V16.2222H19.3589V17.2361H20.38V19.2639H16.2955V23.3194H15.2744V28H13.2322V23.3194H12.2111V19.2639H8.12666V17.2361H9.14777V16.2222H6.08444V15.2083H2V13.1806H6.08444V12.1667H9.14777V11.1528H8.12666V9.125H12.2111V5.06944H13.2322V0Z"></path></svg><span>기운</span></button></li></ul><div class="home-indicator"></div></nav>
 
   <!-- 주파수 (팀원 앱 chiring/ 을 폰 화면 안에 그대로) -->
   <div class="layer" id="freqLayer"><iframe id="freqFrame" title="주파수" src="about:blank"></iframe></div>
 
   <!-- 1·2. 오늘의운세_딤 / 딤2 -->
   <div class="layer" id="dim">
-    <!-- 딤1(흐린 카드 + 날짜) → 딤2(선명한 카드)로 자연스럽게 바뀜: 시안 이미지 그대로 -->
-    <img class="abs" src="__img_dim1_full__" style="left:0;top:0;width:402px;height:874px" alt="OCT 19 SUN">
-    <img class="abs" id="dim2" src="__img_dim2_clean__" style="left:0;top:0;width:402px;height:874px" alt="오늘의 행운 아이템">
-    <img class="abs reveal" id="dimX" src="__img_dim_x__" style="left:316px;top:214px;width:46px;height:50px" alt="닫기">
-    <img class="abs reveal" id="dimBtn" src="__img_dim_btn__" style="left:120px;top:600px;width:164px;height:72px" alt="보러가기">
+    <!-- 딤1(흐린 카드) → 딤2(선명한 카드): 같은 위치·크기의 시안 이미지를 교차 -->
+    <img class="abs" src="__img_n_dim1__" style="left:0;top:0;width:402px;height:874px" alt="오늘의 기운이 도착했어요!">
+    <img class="abs" id="dim2" src="__img_n_dim2__" style="left:0;top:0;width:402px;height:874px" alt="">
+    <div class="hot" id="dimX" style="left:330px;top:58px;width:56px;height:52px" aria-label="닫기"></div>
+    <img class="abs reveal" id="dimBtn" src="__img_n_dim_btn__" style="left:128px;top:582px;width:146px;height:58px" alt="보러가기">
   </div>
 
   <!-- 3. 오늘의운세_화면 -->
   <div class="layer" id="fortune">
-    <div id="fBg">
-      <img class="abs" src="__img_f_status__" style="left:0;top:0;width:402px;height:52px" alt="">
-      <img class="abs" src="__img_f_home__" style="left:120px;top:848px;width:162px;height:24px" alt="">
-    </div>
-    <div class="abs" id="morph">
-      <img src="__img_modal_card__" alt="">
-      <img id="morphTo" src="__img_f_card__" alt="">
-    </div>
-    <img class="abs f-in" src="__img_f_header__" style="left:0;top:52px;width:402px;height:58px;transition-delay:.45s" alt="">
-    <img class="abs f-in" id="fSticker" src="__img_f_sticker__" style="left:122px;top:138px;width:166px;height:120px;transition-delay:.62s" alt="Today's Lucky">
-    <img class="abs f-in" src="__img_f_title__" style="left:40px;top:570px;width:322px;height:44px;transition-delay:.7s" alt="">
-    <img class="abs f-in" src="__img_f_body__" style="left:28px;top:614px;width:346px;height:54px;transition-delay:.78s" alt="">
-    <img class="abs f-in" src="__img_f_chip1__" style="left:80px;top:690px;width:242px;height:64px;transition-delay:.88s" alt="">
-    <img class="abs f-in" src="__img_f_chip2__" style="left:44px;top:752px;width:314px;height:62px;transition-delay:.96s" alt="">
+    <img class="abs" src="__img_n_fortune__" style="left:0;top:0;width:402px;height:874px" alt="Today's Lucky · 새로운 흐름을 열어야 하는 날">
+    <div class="sb" data-fx="heart" data-on="오늘의 운세를 저장했어요" data-off="저장을 취소했어요" role="button" aria-label="좋아요" style="left:334px;top:59px;width:48px;height:48px;"><svg class="ic" viewBox="0 0 24 24"><path fill="#ff4f74" d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.2 0 3.7 1.2 5.3 3 1.6-1.8 3.1-3 5.3-3 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21z"/></svg></div>
   </div>
 
   <!-- Lucky Item -->
   <div class="layer push" id="scr-item">
    <div class="inner">
-    <img class="abs" src="__img_d_item_head__" style="left:0;top:0;width:402px;height:112px" alt="">
-    <img class="abs d-in d-hero" src="__img_d_item_hero__" style="left:18px;top:110px;width:366px;height:370px" alt="">
-    <img class="abs d-in d-body" src="__img_d_item_body__" style="left:28px;top:482px;width:346px;height:56px" alt="">
-    <img class="abs d-in d-icons" src="__img_d_item_icons__" style="left:18px;top:606px;width:366px;height:136px" alt="">
-    <div class="abs d-in d-btn" style="left:14px;top:774px;width:374px;height:74px">
-      <img class="abs press" data-next="shop1" role="button" aria-label="내 양산 찾기" src="__img_d_item_btn__" style="left:0;top:0;width:374px;height:74px;cursor:pointer" alt="내 양산 찾기">
+    <img class="abs" src="__img_n_item_head__" style="left:0;top:0;width:402px;height:112px" alt="">
+    <img class="abs d-in d-hero" src="__img_n_item_hero__" style="left:0;top:112px;width:402px;height:393px" alt="">
+    <img class="abs d-in d-body" src="__img_n_item_body__" style="left:20px;top:505px;width:362px;height:65px" alt="">
+    <img class="abs d-in d-icons" src="__img_n_item_icons__" style="left:20px;top:605px;width:362px;height:140px" alt="">
+    <div class="sb" data-fx="tap" role="button" aria-label="기운" style="left:29px;top:612px;width:104px;height:124px;border-radius:20px;"></div>
+    <div class="sb" data-fx="tap" role="button" aria-label="기운" style="left:149px;top:612px;width:104px;height:124px;border-radius:20px;"></div>
+    <div class="sb" data-fx="tap" role="button" aria-label="기운" style="left:269px;top:612px;width:104px;height:124px;border-radius:20px;"></div>
+    <div class="abs d-in d-btn" style="left:14px;top:778px;width:374px;height:72px">
+      <img class="abs press" data-next="shop1" role="button" aria-label="내 양산 찾기" src="__img_n_item_btn__" style="left:0;top:0;width:374px;height:72px;cursor:pointer" alt="내 양산 찾기">
     </div>
-    <img class="abs" src="__img_d_item_bar__" style="left:120px;top:848px;width:162px;height:24px" alt="">
+    <img class="abs" src="__img_n_item_bar__" style="left:120px;top:850px;width:162px;height:24px" alt="">
     <div class="hot back" style="left:0;top:56px;width:72px;height:48px" aria-label="뒤로"></div>
    </div>
    <div class="shade"></div>
@@ -502,14 +627,17 @@
   <!-- Lucky Place -->
   <div class="layer push" id="scr-place">
    <div class="inner">
-    <img class="abs" src="__img_d_place_head__" style="left:0;top:0;width:402px;height:112px" alt="">
-    <img class="abs d-in d-hero" src="__img_d_place_hero__" style="left:18px;top:110px;width:366px;height:370px" alt="">
-    <img class="abs d-in d-body" src="__img_d_place_body__" style="left:28px;top:482px;width:346px;height:56px" alt="">
-    <img class="abs d-in d-icons" src="__img_d_place_icons__" style="left:18px;top:606px;width:366px;height:136px" alt="">
-    <div class="abs d-in d-btn" style="left:14px;top:774px;width:374px;height:74px">
-      <img class="abs press" data-next="placelink" role="button" aria-label="가는 길 찾아보기" src="__img_d_place_btn__" style="left:0;top:0;width:374px;height:74px;cursor:pointer" alt="가는 길 찾아보기">
+    <img class="abs" src="__img_n_place_head__" style="left:0;top:0;width:402px;height:112px" alt="">
+    <img class="abs d-in d-hero" src="__img_n_place_hero__" style="left:0;top:112px;width:402px;height:393px" alt="">
+    <img class="abs d-in d-body" src="__img_n_place_body__" style="left:20px;top:505px;width:362px;height:65px" alt="">
+    <img class="abs d-in d-icons" src="__img_n_place_icons__" style="left:20px;top:605px;width:362px;height:140px" alt="">
+    <div class="sb" data-fx="tap" role="button" aria-label="기운" style="left:29px;top:612px;width:104px;height:124px;border-radius:20px;"></div>
+    <div class="sb" data-fx="tap" role="button" aria-label="기운" style="left:149px;top:612px;width:104px;height:124px;border-radius:20px;"></div>
+    <div class="sb" data-fx="tap" role="button" aria-label="기운" style="left:269px;top:612px;width:104px;height:124px;border-radius:20px;"></div>
+    <div class="abs d-in d-btn" style="left:14px;top:778px;width:374px;height:72px">
+      <img class="abs press" data-next="placelink" role="button" aria-label="가는 길 찾아보기" src="__img_n_place_btn__" style="left:0;top:0;width:374px;height:72px;cursor:pointer" alt="가는 길 찾아보기">
     </div>
-    <img class="abs" src="__img_d_place_bar__" style="left:120px;top:848px;width:162px;height:24px" alt="">
+    <img class="abs" src="__img_n_place_bar__" style="left:120px;top:850px;width:162px;height:24px" alt="">
     <div class="hot back" style="left:0;top:56px;width:72px;height:48px" aria-label="뒤로"></div>
    </div>
    <div class="shade"></div>
@@ -518,14 +646,17 @@
   <!-- Lucky Music -->
   <div class="layer push" id="scr-music">
    <div class="inner">
-    <img class="abs" src="__img_d_music_head__" style="left:0;top:0;width:402px;height:112px" alt="">
-    <img class="abs d-in d-hero" src="__img_d_music_hero__" style="left:18px;top:110px;width:366px;height:370px" alt="">
-    <img class="abs d-in d-body" src="__img_d_music_body__" style="left:28px;top:482px;width:346px;height:56px" alt="">
-    <img class="abs d-in d-icons" src="__img_d_music_icons__" style="left:18px;top:606px;width:366px;height:136px" alt="">
-    <div class="abs d-in d-btn" style="left:14px;top:774px;width:374px;height:74px">
-      <img class="abs press" data-next="musiclink" role="button" aria-label="지금 들어보기" src="__img_d_music_btn__" style="left:0;top:0;width:374px;height:74px;cursor:pointer" alt="지금 들어보기">
+    <img class="abs" src="__img_n_music_head__" style="left:0;top:0;width:402px;height:112px" alt="">
+    <img class="abs d-in d-hero" src="__img_n_music_hero__" style="left:0;top:112px;width:402px;height:393px" alt="">
+    <img class="abs d-in d-body" src="__img_n_music_body__" style="left:20px;top:505px;width:362px;height:65px" alt="">
+    <img class="abs d-in d-icons" src="__img_n_music_icons__" style="left:20px;top:605px;width:362px;height:140px" alt="">
+    <div class="sb" data-fx="tap" role="button" aria-label="기운" style="left:29px;top:612px;width:104px;height:124px;border-radius:20px;"></div>
+    <div class="sb" data-fx="tap" role="button" aria-label="기운" style="left:149px;top:612px;width:104px;height:124px;border-radius:20px;"></div>
+    <div class="sb" data-fx="tap" role="button" aria-label="기운" style="left:269px;top:612px;width:104px;height:124px;border-radius:20px;"></div>
+    <div class="abs d-in d-btn" style="left:14px;top:778px;width:374px;height:72px">
+      <img class="abs press" data-next="musiclink" role="button" aria-label="지금 들어보기" src="__img_n_music_btn__" style="left:0;top:0;width:374px;height:72px;cursor:pointer" alt="지금 들어보기">
     </div>
-    <img class="abs" src="__img_d_music_bar__" style="left:120px;top:848px;width:162px;height:24px" alt="">
+    <img class="abs" src="__img_n_music_bar__" style="left:120px;top:850px;width:162px;height:24px" alt="">
     <div class="hot back" style="left:0;top:56px;width:72px;height:48px" aria-label="뒤로"></div>
    </div>
    <div class="shade"></div>
@@ -535,6 +666,22 @@
   <div class="layer push shop" id="scr-placelink">
    <div class="inner">
     <img class="abs" src="__img_place_link__" style="left:0;top:0;width:402px;height:874px" alt="">
+    <div class="sb light"  data-fx="toggle" data-on="내 장소에서 뺐어요" data-off="내 장소에 다시 저장했어요" role="button" aria-label="저장" style="--s:30px;left:298px;top:49px;width:44px;height:44px;"><svg class="ic" viewBox="0 0 30 30"><rect x="-2" y="-2" width="34" height="34" fill="#fff"/><path fill="none" stroke="#b5b5b5" stroke-width="2" stroke-linejoin="round" d="M15 3.6l3.4 7.2 7.8.9-5.8 5.3 1.6 7.8L15 20.9l-7 3.9 1.6-7.8-5.8-5.3 7.8-.9z"/></svg></div>
+    <div class="hot back" style="left:348px;top:48px;width:50px;height:50px" aria-label="닫기"></div>
+    <div class="sb light" data-fx="toast" data-msg="출발지로 설정했어요" role="button" aria-label="출발" style="left:14px;top:197px;width:68px;height:42px;"></div>
+    <div class="sb light" data-fx="toast" data-msg="하우스오브바이닐까지 길찾기를 시작해요" role="button" aria-label="도착" style="left:88px;top:197px;width:70px;height:42px;"></div>
+    <div class="sb light" data-fx="toast" data-msg="장소 링크를 복사했어요" role="button" aria-label="공유" style="left:162px;top:197px;width:74px;height:42px;"></div>
+    <div class="sb light" data-fx="toast" data-msg="0507-1341-9546 전화 연결은 데모에서 열리지 않아요" role="button" aria-label="전화" style="left:240px;top:197px;width:74px;height:42px;"></div>
+    <div class="sb light" data-fx="toast" data-msg="문의하기는 곧 열려요" role="button" aria-label="문의" style="left:318px;top:197px;width:72px;height:42px;"></div>
+    <div class="sb light" data-fx="toast" data-msg="전화번호를 복사했어요" role="button" aria-label="복사" style="left:176px;top:734px;width:46px;height:30px;border-radius:8px;"></div>
+    <div class="sb light" data-fx="toast" data-msg="인스타그램은 데모에서 열리지 않아요" role="button" aria-label="인스타그램" style="left:10px;top:772px;width:380px;height:32px;border-radius:8px;"></div>
+    <div class="sb light" data-fx="tap" role="button" aria-label="탭" style="left:-2px;top:494px;width:52px;height:40px;border-radius:10px;"></div>
+    <div class="sb light" data-fx="tap" role="button" aria-label="탭" style="left:50px;top:494px;width:52px;height:40px;border-radius:10px;"></div>
+    <div class="sb light" data-fx="tap" role="button" aria-label="탭" style="left:108px;top:494px;width:52px;height:40px;border-radius:10px;"></div>
+    <div class="sb light" data-fx="tap" role="button" aria-label="탭" style="left:170px;top:494px;width:52px;height:40px;border-radius:10px;"></div>
+    <div class="sb light" data-fx="tap" role="button" aria-label="탭" style="left:230px;top:494px;width:52px;height:40px;border-radius:10px;"></div>
+    <div class="sb light" data-fx="tap" role="button" aria-label="탭" style="left:290px;top:494px;width:52px;height:40px;border-radius:10px;"></div>
+    <div class="sb light" data-fx="tap" role="button" aria-label="탭" style="left:350px;top:494px;width:52px;height:40px;border-radius:10px;"></div>
     <div class="hot back" style="left:0;top:48px;width:64px;height:50px" aria-label="뒤로"></div>
    </div>
    <div class="shade"></div>
@@ -544,6 +691,22 @@
   <div class="layer push" id="scr-musiclink">
    <div class="inner">
     <img class="abs" src="__img_music_link__" style="left:0;top:0;width:402px;height:874px" alt="">
+    <div class="sb" data-fx="toggle" data-on="재생 중 · SOS" data-off="일시정지했어요" role="button" aria-label="재생" style="--s:50px;left:331px;top:434px;width:50px;height:50px;"><svg class="ic" viewBox="0 0 50 50"><circle cx="25" cy="25" r="25" fill="#1ed760"/><rect x="17" y="15" width="5.5" height="20" rx="1.2" fill="#000"/><rect x="27.5" y="15" width="5.5" height="20" rx="1.2" fill="#000"/></svg></div>
+    <div class="sb" data-fx="toggle" role="button" aria-label="재생/일시정지" style="--s:30px;left:339px;top:726px;width:40px;height:40px;"><svg class="ic" viewBox="0 0 30 30"><rect x="-3" y="-3" width="36" height="36" fill="#061823"/><path d="M9 5.5v19l16-9.5z" fill="#fff"/></svg></div>
+    <div class="sb" data-fx="toast" data-msg="셔플 재생을 켰어요" role="button" aria-label="셔플" style="left:280px;top:439px;width:40px;height:40px;"></div>
+    <div class="sb" data-fx="toast" data-msg="내 라이브러리에 추가했어요" role="button" aria-label="추가" style="left:66px;top:439px;width:40px;height:40px;"></div>
+    <div class="sb" data-fx="toast" data-msg="다운로드는 Premium에서 이용할 수 있어요" role="button" aria-label="다운로드" style="left:116px;top:439px;width:40px;height:40px;"></div>
+    <div class="sb" data-fx="tap" role="button" aria-label="더보기" style="left:166px;top:439px;width:40px;height:40px;"></div>
+    <div class="sb" data-fx="toast" data-msg="좋아요 표시한 곡에 추가했어요" role="button" aria-label="추가" style="left:296px;top:726px;width:40px;height:40px;"></div>
+    <div class="sb" data-fx="toast" data-msg="연결할 기기를 찾고 있어요" role="button" aria-label="기기" style="left:248px;top:726px;width:40px;height:40px;"></div>
+    <div class="sb" data-fx="tap" role="button" aria-label="SOS" style="left:6px;top:512px;width:390px;height:48px;border-radius:10px;"></div>
+    <div class="sb" data-fx="tap" role="button" aria-label="Kill Bill" style="left:6px;top:576px;width:390px;height:48px;border-radius:10px;"></div>
+    <div class="sb" data-fx="tap" role="button" aria-label="Seek & Destroy" style="left:6px;top:642px;width:390px;height:48px;border-radius:10px;"></div>
+    <div class="sb" data-fx="tap" role="button" aria-label="메뉴" style="left:7px;top:781px;width:58px;height:58px;"></div>
+    <div class="sb" data-fx="tap" role="button" aria-label="메뉴" style="left:87px;top:781px;width:58px;height:58px;"></div>
+    <div class="sb" data-fx="tap" role="button" aria-label="메뉴" style="left:167px;top:781px;width:58px;height:58px;"></div>
+    <div class="sb" data-fx="tap" role="button" aria-label="메뉴" style="left:247px;top:781px;width:58px;height:58px;"></div>
+    <div class="sb" data-fx="tap" role="button" aria-label="메뉴" style="left:327px;top:781px;width:58px;height:58px;"></div>
     <div class="hot back" style="left:0;top:48px;width:64px;height:50px" aria-label="뒤로"></div>
    </div>
    <div class="shade"></div>
@@ -552,15 +715,19 @@
   <!-- 오늘행운담기_버튼: 카메라 (아래에서 올라오는 모달) -->
   <div class="layer push modal" id="scr-cam" data-kind="modal">
    <div class="inner">
-    <img class="abs" src="__img_cam_base__" style="left:0;top:0;width:402px;height:874px" alt="">
+    <img class="abs" src="__img_n_cam_base__" style="left:0;top:0;width:402px;height:874px" alt="오늘의 행운 담기 · 하우스오브바이닐 연남점">
     <div class="abs" id="vf">
-      <img id="vfPhoto" src="__img_cam_photo__" alt="">
+      <img id="vfPhoto" src="__img_n_cam_photo__" alt="">
       <div id="vfFlash"></div>
     </div>
-    <img class="abs" src="__img_cam_chip__" style="left:176px;top:585px;width:50px;height:50px" alt="">
-    <div class="abs" id="thumb"><img id="thumbImg" src="__img_cam_thumb__" alt=""></div>
+    <img class="abs" src="__img_n_cam_chip__" style="left:178px;top:588px;width:46px;height:46px" alt="1x">
+    <div id="zoomChip">2x</div>
+    <div class="sb" data-fx="zoom" role="button" aria-label="배율" style="left:176px;top:586px;width:50px;height:50px;"></div>
+    <div class="sb" data-fx="toast" data-msg="앨범에서 고르기는 곧 열려요" role="button" aria-label="앨범" style="left:54px;top:681px;width:52px;height:52px;"></div>
+    <div class="sb" data-fx="flip" role="button" aria-label="카메라 전환" style="left:285px;top:681px;width:52px;height:52px;"></div>
+    <div class="sb" data-fx="tap" role="button" aria-label="하우스오브바이닐 연남점" style="left:100px;top:128px;width:202px;height:44px;"></div>
     <div class="abs" id="shutter" role="button" aria-label="촬영"><i></i></div>
-    <div class="hot" id="captureBtn" style="left:14px;top:776px;width:374px;height:72px" aria-label="행운 담기"></div>
+    <div class="hot" id="captureBtn" style="left:14px;top:778px;width:374px;height:70px;border-radius:35px" aria-label="행운 담기"></div>
     <div class="hot back" style="left:0;top:56px;width:64px;height:50px" aria-label="닫기"></div>
    </div>
    <div class="shade"></div>
@@ -569,16 +736,16 @@
   <!-- 오늘 행운 담기_참 -->
   <div class="layer push fade" id="scr-charm" data-kind="fade">
    <div class="inner">
-    <img class="abs" src="__img_charm_bg__" style="left:0;top:0;width:402px;height:874px" alt="">
-    <img class="abs c-in" src="__img_charm_title__" style="left:14px;top:80px;width:374px;height:96px;transition-delay:.15s" alt="장소 인증 완료! 오늘의 장소 Charm">
+    <img class="abs" src="__img_n_charm_bg__" style="left:0;top:0;width:402px;height:874px" alt="장소 인증 완료! 오늘의 장소 Charm">
     <div class="abs" id="charmStage">
       <div id="charm">
-        <img src="__img_charm__" alt="오늘의 장소 Charm">
+        <img src="__img_n_charm__" alt="오늘의 장소 Charm">
         <i class="sheen" id="charmSheen"></i>
-        <i class="spark" style="left:63px;top:52px"></i>
+        <i class="spark" style="left:57px;top:86px"></i>
       </div>
     </div>
-    <img class="abs c-in press" id="charmOk" src="__img_charm_btn__" style="left:14px;top:776px;width:374px;height:72px;transition-delay:.15s;cursor:pointer" role="button" alt="확인">
+    <img class="abs press" id="charmOk" src="__img_n_charm_btn__" style="left:14px;top:778px;width:374px;height:68px;cursor:pointer" role="button" alt="확인">
+    <div class="hot back" style="left:16px;top:58px;width:56px;height:50px" aria-label="닫기"></div>
    </div>
   </div>
 
@@ -586,15 +753,12 @@
   <!-- 오늘의 행운 담기 (결과) -->
   <div class="layer push fade" id="scr-result" data-kind="fade">
    <div class="inner">
-    <img class="abs" src="__img_r_head__" style="left:0;top:0;width:402px;height:112px" alt="">
-    <img class="abs c-in" src="__img_r_title__" style="left:14px;top:126px;width:374px;height:102px;transition-delay:.15s" alt="불(火) 기운이 가득 채워졌어요">
-    <img class="abs c-in" id="rTrio" src="__img_r_trio__" style="left:0;top:250px;width:402px;height:220px;transition-delay:.4s" alt="">
-    <img class="abs c-in" src="__img_r_sub__" style="left:60px;top:488px;width:282px;height:78px;transition-delay:.75s" alt="오늘의 행운 인증 완료">
-    <img class="abs c-in tile" src="__img_r_tile1__" style="left:18px;top:602px;width:124px;height:158px;transition-delay:.9s" alt="">
-    <img class="abs c-in tile" src="__img_r_tile2__" style="left:142px;top:602px;width:122px;height:158px;transition-delay:1s" alt="">
-    <img class="abs c-in tile" src="__img_r_tile3__" style="left:264px;top:602px;width:122px;height:158px;transition-delay:1.1s" alt="">
-    <img class="abs c-in press" id="resultOk" src="__img_r_btn__" style="left:14px;top:776px;width:374px;height:72px;transition-delay:1.25s;cursor:pointer" role="button" alt="확인">
-    <img class="abs" src="__img_r_bar__" style="left:120px;top:848px;width:162px;height:24px" alt="">
+    <img class="abs" src="__img_n_result_base__" style="left:0;top:0;width:402px;height:874px" alt="">
+    <img class="abs c-in" src="__img_n_res_title__" style="left:14px;top:135px;width:374px;height:85px;transition-delay:.15s" alt="물의 기운이 가득 채워졌어요">
+    <img class="abs c-in" src="__img_n_res_trio__" style="left:0;top:245px;width:402px;height:225px;transition-delay:.35s" alt="">
+    <img class="abs c-in" src="__img_n_res_sub__" style="left:60px;top:505px;width:282px;height:75px;transition-delay:.6s" alt="오늘의 행운 인증 완료">
+    <img class="abs c-in tile" src="__img_n_res_tiles__" style="left:14px;top:620px;width:374px;height:125px;transition-delay:.75s" alt="안정의 기운 · 기운의 순환 · 안정된 에너지">
+    <img class="abs c-in press" id="resultOk" src="__img_n_res_btn__" style="left:14px;top:778px;width:374px;height:68px;transition-delay:.95s;cursor:pointer" role="button" alt="확인">
    </div>
    <div class="shade"></div>
   </div>
@@ -625,107 +789,75 @@
     <h1 class="ev-title" id="ev-t2"><span>오늘의 행운을 담은</span><span>나만의 키링 완성!</span></h1>
     <div id="ev-stage"></div>
     <div class="ev-keyring" id="ev-keyring"></div>
-    <div class="ev-btns" id="evBtns">
-      <button class="ev-btn ghost" id="evShare" type="button">친구에게 공유</button>
-      <button class="ev-btn" id="evHome" type="button">홈으로 가기</button>
+    <div class="ev-btns" id="evBtns"></div>
+    <div id="evFinal">
+      <img class="abs" id="evKeyBg" src="__img_n_key_bg__" style="left:0;top:0;width:402px;height:874px" alt="">
+      <img class="abs" id="evKeyTitle" src="__img_n_key_title__" style="left:14px;top:108px;width:316px;height:88px" alt="오늘의 행운을 담은 나만의 키링 완성!">
+      <img class="abs" id="evKey" src="__img_n_key__" style="left:90px;top:270px;width:310px;height:410px" alt="나만의 행운 키링">
+      <img class="abs" id="evKeyBtns" src="__img_n_key_btns__" style="left:14px;top:780px;width:374px;height:66px" alt="친구에게 공유 · 홈으로 가기">
+      <div class="hot" id="evShare" style="left:20px;top:784px;width:176px;height:58px;border-radius:29px" aria-label="친구에게 공유"></div>
+      <div class="hot" id="evHome" style="left:206px;top:784px;width:176px;height:58px;border-radius:29px" aria-label="홈으로 가기"></div>
     </div>
     <div class="ev-home"></div>
   </div>
 
-  <!-- 행운 공구방: 운세 순위 비교 · 운세 겹쳐보기 -->
+  <!-- 행운 공구방: 운세 겹쳐보기 -->
   <div class="layer push" id="scr-chat">
    <div class="inner">
+    <img class="abs" src="__img_n_chat_bg__" style="left:0;top:0;width:402px;height:874px" alt="">
     <div id="chMsgs">
       <div class="ch-spacer"></div>
       <div class="ch-thread" id="chThread">
-<div class="nm-name thread-a" style="top:18px">Dayun</div><img class="av thread-a" src="__img_av_dayun__" style="top:37px" alt="">
-<div class="bub you two thread-a" style="top:37px">헐 ㄹㅈㄷ 수민이 오늘 시험인데<br>운세 1등 뜸ㅋㅋㅋㅋ</div>
-<div class="bub you thread-a" style="top:110px">이 정도면 합격 스포아님?</div>
-<div class="bub me thread-a" style="top:169px">아 뭐야 나 꼴등임</div>
-<div class="bub me thread-a" style="top:215px">진심 멘헤라될것같아</div>
-<div class="nm-name thread-a" style="top:264px">Sumin</div><img class="av thread-a" src="__img_av_sumin__" style="top:283px" alt="">
-<div class="bub you thread-a" style="top:283px">아싸 오늘 운빨 미쳤다</div>
-<div class="bub you thread-a" style="top:329px">언니가 부적 쏜다 다들 받아가</div>
-<div class="bub me thread-a" style="top:389px">제발요 제발저요 저 아니면 안돼요</div>
-<div class="bub me thread-a" style="top:434px">나 오늘 발푠데 실력 밤티임ㅠ</div>
-<div class="nm-name thread-a" style="top:477px">Sumin</div><img class="av thread-a" src="__img_av_sumin__" style="top:496px" alt="">
-<div class="bub you thread-a" style="top:496px">기달기달 기운풀충전해서 보내줄게</div>
-<div class="nm-name" style="top:562px">dayun</div><img class="av" src="__img_av_dayun__" style="top:581px" alt="">
-<div class="bub you" style="top:581px">님들 내일 날씨 야르네</div>
-<div class="bub you" style="top:627px">접선하실?</div>
-<div class="bub me" style="top:687px">ㅇㅇㅇ 개좋지</div>
-<div class="bub me" style="top:735px">어디가지 성수? 용산?</div>
-<div class="nm-name" style="top:798px">sumin</div><img class="av" src="__img_av_sumin__" style="top:817px" alt="">
-<div class="bub you" style="top:817px">에 진짜 날씨 야르링이네</div>
-<div class="bub you" style="top:864px">기달려봐 운세한테 코스 맡겨봄</div>
-<div class="mixcard" id="mixBubble" role="button" aria-label="Lucky mix 겹치는 운세 확인하기" style="top:911px">
-          <img src="__img_ch_mix_logo__" alt="Lucky mix"><span>겹치는 운세 확인하기</span>
-          <i class="mix-go"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i>
-        </div>
-<div class="nm me" data-bottom="1070"><div class="bub me" style="top:1030px">오 누울 자리까지 정해줌 아자스</div></div>
-<div class="nm me" data-bottom="1219"><div class="placecard" style="top:1081px">
-          <img src="__img_ch_place_photo__" alt="마포 한강공원">
-          <b class="pc-tag">Lucky place</b><strong>마포 한강공원</strong><span class="pc-btn">길 찾기</span>
-        </div></div>
-<div class="nm me" data-bottom="1268"><div class="bub me" style="top:1228px">한강 야르다ㅋㅋㅋ 낼 여기 ㄱ?</div></div>
-<div class="nm you" data-bottom="1359"><div class="nm-name" style="top:1300px">dayun</div><img class="av" src="__img_av_dayun__" style="top:1319px" alt=""><div class="bub you" style="top:1319px">기운 받으면서 엽떡먹방 드가자</div></div>
-<div class="nm you" data-bottom="1428"><div class="nm-name" style="top:1369px">sumin</div><img class="av" src="__img_av_sumin__" style="top:1388px" alt=""><div class="bub you" style="top:1388px">나도 좋아 케케크룽</div></div>
-<div class="nm you" data-bottom="1476"><div class="bub you" style="top:1436px">내일 마포에서 봐 ~~!~!</div></div>
+        <img class="thread-a" src="__img_n_chat_a__" style="left:0;top:5px;width:402px;height:485px" alt="Dayun: 헐 수민이 오늘 시험인데 운세 1등 뜸 / Sumin: 아싸 오늘 운빨 미쳤다">
+        <div class="thread-b">
+        <img src="__img_n_chat_msgs__" style="left:0;top:0;width:402px;height:500px" alt="dayun: 님들 내일 날씨 야르네 / sumin: 기달려봐 운세한테 코스 맡겨봄">
+        <div class="hot" id="mixBubble" role="button" aria-label="눌러서 겹치는 운세 확인하기" style="left:66px;top:383px;width:244px;height:96px;border-radius:22px"></div>
+        <img class="nm" data-bottom="1052" src="__img_n_chat_new0__" style="left:0;top:506px;width:402px;height:48px" alt="">
+        <img class="nm" data-bottom="1200" src="__img_n_chat_new1__" style="left:0;top:554px;width:402px;height:148px" alt="">
+        <img class="nm" data-bottom="1254" src="__img_n_chat_new2__" style="left:0;top:702px;width:402px;height:54px" alt="">
+        <img class="nm" data-bottom="1324" src="__img_n_chat_new3__" style="left:0;top:760px;width:402px;height:66px" alt="">
+        <img class="nm" data-bottom="1390" src="__img_n_chat_new4__" style="left:0;top:828px;width:402px;height:64px" alt="">
+        <img class="nm" data-bottom="1446" src="__img_n_chat_new5__" style="left:0;top:892px;width:402px;height:56px" alt="">
+      </div>
       </div>
     </div>
-    <div id="chFade"></div>
-    <div id="chPanel">
-      <div class="rk-row">
-        <div class="rk"><img src="__img_rk_av1__" alt=""><b>Sumin</b></div>
-        <div class="rk"><img src="__img_rk_av2__" alt=""><b>Dayun</b></div>
-        <div class="rk"><img src="__img_rk_av3__" alt=""><b>Yujin</b></div>
-      </div>
-    </div>
-    <div id="chHead">
-      <div class="ch-status"><span>9:41</span><span class="icons">
-        <svg width="18" height="12" viewBox="0 0 18 12" fill="#111"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
-        <svg width="16" height="12" viewBox="0 0 16 12" fill="#111"><path d="M8 2.6c2.3 0 4.4.9 6 2.4l1.2-1.2A10.2 10.2 0 0 0 8 .9 10.2 10.2 0 0 0 .8 3.8L2 5c1.6-1.5 3.7-2.4 6-2.4Zm0 3.4c1.4 0 2.6.5 3.6 1.4l1.2-1.2A6.8 6.8 0 0 0 8 4.3a6.8 6.8 0 0 0-4.8 1.9l1.2 1.2C5.4 6.5 6.6 6 8 6Zm0 3.3c-.6 0-1.1.2-1.4.6L8 11.3l1.4-1.4c-.3-.4-.8-.6-1.4-.6Z"/></svg>
-        <svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="#111" opacity=".35"/><rect x="2" y="2" width="20" height="9" rx="2" fill="#111"/><path d="M25 4.5v4c.8-.3 1.3-1.1 1.3-2s-.5-1.7-1.3-2Z" fill="#111" opacity=".4"/></svg></span></div>
-      <svg class="ch-back" viewBox="0 0 24 24" width="26" height="26"><path d="M15 4 7 12l8 8" fill="none" stroke="#111" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <div class="ch-title">행운 공구방 <svg viewBox="0 0 20 20" width="18" height="18"><g fill="#111"><circle cx="10" cy="5.2" r="3.6"/><circle cx="10" cy="14.8" r="3.6"/><circle cx="5.2" cy="10" r="3.6"/><circle cx="14.8" cy="10" r="3.6"/></g><circle cx="10" cy="10" r="1.4" fill="#EFF0F4"/></svg> <em>3</em></div>
-      <div class="ch-chips"><span>기운 선물하기</span><span class="chip-rank">운세 순위 비교</span><span>운세 겹쳐보기</span></div>
-    </div>
-    <div id="chInput">
-      <i class="ci-plus"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 5v14M5 12h14" stroke="#9a9a9a" stroke-width="1.6" stroke-linecap="round"/></svg></i>
-      <div class="ci-field">메시지를 남겨보세요<i class="ci-send"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M12 19V5M6 11l6-6 6 6" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></i></div>
-      <i class="ci-bar"></i>
-    </div>
-    <div class="hot" id="chChip" role="button" aria-label="운세 순위 비교"></div>
-    <div class="hot" id="chMixChip" role="button" aria-label="운세 겹쳐보기" style="left:298px;top:124px;width:104px;height:52px"></div>
-    <div class="hot to-freq" role="button" aria-label="기운 선물하기" style="left:20px;top:124px;width:126px;height:52px;border-radius:26px"></div>
-    <div class="hot back" style="left:0;top:56px;width:64px;height:50px" aria-label="뒤로"></div>
+    <img class="abs" src="__img_n_chat_head__" style="left:0;top:0;width:402px;height:190px" alt="행운 공구방 3">
+    <div id="rkPanel"><img src="__img_n_rank_panel__" alt="순위: Sumin 1, Dayun 2, Yujin 3"></div>
+    <img class="abs" src="__img_n_chat_input__" style="left:0;top:760px;width:402px;height:114px" alt="메시지를 남겨보세요">
+    <img class="abs" id="chInEmpty" src="__img_n_chat_input_empty__" style="left:0;top:760px;width:402px;height:114px" alt="">
+    <input id="chIn" type="text" autocomplete="off" enterkeyhint="send" aria-label="메시지를 남겨보세요" maxlength="60">
+    <div id="chSend" role="button" aria-label="보내기"></div>
+    <div class="hot to-freq" role="button" aria-label="기운 선물하기" style="left:20px;top:134px;width:106px;height:40px;border-radius:20px"></div>
+    <div class="hot" id="chChip" role="button" aria-label="운세 순위 비교" style="left:132px;top:134px;width:110px;height:40px;border-radius:20px"></div>
+    <div class="hot" id="chMixChip" role="button" aria-label="운세 겹쳐보기" style="left:246px;top:134px;width:108px;height:40px;border-radius:20px"></div>
+    <div class="hot back" style="left:16px;top:58px;width:56px;height:50px" aria-label="뒤로"></div>
 
-    <!-- 운세 순위 비교_딤: 1등 카드 등장 + 오행 이모지가 위에서 내려오며 축하 -->
+    <!-- 운세 순위 비교_딤0(제목만) → 딤1(1등 발표): 제목이 위로 올라가고 1등 카드·이모지가 나타남 -->
     <div id="rkDim" class="dim">
-      <img class="abs" src="__img_rk_bg0__" style="left:0;top:0;width:402px;height:874px" alt="">
-      <img class="abs" id="rkBg1" src="__img_rk_bg__" style="left:0;top:0;width:402px;height:874px" alt="오늘의 행운 담당은? 1st Sumin, 2 Dayun, 3 Yujin">
-      <img class="abs" id="rkTitle0" src="__img_rk_title0__" style="left:40px;top:340px;width:322px;height:92px" alt="행운 공구방 · 오늘의 행운 담당은?">
-      <!-- 화면 속 이모지 4개만: 화면 위에서 살랑이며 내려와 제자리에 앉음 -->
-      <img class="abs drop" src="__img_rk_fire__" style="left:229px;top:66px;width:63px;height:70px;--y:-170px;--r:-28deg;--dl:1.75s" alt="">
-      <img class="abs drop" src="__img_rk_gem__" style="left:30px;top:129px;width:69px;height:64px;--y:-230px;--r:24deg;--dl:1.79s" alt="">
-      <img class="abs drop" src="__img_rk_leaf1__" style="left:256px;top:271px;width:54px;height:64px;--y:-380px;--r:-36deg;--dl:1.83s" alt="">
-      <img class="abs drop" src="__img_rk_leaf2__" style="left:304px;top:300px;width:64px;height:74px;--y:-410px;--r:30deg;--dl:1.87s" alt="">
-      <div class="hot" id="rkOk" style="left:18px;top:782px;width:182px;height:60px" aria-label="확인"></div>
-      <div class="hot press" id="rkGift" style="left:204px;top:782px;width:182px;height:60px" aria-label="기운 선물하기"></div>
+      <img class="abs" src="__img_n_rk_bg0__" style="left:0;top:0;width:402px;height:874px" alt="">
+      <img class="abs" id="rkBg1" src="__img_n_rk_bg1__" style="left:0;top:0;width:402px;height:874px" alt="">
+      <img class="abs" id="rkTitle" src="__img_n_rk_title__" style="left:60px;top:324px;width:282px;height:100px;" alt="행운 공구방 · 오늘의 행운 담당은?">
+      <img class="abs" id="rkCard" src="__img_n_rk_card__" style="left:70px;top:266px;width:260px;height:434px;" alt="1등 Sumin · 2 Dayun · 3 Yujin">
+      <img class="abs drop" src="__img_n_rk_fire__" style="left:230px;top:66px;width:62px;height:66px;--y:-170px;--r:-28deg;--dl:.05s" alt="">
+      <img class="abs drop" src="__img_n_rk_gem__" style="left:32px;top:130px;width:68px;height:60px;--y:-230px;--r:24deg;--dl:.1s" alt="">
+      <img class="abs drop" src="__img_n_rk_leaf2__" style="left:326px;top:330px;width:64px;height:72px;--y:-420px;--r:30deg;--dl:.15s" alt="">
+      <div class="hot" id="rkOk" style="left:20px;top:783px;width:178px;height:56px;border-radius:28px" aria-label="확인"></div>
+      <div class="hot to-freq" id="rkGift" style="left:206px;top:783px;width:176px;height:56px;border-radius:28px" aria-label="기운 선물하기"></div>
     </div>
 
-    <!-- 운세 겹쳐보기_딤1 → 딤2: 겹쳐 있던 카드가 자동으로 펼쳐짐 -->
+    <!-- 운세 겹쳐보기_딤1(물음표 카드) → 자동으로 세 장이 펼쳐짐(딤2) -->
     <div id="mxDim" class="dim">
-      <img class="abs" src="__img_mx_bg__" style="left:0;top:0;width:402px;height:874px" alt="">
-      <img class="abs pop mx-intro" src="__img_mx_title__" style="left:96px;top:145px;width:214px;height:75px;transition-delay:.08s" alt="Lucky mix">
-      <img class="abs pop mx-intro" src="__img_mx_sub__" style="left:70px;top:225px;width:262px;height:45px;transition-delay:.16s" alt="오늘 우리에게 필요한 기운은?">
-      <img class="abs mxc" id="mxShirt" src="__img_mx_shirt__" style="left:36px;top:452px;width:210px;height:246px;--tx:-13px;--ty:-127px;--r:5deg;--s:1;--d:.12s" alt="하늘색 셔츠">
-      <img class="abs mxc" id="mxPlaylist" src="__img_mx_playlist__" style="left:196px;top:298px;width:184px;height:230px;--tx:-5px;--ty:57px;--r:18deg;--s:1;--d:.06s" alt="자신감 만땅 플리">
-      <img class="abs mxc" id="mxPicnic" src="__img_mx_picnic__" style="left:36px;top:92px;width:196px;height:244px;--tx:63px;--ty:352px;--r:-10deg;--s:1.04;--d:0s;cursor:pointer" role="button" alt="느긋한 피크닉">
-      <img class="abs mx-after" src="__img_mx_caption__" style="left:90px;top:730px;width:225px;height:40px" alt="카드를 눌러 자세히 확인해 보세요">
-      <img class="abs mx-after" src="__img_mx_ok__" style="left:16px;top:780px;width:184px;height:66px" alt="">
-      <img class="abs mx-after press" id="mxShare" src="__img_mx_share__" style="left:202px;top:780px;width:184px;height:66px;cursor:pointer" alt="결과 공유하기">
-      <div class="hot" id="mxOk" style="left:18px;top:782px;width:182px;height:60px" aria-label="확인"></div>
+      <img class="abs" src="__img_n_mix_bg__" style="left:0;top:0;width:402px;height:874px" alt="">
+      <img class="abs pop mx-intro" src="__img_n_mix_title__" style="left:90px;top:140px;width:222px;height:145px;transition-delay:.08s" alt="운세 겹쳐보기 · 오늘 우리에게 필요한 기운은?">
+      <img class="abs pop mx-intro" id="mxStack" src="__img_n_mix_stack__" style="left:70px;top:320px;width:275px;height:360px;transition-delay:.18s" role="button" alt="겹친 카드">
+      <img class="abs mxc2" id="mxItem" src="__img_n_mix_item__" style="left:30px;top:80px;width:242px;height:232px;--tx:89.2px;--ty:307.0px;--r:6.2deg" role="button" alt="Lucky Item">
+      <img class="abs mxc2" id="mxPlace" src="__img_n_mix_place__" style="left:160px;top:228px;width:240px;height:254px;--tx:-62.4px;--ty:147.3px;--r:-22.8deg" role="button" alt="Lucky Place">
+      <img class="abs mxc2" id="mxMusic" src="__img_n_mix_music__" style="left:70px;top:448px;width:230px;height:254px;--tx:26.0px;--ty:-74.0px;--r:27.7deg" role="button" alt="Lucky Music">
+      <img class="abs mx-after" src="__img_n_mix_caption__" style="left:80px;top:730px;width:242px;height:35px" alt="카드를 눌러 자세히 확인해 보세요">
+      <img class="abs mx-after press" src="__img_n_mix_ok__" id="mxOkImg" style="left:14px;top:778px;width:190px;height:68px;cursor:pointer" alt="확인">
+      <img class="abs mx-after press" src="__img_n_mix_share__" style="left:204px;top:778px;width:184px;height:68px;cursor:pointer" alt="결과 공유하기">
+      <div class="sb mx-sb" data-fx="toast" data-msg="겹쳐보기 결과를 저장했어요" role="button" aria-label="결과 공유하기" style="left:206px;top:780px;width:180px;height:64px;"></div>
+      <div class="hot" id="mxOk" style="left:16px;top:780px;width:186px;height:64px" aria-label="확인"></div>
     </div>
    </div>
    <div class="shade"></div>
@@ -734,15 +866,18 @@
   <!-- 운세겹쳐보기_오늘의 행운 장소 연결 (Mapo River) -->
   <div class="layer push" id="scr-mixplace">
    <div class="inner">
-    <img class="abs" src="__img_mp_head__" style="left:0;top:0;width:402px;height:112px" alt="오늘의 행운 장소">
-    <img class="abs d-in d-hero" src="__img_mp_hero__" style="left:18px;top:110px;width:366px;height:370px" alt="Mapo River">
-    <img class="abs d-in d-body" src="__img_mp_body__" style="left:28px;top:482px;width:346px;height:56px" alt="">
-    <img class="abs d-in d-icons" src="__img_mp_icons__" style="left:18px;top:606px;width:366px;height:136px" alt="자신감 UP, 여유로운 마음, 나무의 기운">
-    <div class="abs d-in d-btn" style="left:14px;top:776px;width:374px;height:72px">
-      <img class="abs press" id="mpOk" role="button" src="__img_mp_ok__" style="left:0;top:0;width:188px;height:72px;cursor:pointer" alt="확인">
-      <img class="abs press" id="shareToChat" role="button" src="__img_mp_share__" style="left:188px;top:0;width:186px;height:72px;cursor:pointer" alt="장소 공유하기">
+    <img class="abs d-in d-hero" src="__img_n_mapo_hero__" style="left:0;top:80px;width:402px;height:405px" alt="Mapo River">
+    <img class="abs" src="__img_n_mapo_head__" style="left:0;top:0;width:402px;height:112px" alt="오늘의 행운 장소">
+    <img class="abs d-in d-body" src="__img_n_mapo_body__" style="left:20px;top:485px;width:362px;height:55px" alt="">
+    <img class="abs d-in d-icons" src="__img_n_mapo_icons__" style="left:20px;top:610px;width:362px;height:110px" alt="자신감 UP · 여유로운 마음 · 나무의 기운">
+    <div class="sb" data-fx="tap" role="button" aria-label="기운" style="left:29px;top:612px;width:104px;height:110px;border-radius:20px;"></div>
+    <div class="sb" data-fx="tap" role="button" aria-label="기운" style="left:149px;top:612px;width:104px;height:110px;border-radius:20px;"></div>
+    <div class="sb" data-fx="tap" role="button" aria-label="기운" style="left:269px;top:612px;width:104px;height:110px;border-radius:20px;"></div>
+    <div class="abs d-in d-btn" style="left:14px;top:776px;width:374px;height:70px">
+      <img class="abs press" id="mpOk" role="button" src="__img_n_mapo_ok__" style="left:0;top:0;width:190px;height:70px;cursor:pointer" alt="확인">
+      <img class="abs press" id="shareToChat" role="button" src="__img_n_mapo_share__" style="left:190px;top:0;width:184px;height:70px;cursor:pointer" alt="장소 공유하기">
     </div>
-    <img class="abs" src="__img_mp_bar__" style="left:120px;top:848px;width:162px;height:24px" alt="">
+    <img class="abs" src="__img_n_mapo_bar__" style="left:120px;top:850px;width:162px;height:24px" alt="">
     <div class="hot back" style="left:0;top:56px;width:72px;height:48px" aria-label="뒤로"></div>
    </div>
    <div class="shade"></div>
@@ -754,6 +889,17 @@
     <img class="abs" src="__img_shop1__" style="left:0;top:0;width:402px;height:874px" alt="">
     <div class="hot back" style="left:0;top:60px;width:64px;height:52px" aria-label="뒤로"></div>
     <div class="hot" data-next="shop2" style="left:0;top:186px;width:402px;height:592px" aria-label="상품 보기"></div>
+    <div class="sb" data-fx="heart" data-on="찜했어요" data-off="찜을 취소했어요" role="button" aria-label="찜" style="--s:18px;left:120px;top:309px;width:32px;height:32px;"><svg class="ic" viewBox="0 0 24 24"><path fill="#ff4f74" d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.2 0 3.7 1.2 5.3 3 1.6-1.8 3.1-3 5.3-3 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21z"/></svg></div>
+    <div class="sb" data-fx="heart" data-on="찜했어요" data-off="찜을 취소했어요" role="button" aria-label="찜" style="--s:18px;left:120px;top:524px;width:32px;height:32px;"><svg class="ic" viewBox="0 0 24 24"><path fill="#ff4f74" d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.2 0 3.7 1.2 5.3 3 1.6-1.8 3.1-3 5.3-3 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21z"/></svg></div>
+    <div class="sb" data-fx="heart" data-on="찜했어요" data-off="찜을 취소했어요" role="button" aria-label="찜" style="--s:18px;left:120px;top:741px;width:32px;height:32px;"><svg class="ic" viewBox="0 0 24 24"><path fill="#ff4f74" d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.2 0 3.7 1.2 5.3 3 1.6-1.8 3.1-3 5.3-3 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21z"/></svg></div>
+    <div class="sb light" data-fx="toast" data-msg="장바구니는 데모에서 열리지 않아요" role="button" aria-label="장바구니" style="left:346px;top:65px;width:40px;height:40px;"></div>
+    <div class="sb light" data-fx="tap" role="button" aria-label="지우기" style="left:270px;top:68px;width:34px;height:34px;"></div>
+    <div class="sb light" data-fx="top" role="button" aria-label="맨 위로" style="left:342px;top:722px;width:40px;height:40px;"></div>
+    <div class="sb light" data-fx="tap" role="button" aria-label="메뉴" style="left:4px;top:780px;width:56px;height:56px;"></div>
+    <div class="sb light" data-fx="tap" role="button" aria-label="메뉴" style="left:82px;top:780px;width:56px;height:56px;"></div>
+    <div class="sb light" data-fx="tap" role="button" aria-label="메뉴" style="left:160px;top:780px;width:56px;height:56px;"></div>
+    <div class="sb light" data-fx="tap" role="button" aria-label="메뉴" style="left:238px;top:780px;width:56px;height:56px;"></div>
+    <div class="sb light" data-fx="tap" role="button" aria-label="메뉴" style="left:322px;top:780px;width:56px;height:56px;"></div>
    </div>
    <div class="shade"></div>
   </div>
@@ -762,18 +908,29 @@
   <div class="layer push shop" id="scr-shop2">
    <div class="inner">
     <img class="abs" src="__img_shop2__" style="left:0;top:0;width:402px;height:874px" alt="">
+    <div class="sb light" data-fx="heart" data-on="찜했어요" data-off="찜을 취소했어요" role="button" aria-label="찜" style="--s:20px;left:344px;top:664px;width:36px;height:36px;"><svg class="ic" viewBox="0 0 24 24"><path fill="#ff4f74" d="M12 21s-7.5-4.6-9.6-9.3C.9 8.3 3 4.5 6.7 4.5c2.2 0 3.7 1.2 5.3 3 1.6-1.8 3.1-3 5.3-3 3.7 0 5.8 3.8 4.3 7.2C19.5 16.4 12 21 12 21z"/></svg></div>
+    <div class="sb light" data-fx="toast" data-msg="상품 링크를 복사했어요" role="button" aria-label="공유" style="left:344px;top:710px;width:36px;height:36px;"></div>
+    <div class="sb light" data-fx="tap" role="button" aria-label="검색" style="left:263px;top:55px;width:38px;height:38px;"></div>
+    <div class="sb light" data-fx="toast" data-msg="장바구니에 3개 상품이 있어요" role="button" aria-label="장바구니" style="left:303px;top:55px;width:38px;height:38px;"></div>
+    <div class="sb light" data-fx="tap" role="button" aria-label="메뉴" style="left:345px;top:55px;width:38px;height:38px;"></div>
+    <div class="sb light" data-fx="toast" data-msg="스토어 알림을 받을게요" role="button" aria-label="알림받기" style="left:320px;top:108px;width:80px;height:30px;border-radius:8px;"></div>
+    <div class="sb light" data-fx="toast" data-msg="선물하기는 곧 열려요" role="button" aria-label="선물하기" style="left:10px;top:774px;width:50px;height:50px;border-radius:12px;"></div>
+    <div class="sb light" data-fx="toast" data-msg="데모에서는 실제 구매가 진행되지 않아요" role="button" aria-label="구매하기" style="left:68px;top:774px;width:326px;height:50px;border-radius:12px;"></div>
     <div class="hot back" style="left:0;top:50px;width:64px;height:50px" aria-label="뒤로"></div>
    </div>
    <div class="shade"></div>
   </div>
 
+  <div id="toast" role="status" aria-live="polite"></div>
  </div>
 </div>
-<div class="replay-wrap"><button class="replay" id="replayFortune">운세부터 다시 보기</button><button class="replay" id="replay">↻ 처음부터</button></div>
+<div class="replay-wrap"><button class="replay" id="replayKey">키링 보기</button><button class="replay" id="replayFortune">운세부터 다시 보기</button><button class="replay" id="replay">↻ 처음부터</button></div>
 
 <script>
 const phone = document.getElementById("phone");
 const scaler = document.getElementById("scaler");
+// 폰 프레임은 절대 스크롤되지 않게 (안쪽 요소가 넘쳐도 화면이 밀리지 않음)
+[phone, document.getElementById("scaler")].forEach(el => el.addEventListener("scroll", () => { if (el.scrollTop || el.scrollLeft) { el.scrollTop = 0; el.scrollLeft = 0; } }));
 function fit() {   // 비율을 유지한 채 창 안에 맞춤
   const s = Math.min(1, innerWidth / 402, innerHeight / 874);
   phone.style.transform = `scale(${s})`;
@@ -845,6 +1002,7 @@ function syncNav(name) {
 appNav.querySelectorAll(".bottom-nav__item").forEach(b => b.addEventListener("click", () => {
   if (stack.length > 1 || !phone.classList.contains("s-home")) return;
   const k = b.dataset.tab;
+  if (k === "myluck") { toast("아카이브는 곧 열려요"); return; }
   if (k === "frequency") openFreq("frequency");
   else if (k === "home" || k === "friends") setTab(k);
 }));
@@ -880,19 +1038,34 @@ function dragScroll(el, axis) {
 dragScroll(frScroll, "y");
 dragScroll(document.getElementById("frRow"), "x");
 
-// ── 홈 스크롤: 카드는 그대로 따라가고, 제목·설명은 53/132 속도로만 올라가며 '오늘은'·담기 버튼은 사라짐
-const homeScroll = document.getElementById("homeScroll"), homeHello = document.getElementById("homeHello"),
-      homeTitle = document.getElementById("homeTitle"), ctaEl = document.getElementById("ctaCapture");
-function onHomeScroll() {
-  const sc = Math.max(0, homeScroll.scrollTop), p = Math.min(1, sc / 132);
-  const lift = sc - 53 * p;                                  // 스크롤에 끌려 올라간 만큼 되돌려 53px만 이동
-  homeHello.style.transform = homeTitle.style.transform = `translateY(${lift}px)`;
-  homeHello.style.opacity = Math.max(0, 1 - p * 1.8).toFixed(3);
-  ctaEl.style.opacity = Math.max(0, 1 - p * 2.4).toFixed(3);
-  ctaEl.style.pointerEvents = p > .4 ? "none" : "";
+// ── 홈 캐러셀: 가운데 = Lucky Item, 왼쪽 = Place, 오른쪽 = Music. 옆 카드 탭·좌우 밀기로 회전, 가운데 탭 → 상세
+const cards = [...document.querySelectorAll(".ccard")];
+const ctaEl = document.getElementById("ctaCapture");
+function rotateCarousel(dir) {          // dir = 1: 오른쪽 카드가 가운데로
+  cards.forEach(c => { let s = +c.dataset.slot - dir; if (s > 1) s = -1; if (s < -1) s = 1; c.dataset.slot = s; });
 }
-homeScroll.addEventListener("scroll", onHomeScroll, { passive: true });
-dragScroll(homeScroll, "y");
+function resetCarousel() {
+  const base = { item: 0, place: -1, music: 1 };
+  cards.forEach(c => { c.classList.add("no-anim"); c.dataset.slot = base[c.dataset.go]; void c.offsetWidth; c.classList.remove("no-anim"); });
+}
+(() => {
+  const car = document.getElementById("carousel"); let x0 = null, moved = false;
+  car.addEventListener("pointerdown", e => { x0 = e.clientX; moved = false; const c = e.target.closest(".ccard"); if (c && c.dataset.slot === "0") c.classList.add("pressed"); });
+  car.addEventListener("pointermove", e => { if (x0 !== null && Math.abs(e.clientX - x0) > 8) { moved = true; cards.forEach(c => c.classList.remove("pressed")); } });
+  const end = e => {
+    cards.forEach(c => c.classList.remove("pressed"));
+    if (x0 === null) return; const dx = e.clientX - x0; x0 = null;
+    if (busy || stack.length > 1 || tab !== "home") return;
+    const k = phone.getBoundingClientRect().width / 402;
+    if (moved && Math.abs(dx) > 30 * k) { rotateCarousel(dx < 0 ? 1 : -1); lock(450); return; }
+    if (moved) return;
+    const c = e.target.closest(".ccard"); if (!c) return;
+    const slot = +c.dataset.slot;
+    if (slot === 0) push(c.dataset.go);
+    else { rotateCarousel(slot); lock(450); }
+  };
+  car.addEventListener("pointerup", end); car.addEventListener("pointercancel", () => { x0 = null; cards.forEach(c => c.classList.remove("pressed")); });
+})();
 
 // ── 화면 스택: 홈 → Lucky 상세 → 연결1 → 연결2
 const NAV_MS = 600;
@@ -903,12 +1076,14 @@ function push(id) {
   if (busy || !id) return;
   const kind = screen(id).dataset.kind;
   screen(stack[stack.length - 1]).classList.add(kind === "modal" ? "under-m" : "under");
+  screen(id).style.zIndex = 10 + stack.length;   // 나중에 연 화면이 항상 위 (DOM 순서와 무관: 채팅 → Lucky Item/Music)
   screen(id).classList.add("on");
   stack.push(id); lock(NAV_MS);
 }
 // 지금 화면을 다른 화면으로 바꿈 (카메라 → 참): 새 화면이 위에서 페이드인 된 뒤 이전 화면을 치움
 function replaceTop(id, ms = 700) {
   const prev = screen(stack[stack.length - 1]);
+  screen(id).style.zIndex = (+prev.style.zIndex || 10) + 1;   // 바뀌는 화면이 이전 화면 위에서 겹쳐 나타나도록
   screen(id).classList.add("on"); stack[stack.length - 1] = id;
   setTimeout(() => { prev.classList.add("no-anim"); prev.classList.remove("on"); void prev.offsetWidth; prev.classList.remove("no-anim"); }, ms);
 }
@@ -924,7 +1099,7 @@ function pop() {
 function resetNav() {
   stack = ["home"]; setTab("home", true);
   if (phone.classList.contains("tab-freq")) { phone.classList.remove("tab-freq"); if (typeof freqSend === "function") freqSend("chiring:reset"); }
-  if (typeof homeScroll !== "undefined") { homeScroll.scrollTop = 0; onHomeScroll(); }
+  if (typeof resetCarousel === "function") resetCarousel();
   document.querySelectorAll(".push.on, .under, .under-m, .hcard.sel").forEach(e => e.classList.remove("on", "under", "under-m", "sel"));
   resetCamera(); stopCharm(); if (typeof resetChat === "function") resetChat();
   if (typeof stopPano === "function") { stopPano(); window.evStop && window.evStop(); }
@@ -951,16 +1126,17 @@ document.querySelectorAll(".press").forEach(btn => {
 document.querySelectorAll(".hot[data-next]").forEach(h => h.addEventListener("click", () => push(h.dataset.next)));
 document.querySelectorAll(".back").forEach(b => b.addEventListener("click", pop));
 
-// ── 친구방 Lucky Talk → 행운 공구방 채팅
+// ── 행운 공구방 채팅 (결과 '확인' 또는 친구방 Lucky Talk에서 들어옴)
 const chat = document.getElementById("scr-chat"), chMsgs = document.getElementById("chMsgs"), chThread = document.getElementById("chThread");
-const THREAD_H = 1025;
-let rankSeen = false, chatTimers = [];
+const THREAD_H = 998;
+let chatTimers = [], rankSeen = false;
 function resetChat() {
   chatTimers.forEach(clearTimeout); chatTimers = [];
   chat.classList.add("no-anim");
-  chat.classList.remove("ranked", "dimmed", "rk-reveal", "mixing", "spread", "mode-b");
+  chat.classList.remove("mixing", "spread", "mode-b", "ranked", "dimmed", "rk-reveal");
+  rankSeen = false; if (typeof clearMine === "function") clearMine();
   chat.querySelectorAll(".nm.show").forEach(m => m.classList.remove("show"));
-  chThread.style.height = THREAD_H + "px"; chMsgs.scrollTop = 0; rankSeen = false;
+  chThread.style.height = THREAD_H + "px"; chMsgs.scrollTop = 0;
   void chat.offsetWidth; chat.classList.remove("no-anim");
 }
 function openChat() {
@@ -971,59 +1147,55 @@ document.getElementById("luckyTalk").addEventListener("click", openChat);
 document.getElementById("luckyTalkCard").addEventListener("click", openChat);
 dragScroll(chMsgs, "y");
 
-// 운세 순위 비교: 처음엔 딤(순위 발표) → 확인 후엔 버튼으로 순위 바를 닫고/열기
-function celebrate() {}   // 이모지는 .dimmed 전환으로 함께 내려옴
+// 운세 순위 비교: 처음엔 딤0(제목) → 딤1(1등 발표), 확인 후엔 버튼으로 순위 바를 닫고/열기
 document.getElementById("chChip").addEventListener("click", () => {
-  if (busy || stack[stack.length - 1] !== "chat" || chat.classList.contains("mixing")) return;
+  if (busy || stack[stack.length - 1] !== "chat" || chat.classList.contains("mixing") || chat.classList.contains("dimmed")) return;
+  if (chat.classList.contains("mode-b")) {     // 겹쳐보기 대화에서 누르면 순위 대화(A)로 돌아와서
+    clearMine(); chat.classList.add("no-anim"); chat.classList.remove("mode-b"); chThread.style.height = THREAD_H + "px"; chMsgs.scrollTop = 0;
+    chat.querySelectorAll(".nm.show").forEach(m => m.classList.remove("show")); void chat.offsetWidth; chat.classList.remove("no-anim");
+  }
   if (chat.classList.contains("ranked")) chat.classList.remove("ranked");
   else if (rankSeen) chat.classList.add("ranked");
-  else {
-    chat.classList.remove("rk-reveal"); chat.classList.add("dimmed");
-    chatTimers.push(setTimeout(() => chat.classList.add("rk-reveal"), 1350));
-  }
+  else { chMsgs.scrollTop = 0; chat.classList.remove("rk-reveal"); chat.classList.add("dimmed"); chatTimers.push(setTimeout(() => chat.classList.add("rk-reveal"), 1350)); }
 });
 document.getElementById("rkOk").addEventListener("click", () => {
   rankSeen = true; chat.classList.remove("dimmed", "rk-reveal");
-  setTimeout(() => chat.classList.add("ranked"), 220);   // 딤이 걷히는 동안 순위 바가 내려옴
+  setTimeout(() => chat.classList.add("ranked"), 220);
 });
 
-// 운세 겹쳐보기: 버블이나 버튼 → 딤1(겹친 카드) → 자동으로 펼쳐짐(딤2)
+// 운세 겹쳐보기: 버블이나 버튼 → 딤1(물음표 카드) → 자동으로 세 장이 펼쳐짐(딤2)
 function spreadMix() { if (chat.classList.contains("mixing")) chat.classList.add("spread"); }
 function openMix() {
-  if (busy || stack[stack.length - 1] !== "chat" || chat.classList.contains("dimmed") || chat.classList.contains("mixing")) return;
+  if (busy || stack[stack.length - 1] !== "chat" || chat.classList.contains("mixing")) return;
   chat.classList.remove("spread"); chat.classList.add("mixing");
-  // 딤 아래에서 채팅을 '운세 겹쳐보기' 대화로 바꿔 둠 (딤에 가려 보이지 않음)
-  setTimeout(() => { chat.classList.remove("ranked"); if (!chat.classList.contains("mode-b")) { chat.classList.add("mode-b"); chMsgs.scrollTop = 0; } }, 360);
-  chatTimers.push(setTimeout(spreadMix, 1600));   // 자동으로 펼쳐짐 (겹친 카드를 누르면 바로)
+  // 딤 아래에서 채팅을 '운세 겹쳐보기' 대화(B)로 바꿔 둠 (딤에 가려 보이지 않음)
+  setTimeout(() => { clearMine(); chat.classList.add("no-anim"); chat.classList.remove("ranked"); chat.classList.add("mode-b"); chMsgs.scrollTop = 0; void chat.offsetWidth; chat.classList.remove("no-anim"); }, 360);
+  chatTimers.push(setTimeout(spreadMix, 1700));
 }
 function closeMix() { chat.classList.remove("mixing", "spread"); }
 document.getElementById("mixBubble").addEventListener("click", openMix);
 document.getElementById("chMixChip").addEventListener("click", openMix);
 document.getElementById("mxOk").addEventListener("click", closeMix);
-// '느긋한 피크닉' → 오늘의 행운 장소
-["mxShirt", "mxPlaylist"].forEach(id => document.getElementById(id).addEventListener("click", spreadMix));
-document.getElementById("mxPicnic").addEventListener("click", () => {
+document.getElementById("mxStack").addEventListener("click", spreadMix);
+const mixGo = { mxItem: "item", mxPlace: "mixplace", mxMusic: "music" };
+Object.entries(mixGo).forEach(([id, to]) => document.getElementById(id).addEventListener("click", () => {
   if (!chat.classList.contains("spread")) { spreadMix(); return; }
   if (busy) return;
-  push("mixplace"); setTimeout(closeMix, 650);
-});
-// 채팅방에 공유하기 → 채팅으로 돌아와 내가 장소를 보내고, 친구들이 답장 (화면이 따라 내려감)
+  push(to); if (to === "mixplace") setTimeout(closeMix, 650);
+}));
+// 장소 공유하기 → 채팅으로 돌아와 내가 장소를 보내고, 친구들이 답장 (화면이 따라 내려감)
 function showMsg(i) {
   const m = chThread.querySelectorAll(".nm")[i];
-  chThread.style.height = (+m.dataset.bottom + 56) + "px";   // 마지막 메시지가 입력창 위 흐림 영역에 가리지 않게
-  requestAnimationFrame(() => {
-    m.classList.add("show");
-    chMsgs.scrollTo({ top: chMsgs.scrollHeight, behavior: "smooth" });
-  });
+  chThread.style.height = (+m.dataset.bottom + 24) + "px";
+  requestAnimationFrame(() => { m.classList.add("show"); chMsgs.scrollTo({ top: chMsgs.scrollHeight, behavior: "smooth" }); });
 }
-document.getElementById("mpOk").addEventListener("click", pop);
+document.getElementById("mpOk").addEventListener("click", () => { if (!busy) { pop(); setTimeout(closeMix, 300); } });
 document.getElementById("shareToChat").addEventListener("click", () => {
   if (busy || stack[stack.length - 1] !== "mixplace") return;
-  pop();
+  pop(); closeMix(); clearMine();
   chatTimers.forEach(clearTimeout); chatTimers = [];
   chat.querySelectorAll(".nm.show").forEach(m => m.classList.remove("show"));
-  chatTimers.push(setTimeout(() => chMsgs.scrollTo({ top: chMsgs.scrollHeight, behavior: "smooth" }), 500));
-  [900, 1500, 2100, 3400, 4500, 5300].forEach((t, i) => chatTimers.push(setTimeout(() => showMsg(i), t)));
+  [900, 1500, 2100, 3400, 4300, 5100].forEach((t, i) => chatTimers.push(setTimeout(() => showMsg(i), t)));
 });
 
 // ── 오늘의 행운 담기
@@ -1042,7 +1214,7 @@ function capture() {
   cam.classList.remove("flash"); void cam.offsetWidth;   // 다시 찍어도 플래시가 다시 재생되게
   cam.classList.add("shot", "flash");
 }
-function resetCamera() { captured = false; cam.classList.remove("shot", "flash"); shutter.classList.remove("hint"); }
+function resetCamera() { captured = false; cam.classList.remove("shot", "flash", "zoom2"); shutter.classList.remove("hint"); }
 shutter.addEventListener("click", capture);
 document.getElementById("captureBtn").addEventListener("click", () => {
   if (stack[stack.length - 1] !== "cam" || busy) return;
@@ -1103,8 +1275,8 @@ document.getElementById("charmOk").addEventListener("click", () => {
 });
 // ── 결과 '확인' → 모아보기 (오른쪽에서 밀려 들어옴)
 document.getElementById("resultOk").addEventListener("click", () => {
-  if (stack[stack.length - 1] !== "result") return;
-  push("collect"); startPano();
+  if (busy || stack[stack.length - 1] !== "result") return;
+  pop();
 });
 
 /* ── 모아보기: 원통 안쪽 곡면 위의 사진 띠
@@ -1343,7 +1515,34 @@ document.getElementById("evHome").addEventListener("click", () => {
   if (stack[stack.length - 1] !== "evening") return;
   window.evStop(); start(true);
 });
-document.getElementById("evShare").addEventListener("click", () => {});
+document.getElementById("evShare").addEventListener("click", () => toast("키링 링크를 복사했어요 · 친구에게 보내 보세요"));
+// 키링_2: 회전이 끝나는 순간 새 키링이 천천히 나타나 고리에 매달린 듯 작게 흔들리다 멈춤
+const evFinal = document.getElementById("evFinal"), evKey = document.getElementById("evKey");
+let keyRAF = 0, keyTimer = 0;
+function startKeyFinal() {
+  stopKeyFinal();
+  keyTimer = setTimeout(() => {
+    evFinal.classList.add("show"); const t0 = performance.now();
+    const f = now => {
+      const t = (now - t0) / 1000;
+      const vis = Math.min(1, t / .9), e = -(Math.cos(Math.PI * vis) - 1) / 2;
+      const k = Math.min(1, t / 1.3), pop = 1 + 1.6 * Math.pow(k - 1, 3) + .6 * Math.pow(k - 1, 2);
+      const a = .07 * Math.exp(-t / 1.5) * Math.sin(2 * Math.PI * .75 * t) + .012 * Math.sin(t * 1.15) * Math.min(1, t / 3);
+      evKey.style.opacity = e.toFixed(3);
+      evKey.style.transform = `translateY(${((1 - pop) * 18).toFixed(2)}px) rotate(${a}rad) scale(${(.93 + .07 * pop).toFixed(4)})`;
+      keyRAF = requestAnimationFrame(f);
+    };
+    keyRAF = requestAnimationFrame(f);
+  }, 4450);
+}
+function stopKeyFinal() { clearTimeout(keyTimer); cancelAnimationFrame(keyRAF); evFinal.classList.remove("show"); evKey.style.opacity = 0; }
+const _evStart = window.evStart, _evStop = window.evStop;
+window.evStart = () => { _evStart(); startKeyFinal(); };
+window.evStop = () => { _evStop(); stopKeyFinal(); };
+// 시연용: 키링 장면 바로 보기
+document.getElementById("replayKey").addEventListener("click", () => {
+  start(false); setTimeout(() => { busy = false; push("evening"); window.evStart(); }, 60);
+});
 document.getElementById("replay").addEventListener("click", () => start(false));
 document.getElementById("replayFortune").addEventListener("click", () => start(true));
 // 이미지(약 6MB)가 모두 준비된 뒤 시작 → 딤1이 확실히 보이고 블러가 걷히는 장면을 놓치지 않음
@@ -1374,6 +1573,66 @@ function closeFreq(to) {
 addEventListener("load", () => setTimeout(ensureFreq, 800));
 document.querySelectorAll(".to-freq").forEach(el => el.addEventListener("click", () => { if (!busy) openFreq("frequency"); }));
 // 친구방 Lucky Moments 카드 → 팀원 앱의 스토리 화면
+
+// ── 기본 버튼들: 하트·별·재생 토글, 눌림 반응, 안내 토스트
+const toastEl = document.getElementById("toast"); let toastT = 0;
+function toast(msg, ms = 1900) {
+  toastEl.textContent = msg; toastEl.classList.add("show");
+  clearTimeout(toastT); toastT = setTimeout(() => toastEl.classList.remove("show"), ms);
+}
+function hideToast() { clearTimeout(toastT); toastEl.classList.remove("show"); }
+document.querySelectorAll(".sb").forEach(b => {
+  if (b.dataset.fx === "heart") for (let i = 0; i < 6; i++) { const d = document.createElement("i"); d.className = "burst"; d.style.setProperty("--a", (i * 60) + "deg"); b.appendChild(d); }
+  let t = 0;
+  b.addEventListener("pointerdown", () => { clearTimeout(t); b.classList.add("rip"); });
+  const up = () => { t = setTimeout(() => b.classList.remove("rip"), 140); };
+  b.addEventListener("pointerup", up); b.addEventListener("pointerleave", up); b.addEventListener("pointercancel", up);
+  b.addEventListener("click", e => {
+    e.stopPropagation();
+    if (busy) return;
+    const fx = b.dataset.fx;
+    if (fx === "heart" || fx === "toggle") {
+      const on = b.classList.toggle("on");
+      b.classList.remove("pop");
+      if (on && fx === "heart") { void b.offsetWidth; b.classList.add("pop"); }
+      const m = on ? b.dataset.on : b.dataset.off; if (m) toast(m);
+    } else if (fx === "zoom") {
+      const z = cam.classList.toggle("zoom2"); toast(z ? "2배로 확대했어요" : "1배로 돌아왔어요", 1200);
+    } else if (fx === "flip") {
+      const vf = document.getElementById("vf"); vf.classList.remove("flip"); void vf.offsetWidth; vf.classList.add("flip");
+    } else if (fx === "top") {
+      toast("맨 위예요", 1100);
+    } else if (b.dataset.msg) toast(b.dataset.msg);
+  });
+});
+// 화면이 바뀌면 토스트는 바로 사라짐
+["push", "pop"].forEach(n => { const f = window[n]; if (typeof f === "function") window[n] = function () { hideToast(); return f.apply(this, arguments); }; });
+
+// 채팅 입력: 직접 써서 보내면 내 말풍선이 아래에 붙음
+const chIn = document.getElementById("chIn"), chSend = document.getElementById("chSend");
+function syncTyping() { chat.classList.toggle("typing", chIn.value.length > 0); }
+chIn.addEventListener("input", syncTyping);
+function clearMine() { chThread.querySelectorAll(".mine").forEach(m => m.remove()); chIn.value = ""; syncTyping(); }
+function contentBottom() {
+  const mine = chThread.querySelectorAll(".mine"); if (mine.length) { const m = mine[mine.length - 1]; return m.offsetTop + m.offsetHeight; }
+  const shown = [...chThread.querySelectorAll(".nm.show")]; if (shown.length) return +shown[shown.length - 1].dataset.bottom;
+  return THREAD_H - 10;
+}
+function sendMine() {
+  const v = chIn.value.trim(); if (!v) { chIn.focus(); return; }
+  const gap = chThread.querySelector(".mine") ? 6 : 16, top = contentBottom() + gap;
+  const m = document.createElement("div"); m.className = "mine"; m.textContent = v; m.style.top = top + "px";
+  chThread.appendChild(m);
+  chThread.style.height = (top + m.offsetHeight + 24) + "px";
+  chIn.value = ""; syncTyping();
+  requestAnimationFrame(() => { m.classList.add("show"); chMsgs.scrollTo({ top: chMsgs.scrollHeight, behavior: "smooth" }); });
+}
+chIn.addEventListener("keydown", e => { if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); sendMine(); } });
+chSend.addEventListener("pointerdown", e => { e.preventDefault(); chSend.classList.add("pressed"); });
+chSend.addEventListener("pointerup", () => setTimeout(() => chSend.classList.remove("pressed"), 120));
+chSend.addEventListener("pointerleave", () => chSend.classList.remove("pressed"));
+chSend.addEventListener("click", sendMine);
+
 document.querySelectorAll(".moment-hot").forEach(el => el.addEventListener("click", () => {
   if (stack.length > 1 || tab !== "friends" || phone.classList.contains("tab-freq")) return;
   openFreq("moment-" + el.dataset.moment);

@@ -8,10 +8,10 @@ SCALE = 3
 
 def factor(name):
     if name.startswith('ev_part_'): return 1.5      # 키링 부품은 이미 2배 해상도
-    if name.startswith('el_') or name in ('f_card', 'modal_card', 'dim1_full', 'dim2_clean'): return 1   # 이미 고해상도로 만든 이미지
+    if name.startswith('el_') or name.startswith('n_t_') or name in ('f_card', 'modal_card', 'dim1_full', 'dim2_clean', 'n_cam_mask'): return 1   # 이미 고해상도로 만든 이미지
     return SCALE
 
-PHOTO = ('charm_bg', 'dim1_full', 'dim2_clean', 'col_', 'ev_part_', 'el_', 'cam_photo', 'ch_place_photo', 'av_', 'rk_av', 'place_link', 'music_link', 'shop', 'modal_')
+PHOTO = ('n_', 'charm_bg', 'dim1_full', 'dim2_clean', 'col_', 'ev_part_', 'el_', 'cam_photo', 'ch_place_photo', 'av_', 'rk_av', 'place_link', 'music_link', 'shop', 'modal_')
 def flatten_dark(im):
     # 화면 배경(#0e0e0e) 근처의 어두운 잡티를 정확히 배경색으로 → 확대·선명화 때 사각 테두리·희끗한 점이 생기지 않음
     import numpy as np
