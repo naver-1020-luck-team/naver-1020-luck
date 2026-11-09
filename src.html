@@ -118,8 +118,6 @@
   .ch-spacer { height: 0; transition: height .55s var(--ease); }
   .ranked .ch-spacer { height: 111px; }
   .ch-thread { position: relative; width: 402px; height: 1025px; transition: height .4s var(--ease); }
-  .mode-b .ch-thread { margin-top: -548px; }          /* 운세 겹쳐보기 대화(B)부터 시작 */
-  .mode-b .ch-thread > img.thread-a { visibility: hidden; }
   /* ── 채팅: 텍스트·말풍선은 HTML로 (어떤 해상도에서도 선명) ── */
   #scr-chat { font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif; }
   .ch-thread .bub, .ch-thread .nm-name, .ch-thread .av, .ch-thread .placecard, .ch-thread .mixcard { position: absolute; }
@@ -143,7 +141,6 @@
   .placecard strong { position: absolute; left: 144px; top: 38px; font-size: 18px; font-weight: 700; color: #111; letter-spacing: -.5px; }
   .pc-btn { position: absolute; left: 140px; top: 95px; width: 117px; height: 35px; border-radius: 18px; background: #121212; color: #fff;
             display: grid; place-items: center; font-size: 14px; font-weight: 600; letter-spacing: -.3px; }
-  .mode-b .ch-thread > .thread-a { visibility: hidden; }
   .ch-thread > .nm { position: absolute; inset: 0 auto auto 0; width: 402px; opacity: 0; transform: translateY(14px) scale(.96);
                      transition: opacity .35s var(--ease), transform .5s var(--spring); pointer-events: none; }
   .ch-thread > .nm.me { transform-origin: 100% 0; } .ch-thread > .nm.you { transform-origin: 0 0; }
@@ -452,13 +449,16 @@
 
 
   /* ═════ 시나리오 2 ═════ */
-  /* 채팅: 대화 A 아래에 대화 B. 겹쳐보기를 열면 B부터 보이게 */
-  .thread-b { position: absolute; left: 0; top: 498px; width: 402px; height: 500px; }
-  .ch-thread { height: 998px; }
+  /* 채팅: 겹쳐보기 대화(B) → 장소 공유 후 메시지 → 운세 순위 비교 대화(A, 순위 '확인' 뒤 등장) */
+  .thread-b { position: absolute; left: 0; top: 0; width: 402px; height: 500px; }
+  .ch-thread { height: 524px; }
+  .ch-thread > img.thread-a { opacity: 0; visibility: hidden; transform: translateY(18px);
+                              transition: opacity .3s var(--ease), transform .3s var(--ease), visibility 0s .3s, top .5s var(--ease); }
+  .ch-thread > img.thread-a.show { opacity: 1; visibility: visible; transform: none;
+                              transition: opacity .45s var(--ease), transform .6s var(--spring), visibility 0s, top .5s var(--ease); }
+  #chRoute { pointer-events: none; } #chRoute.on { pointer-events: auto; }
   .ch-spacer { height: 0; transition: height .55s var(--ease); }
   .ranked .ch-spacer { height: 102px; }
-  .mode-b .ch-thread { margin-top: -498px; }
-  .mode-b .ch-thread > .thread-a { visibility: hidden; }
   #rkPanel { position: absolute; left: 0; top: 0; width: 402px; height: 292px; overflow: hidden; pointer-events: none;
              opacity: 0; clip-path: inset(0 0 102px 0 round 0 0 26px 26px); transition: opacity .25s var(--ease) .3s, clip-path .55s var(--ease); }
   #rkPanel img { display: block; width: 402px; height: 292px; }
@@ -687,6 +687,32 @@
    <div class="shade"></div>
   </div>
 
+  <!-- Lucky Place_마포한강_연결 (채팅 장소 카드의 '길 찾기') -->
+  <div class="layer push shop" id="scr-mapolink">
+   <div class="inner">
+    <img class="abs" src="__img_mapo_link__" style="left:0;top:0;width:402px;height:874px" alt="망원 한강공원">
+    <div class="sb light" data-fx="toggle" data-on="내 장소에 저장했어요" data-off="저장을 취소했어요" role="button" aria-label="저장" style="--s:30px;left:302px;top:62px;width:44px;height:44px;"><svg class="ic" viewBox="0 0 30 30"><rect x="-2" y="-2" width="34" height="34" fill="#fff"/><path fill="#FFC21A" stroke="#FFC21A" stroke-width="2" stroke-linejoin="round" d="M15 3.6l3.4 7.2 7.8.9-5.8 5.3 1.6 7.8L15 20.9l-7 3.9 1.6-7.8-5.8-5.3 7.8-.9z"/></svg></div>
+    <div class="hot back" style="left:350px;top:62px;width:46px;height:46px" aria-label="닫기"></div>
+    <div class="hot back" style="left:0;top:62px;width:56px;height:46px" aria-label="뒤로"></div>
+    <div class="sb light" data-fx="toast" data-msg="출발지로 설정했어요" role="button" aria-label="출발" style="left:14px;top:185px;width:70px;height:38px;border-radius:19px;"></div>
+    <div class="sb light" data-fx="toast" data-msg="망원 한강공원까지 길찾기를 시작해요" role="button" aria-label="도착" style="left:87px;top:185px;width:68px;height:38px;border-radius:19px;"></div>
+    <div class="sb light" data-fx="toast" data-msg="장소 링크를 복사했어요" role="button" aria-label="공유" style="left:159px;top:185px;width:72px;height:38px;border-radius:19px;"></div>
+    <div class="sb light" data-fx="toast" data-msg="02-3780-0601 전화 연결은 데모에서 열리지 않아요" role="button" aria-label="전화" style="left:235px;top:185px;width:72px;height:38px;border-radius:19px;"></div>
+    <div class="sb light" data-fx="tap" role="button" aria-label="홈" style="left:8px;top:470px;width:62px;height:42px;border-radius:10px;"></div>
+    <div class="sb light" data-fx="tap" role="button" aria-label="리뷰" style="left:88px;top:470px;width:64px;height:42px;border-radius:10px;"></div>
+    <div class="sb light" data-fx="tap" role="button" aria-label="사진" style="left:168px;top:470px;width:64px;height:42px;border-radius:10px;"></div>
+    <div class="sb light" data-fx="tap" role="button" aria-label="주변" style="left:248px;top:470px;width:64px;height:42px;border-radius:10px;"></div>
+    <div class="sb light" data-fx="tap" role="button" aria-label="정보" style="left:328px;top:470px;width:64px;height:42px;border-radius:10px;"></div>
+    <div class="sb light" data-fx="toast" data-msg="지도는 데모에서 열리지 않아요" role="button" aria-label="지도" style="left:36px;top:550px;width:36px;height:24px;border-radius:6px;"></div>
+    <div class="sb light" data-fx="toast" data-msg="거리뷰는 데모에서 열리지 않아요" role="button" aria-label="거리뷰" style="left:76px;top:550px;width:48px;height:24px;border-radius:6px;"></div>
+    <div class="sb light" data-fx="toast" data-msg="전화번호를 복사했어요" role="button" aria-label="복사" style="left:140px;top:584px;width:34px;height:26px;border-radius:6px;"></div>
+    <div class="sb light" data-fx="toast" data-msg="홈페이지는 데모에서 열리지 않아요" role="button" aria-label="홈페이지" style="left:36px;top:620px;width:350px;height:26px;border-radius:6px;"></div>
+    <div class="sb light" data-fx="toast" data-msg="정보를 모두 펼쳤어요" role="button" aria-label="정보 더보기" style="left:140px;top:695px;width:122px;height:36px;border-radius:18px;"></div>
+    <div class="sb light" data-fx="toast" data-msg="권한 받기는 데모에서 열리지 않아요" role="button" aria-label="권한 받기" style="left:94px;top:802px;width:64px;height:22px;border-radius:6px;"></div>
+   </div>
+   <div class="shade"></div>
+  </div>
+
   <!-- Lucky Music_연결 -->
   <div class="layer push" id="scr-musiclink">
    <div class="inner">
@@ -808,17 +834,18 @@
     <div id="chMsgs">
       <div class="ch-spacer"></div>
       <div class="ch-thread" id="chThread">
-        <img class="thread-a" src="__img_n_chat_a__" style="left:0;top:5px;width:402px;height:485px" alt="Dayun: 헐 수민이 오늘 시험인데 운세 1등 뜸 / Sumin: 아싸 오늘 운빨 미쳤다">
         <div class="thread-b">
         <img src="__img_n_chat_msgs__" style="left:0;top:0;width:402px;height:500px" alt="dayun: 님들 내일 날씨 야르네 / sumin: 기달려봐 운세한테 코스 맡겨봄">
         <div class="hot" id="mixBubble" role="button" aria-label="눌러서 겹치는 운세 확인하기" style="left:66px;top:383px;width:244px;height:96px;border-radius:22px"></div>
-        <img class="nm" data-bottom="1052" src="__img_n_chat_new0__" style="left:0;top:506px;width:402px;height:48px" alt="">
-        <img class="nm" data-bottom="1200" src="__img_n_chat_new1__" style="left:0;top:554px;width:402px;height:148px" alt="">
-        <img class="nm" data-bottom="1254" src="__img_n_chat_new2__" style="left:0;top:702px;width:402px;height:54px" alt="">
-        <img class="nm" data-bottom="1324" src="__img_n_chat_new3__" style="left:0;top:760px;width:402px;height:66px" alt="">
-        <img class="nm" data-bottom="1390" src="__img_n_chat_new4__" style="left:0;top:828px;width:402px;height:64px" alt="">
-        <img class="nm" data-bottom="1446" src="__img_n_chat_new5__" style="left:0;top:892px;width:402px;height:56px" alt="">
-      </div>
+        <img class="nm" src="__img_n_chat_new0__" style="left:0;top:506px;width:402px;height:48px" alt="">
+        <img class="nm" src="__img_n_chat_new1__" style="left:0;top:554px;width:402px;height:148px" alt="">
+        <div class="hot" id="chRoute" role="button" aria-label="길 찾기" style="left:255px;top:654px;width:116px;height:36px;border-radius:18px"></div>
+        <img class="nm" src="__img_n_chat_new2__" style="left:0;top:702px;width:402px;height:54px" alt="">
+        <img class="nm" src="__img_n_chat_new3__" style="left:0;top:760px;width:402px;height:66px" alt="">
+        <img class="nm" src="__img_n_chat_new4__" style="left:0;top:828px;width:402px;height:64px" alt="">
+        <img class="nm" src="__img_n_chat_new5__" style="left:0;top:892px;width:402px;height:56px" alt="">
+        </div>
+        <img class="thread-a" id="threadA" src="__img_n_chat_a__" style="left:0;top:500px;width:402px;height:485px" alt="Dayun: 헐 수민이 오늘 시험인데 운세 1등 뜸 / Sumin: 아싸 오늘 운빨 미쳤다">
       </div>
     </div>
     <img class="abs" src="__img_n_chat_head__" style="left:0;top:0;width:402px;height:190px" alt="행운 공구방 3">
@@ -984,11 +1011,11 @@ let tab = "home";
 const frScroll = document.getElementById("frScroll");
 function setTab(name, instant) {
   if (name === tab && !instant) { if (name === "friends") frScroll.scrollTo({ top: 0, behavior: "smooth" }); return; }
-  tab = name;
+  const changed = name !== tab; tab = name;
   const owned = instant && !phone.classList.contains("no-anim");   // 이미 바깥에서 애니메이션을 끈 상태면 건드리지 않음
   if (owned) phone.classList.add("no-anim");
   phone.classList.toggle("tab-friends", name === "friends");
-  if (name === "friends") frScroll.scrollTop = 0;
+  if (name === "friends" && changed) frScroll.scrollTop = 0;   // 같은 탭으로 돌아올 때(스토리 보고 복귀 등)는 보던 위치 유지
   syncNav(name);
   if (owned) { void phone.offsetWidth; phone.classList.remove("no-anim"); }
 }
@@ -1128,15 +1155,26 @@ document.querySelectorAll(".back").forEach(b => b.addEventListener("click", pop)
 
 // ── 행운 공구방 채팅 (결과 '확인' 또는 친구방 Lucky Talk에서 들어옴)
 const chat = document.getElementById("scr-chat"), chMsgs = document.getElementById("chMsgs"), chThread = document.getElementById("chThread");
-const THREAD_H = 998;
+const threadA = document.getElementById("threadA"), chRoute = document.getElementById("chRoute");
+const chNms = [...chThread.querySelectorAll(".nm")];
 let chatTimers = [], rankSeen = false;
+const nmBottom = m => m.offsetTop + m.offsetHeight;
+// 대화 배치: B(겹쳐보기) → 보낸 장소·답장 → A(순위 비교, 확인 후). 보이는 내용 끝 + 여백만큼 스크롤 높이를 잡음
+function bEnd() { const shown = chNms.filter(m => m.classList.contains("show")); return shown.length ? nmBottom(shown[shown.length - 1]) : 500; }
+function threadEnd() { return threadA.classList.contains("show") ? threadA.offsetTop + 485 : bEnd(); }
+function layoutThread() {
+  threadA.style.top = (bEnd() + (bEnd() > 500 ? 14 : 4)) + "px";
+  chThread.style.height = (threadEnd() + 24) + "px";
+  chRoute.classList.toggle("on", chNms[1].classList.contains("show"));
+}
+function scrollToY(y) { chMsgs.scrollTo({ top: Math.max(0, y - chMsgs.clientHeight + 20), behavior: "smooth" }); }
 function resetChat() {
   chatTimers.forEach(clearTimeout); chatTimers = [];
   chat.classList.add("no-anim");
-  chat.classList.remove("mixing", "spread", "mode-b", "ranked", "dimmed", "rk-reveal");
+  chat.classList.remove("mixing", "spread", "ranked", "dimmed", "rk-reveal");
   rankSeen = false; if (typeof clearMine === "function") clearMine();
-  chat.querySelectorAll(".nm.show").forEach(m => m.classList.remove("show"));
-  chThread.style.height = THREAD_H + "px"; chMsgs.scrollTop = 0;
+  chNms.forEach(m => m.classList.remove("show")); threadA.classList.remove("show");
+  layoutThread(); chMsgs.scrollTop = 0;
   void chat.offsetWidth; chat.classList.remove("no-anim");
 }
 function openChat() {
@@ -1147,21 +1185,22 @@ document.getElementById("luckyTalk").addEventListener("click", openChat);
 document.getElementById("luckyTalkCard").addEventListener("click", openChat);
 dragScroll(chMsgs, "y");
 
-// 운세 순위 비교: 처음엔 딤0(제목) → 딤1(1등 발표), 확인 후엔 버튼으로 순위 바를 닫고/열기
+// 운세 순위 비교: 처음엔 딤0(제목) → 딤1(1등 발표). '확인'하면 순위 바가 열리고 순위 비교 대화(A)가 이어서 나타남
 document.getElementById("chChip").addEventListener("click", () => {
   if (busy || stack[stack.length - 1] !== "chat" || chat.classList.contains("mixing") || chat.classList.contains("dimmed")) return;
-  if (chat.classList.contains("mode-b")) {     // 겹쳐보기 대화에서 누르면 순위 대화(A)로 돌아와서
-    clearMine(); chat.classList.add("no-anim"); chat.classList.remove("mode-b"); chThread.style.height = THREAD_H + "px"; chMsgs.scrollTop = 0;
-    chat.querySelectorAll(".nm.show").forEach(m => m.classList.remove("show")); void chat.offsetWidth; chat.classList.remove("no-anim");
-  }
   if (chat.classList.contains("ranked")) chat.classList.remove("ranked");
-  else if (rankSeen) chat.classList.add("ranked");
-  else { chMsgs.scrollTop = 0; chat.classList.remove("rk-reveal"); chat.classList.add("dimmed"); chatTimers.push(setTimeout(() => chat.classList.add("rk-reveal"), 1350)); }
+  else if (rankSeen) { chat.classList.add("ranked"); scrollToY(threadEnd() + 102); }
+  else { chat.classList.remove("rk-reveal"); chat.classList.add("dimmed"); chatTimers.push(setTimeout(() => chat.classList.add("rk-reveal"), 1350)); }
 });
 document.getElementById("rkOk").addEventListener("click", () => {
+  if (!chat.classList.contains("dimmed")) return;
   rankSeen = true; chat.classList.remove("dimmed", "rk-reveal");
-  setTimeout(() => chat.classList.add("ranked"), 220);
+  clearMine(); threadA.classList.add("show"); layoutThread();
+  setTimeout(() => { chat.classList.add("ranked"); scrollToY(threadEnd() + 102); }, 220);
+  chatTimers.push(setTimeout(() => chMsgs.scrollTo({ top: chMsgs.scrollHeight, behavior: "smooth" }), 820));   // 순위 바가 다 열린 뒤 끝까지
 });
+// 장소 카드의 '길 찾기' → 망원 한강공원 지도
+chRoute.addEventListener("click", () => { if (!busy && stack[stack.length - 1] === "chat") push("mapolink"); });
 
 // 운세 겹쳐보기: 버블이나 버튼 → 딤1(물음표 카드) → 자동으로 세 장이 펼쳐짐(딤2)
 function spreadMix() { if (chat.classList.contains("mixing")) chat.classList.add("spread"); }
@@ -1169,7 +1208,7 @@ function openMix() {
   if (busy || stack[stack.length - 1] !== "chat" || chat.classList.contains("mixing")) return;
   chat.classList.remove("spread"); chat.classList.add("mixing");
   // 딤 아래에서 채팅을 '운세 겹쳐보기' 대화(B)로 바꿔 둠 (딤에 가려 보이지 않음)
-  setTimeout(() => { clearMine(); chat.classList.add("no-anim"); chat.classList.remove("ranked"); chat.classList.add("mode-b"); chMsgs.scrollTop = 0; void chat.offsetWidth; chat.classList.remove("no-anim"); }, 360);
+  setTimeout(() => { chat.classList.add("no-anim"); chat.classList.remove("ranked"); chMsgs.scrollTop = 0; void chat.offsetWidth; chat.classList.remove("no-anim"); }, 360);
   chatTimers.push(setTimeout(spreadMix, 1700));
 }
 function closeMix() { chat.classList.remove("mixing", "spread"); }
@@ -1185,16 +1224,15 @@ Object.entries(mixGo).forEach(([id, to]) => document.getElementById(id).addEvent
 }));
 // 장소 공유하기 → 채팅으로 돌아와 내가 장소를 보내고, 친구들이 답장 (화면이 따라 내려감)
 function showMsg(i) {
-  const m = chThread.querySelectorAll(".nm")[i];
-  chThread.style.height = (+m.dataset.bottom + 24) + "px";
-  requestAnimationFrame(() => { m.classList.add("show"); chMsgs.scrollTo({ top: chMsgs.scrollHeight, behavior: "smooth" }); });
+  const m = chNms[i]; m.classList.add("show"); layoutThread();
+  requestAnimationFrame(() => scrollToY(nmBottom(m)));
 }
 document.getElementById("mpOk").addEventListener("click", () => { if (!busy) { pop(); setTimeout(closeMix, 300); } });
 document.getElementById("shareToChat").addEventListener("click", () => {
   if (busy || stack[stack.length - 1] !== "mixplace") return;
   pop(); closeMix(); clearMine();
   chatTimers.forEach(clearTimeout); chatTimers = [];
-  chat.querySelectorAll(".nm.show").forEach(m => m.classList.remove("show"));
+  chNms.forEach(m => m.classList.remove("show")); layoutThread(); chMsgs.scrollTop = 0;
   [900, 1500, 2100, 3400, 4300, 5100].forEach((t, i) => chatTimers.push(setTimeout(() => showMsg(i), t)));
 });
 
@@ -1615,8 +1653,7 @@ chIn.addEventListener("input", syncTyping);
 function clearMine() { chThread.querySelectorAll(".mine").forEach(m => m.remove()); chIn.value = ""; syncTyping(); }
 function contentBottom() {
   const mine = chThread.querySelectorAll(".mine"); if (mine.length) { const m = mine[mine.length - 1]; return m.offsetTop + m.offsetHeight; }
-  const shown = [...chThread.querySelectorAll(".nm.show")]; if (shown.length) return +shown[shown.length - 1].dataset.bottom;
-  return THREAD_H - 10;
+  return threadEnd();
 }
 function sendMine() {
   const v = chIn.value.trim(); if (!v) { chIn.focus(); return; }
