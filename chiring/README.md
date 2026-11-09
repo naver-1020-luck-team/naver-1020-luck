@@ -10,3 +10,6 @@
 
 ## 팀 프로토타입 연결
 민재님이 처음 붙이면서 빌드 파일에 직접 넣었던 연결(시작 탭 `#frequency`, 홈·친구방 버튼 → `chiring:home` / `chiring:friends`, `chiring:reset`, 사파리 키워드 칩 잘림 수정)은 이제 원본 코드에 들어가 있어서, 다시 빌드해도 유지돼요.
+
+## 팀 프로토타입에서 덧붙인 것
+선물 완료 참 등장 효과(CSS)와 magenta.js 주파수 소리(`team-sound.js`, `vendor/`)를 `index.html`에 붙여 두었어요. 다시 빌드할 때 유지하려면 [TEAM-PATCH.md](TEAM-PATCH.md)를 원본에 옮겨 주세요.
