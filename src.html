@@ -95,7 +95,7 @@
               overscroll-behavior: contain; scrollbar-width: none; cursor: grab; -webkit-overflow-scrolling: touch; }
   #frScroll::-webkit-scrollbar { display: none; }
   #frScroll.dragging { cursor: grabbing; }
-  .fr-content { position: relative; width: 402px; height: 810px; }
+  .fr-content { position: relative; width: 402px; height: 819px; }
   /* 작은 글자는 HTML로 다시 그림 (배경색으로 이미지 글자를 덮음) */
   .fr-text { position: absolute; background: #0e0e0e; color: #ececec; font-family: "Pretendard", -apple-system, sans-serif;
              font-size: 14.5px; font-weight: 500; letter-spacing: -.35px; line-height: 24px; pointer-events: none; }
@@ -103,7 +103,7 @@
                font-family: "Pretendard", -apple-system, sans-serif; font-size: 18px; font-weight: 600; letter-spacing: -.4px; line-height: 34px; pointer-events: none; }
   .fr-content > img { display: block; pointer-events: none; }
   /* Lucky Moments: 가로 스크롤 (시안 세 장을 이어 붙인 띠, 최대 480px) */
-  #frRow { position: absolute; left: 0; top: 536px; width: 402px; height: 274px; overflow-x: auto; overflow-y: hidden;
+  #frRow { position: absolute; left: 0; top: 545px; width: 402px; height: 274px; overflow-x: auto; overflow-y: hidden;
            scrollbar-width: none; overscroll-behavior-x: contain; background: #0e0e0e; }
   #frRow::-webkit-scrollbar { display: none; }
   #frRow img { display: block; width: 882px; height: 274px; pointer-events: none; }
@@ -111,8 +111,35 @@
   .moment-hot { position: absolute; top: 0; width: 160px; height: 274px; border: 0; padding: 0; background: transparent; cursor: pointer;
                 border-radius: 28px; transition: transform .4s var(--spring); }
   .moment-hot:active { transform: scale(.97); transition: transform .12s; }
-  #luckyTalk, #luckyTalkCard { border-radius: 40px; transition: transform .4s var(--spring); }
-  #luckyTalkCard:active { transform: scale(.98); }
+  #luckyTalk { border-radius: 40px; transition: transform .4s var(--spring); }
+  /* 운세 수다방 카드: 가운데 1장 + 양옆 2장씩. 옆 카드를 누르거나 밀면 돌아감 (1109 시안) */
+  #rooms { position: absolute; left: 0; top: 122px; width: 402px; height: 318px; touch-action: pan-y; }
+  .room { position: absolute; top: 0; left: 50%; width: 197px; height: 318px; border-radius: 60px; overflow: hidden; padding: 0; border: 0;
+    background: #2a2a2a; color: #fff; text-align: center; transform: translateX(-50%); cursor: pointer; -webkit-tap-highlight-color: transparent;
+    font-family: "Pretendard", -apple-system, sans-serif;
+    transition: left .5s cubic-bezier(.22,1,.36,1), top .5s cubic-bezier(.22,1,.36,1), width .5s cubic-bezier(.22,1,.36,1), height .5s cubic-bezier(.22,1,.36,1), opacity .45s var(--ease), box-shadow .45s var(--ease); }
+  .room > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+  .room .rm-grad { position: absolute; inset: 0; background: linear-gradient(rgba(0,0,0,0) 29.4%, #000 100%); opacity: 0; transition: opacity .45s var(--ease); }
+  .room .rm-dim { position: absolute; inset: 0; background: rgba(0,0,0,.2); transition: opacity .45s var(--ease), background .45s var(--ease); }
+  .room .rm-badge { position: absolute; top: 17.5px; right: 25.5px; width: 21px; height: 21px; border-radius: 50%; background: #FF39C7; color: #000;
+    font-size: 14px; font-weight: 700; line-height: 21px; transition: opacity .3s var(--ease); }
+  .room .rm-info { position: absolute; left: 0; right: 0; top: 218px; display: flex; flex-direction: column; align-items: center; transition: top .5s cubic-bezier(.22,1,.36,1); }
+  .room .rm-mem { font-size: 14px; font-weight: 500; line-height: 1.45; letter-spacing: -.56px; color: rgba(255,255,255,.7); transition: opacity .3s var(--ease); }
+  .room .rm-title { margin-top: 9px; font-size: 22px; font-weight: 600; line-height: 1.3; letter-spacing: -.88px; white-space: nowrap; color: rgba(255,255,255,.8);
+    display: inline-flex; align-items: center; gap: 6.7px; transition: opacity .3s var(--ease), color .3s var(--ease); }
+  .room[data-pos="0"] { z-index: 5; box-shadow: 3.5px 3.5px 48px rgba(55,55,55,.25); }
+  .room[data-pos="0"] .rm-grad { opacity: 1; } .room[data-pos="0"] .rm-dim { opacity: 0; } .room[data-pos="0"] .rm-title { color: #fff; }
+  .room[data-pos="-1"], .room[data-pos="1"] { z-index: 4; top: 28px; width: 162.6px; height: 262.5px; box-shadow: 3.5px 3.5px 48px rgba(187,187,187,.25); }
+  .room[data-pos="-1"] { left: calc(50% - 72.5px); } .room[data-pos="1"] { left: calc(50% + 73.3px); }
+  .room[data-pos="-2"], .room[data-pos="2"] { z-index: 3; top: 57px; width: 126px; height: 205px; opacity: .89; }
+  .room[data-pos="-2"] { left: calc(50% - 118px); } .room[data-pos="2"] { left: calc(50% + 118px); }
+  .room[data-pos="-2"] .rm-dim, .room[data-pos="2"] .rm-dim { background: rgba(0,0,0,.4); }
+  .room:not([data-pos="0"]) .rm-badge, .room:not([data-pos="0"]) .rm-mem, .room[data-pos="-2"] .rm-title, .room[data-pos="2"] .rm-title { opacity: 0; }
+  .room:not([data-pos="0"]) .rm-info { top: 176px; }
+  .room.baked .rm-grad { display: none; }
+  .room.wrap { z-index: 1 !important; animation: rmWrap .5s cubic-bezier(.65,0,.35,1); }
+  @keyframes rmWrap { 0%, 100% { opacity: .89; } 50% { opacity: 0; } }
+  .room[data-pos="0"]:active { transform: translateX(-50%) scale(.98); transition: transform .15s var(--ease); }
 
   /* ── 행운 공구방 채팅 ── */
   #scr-chat { background: #fff; }
@@ -419,6 +446,59 @@
   .cc-t, .cc-s { transform-origin: 0 0; transition: transform .55s cubic-bezier(.65,0,.35,1); }
   .ccard:not([data-slot="0"]) .cc-t { transform: translateY(9px); }
   .ccard:not([data-slot="0"]) .cc-s { transform: translateY(19px); }
+  /* ── Lucky Moments (스토리) ── */
+  #scr-story { background: #0e0e0e; }
+  #story { position: absolute; inset: 0; overflow: hidden; color: #fff; font-family: "Pretendard", -apple-system, sans-serif; touch-action: pan-y; }
+  #story.slide-l { animation: stInL .42s cubic-bezier(.22,1,.36,1); } #story.slide-r { animation: stInR .42s cubic-bezier(.22,1,.36,1); }
+  @keyframes stInL { from { transform: translateX(42%); opacity: .2; } } @keyframes stInR { from { transform: translateX(-42%); opacity: .2; } }
+  #stPhoto { position: absolute; left: 20px; top: 125px; width: 362px; height: 424px; transform-origin: 50% 0;
+    -webkit-mask: url(__img_lm_mask__) 0 0 / 100% 100%; mask: url(__img_lm_mask__) 0 0 / 100% 100%; touch-action: none; }
+  #stImg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; pointer-events: none; transition: object-position .4s cubic-bezier(.22,1,.36,1); }
+  #story.typing #stImg { object-position: 50% 50% !important; }
+  #stCap { position: absolute; left: 50%; top: 29px; height: 39px; min-width: 217px; padding: 0 29px; transform: translateX(-50%); border-radius: 45px;
+    background: #fff; color: #000; display: flex; align-items: center; justify-content: center; font-size: 21px; font-weight: 500; letter-spacing: -1.05px; white-space: nowrap; }
+  #stCap:empty { display: none; }
+  .stk { position: absolute; width: 0; height: 0; }
+  .stk-art { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); }
+  .stk-art img { position: absolute; image-rendering: pixelated; pointer-events: none; }
+  .stk-label { position: absolute; left: 0; top: 0; transform: translate(-50%, var(--lo)); height: 25px; padding: 0 9px; border-radius: 27px;
+    background: rgba(255,255,255,.5); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); color: #000; font-size: 13px; font-weight: 600;
+    letter-spacing: -.52px; line-height: 25px; white-space: nowrap; }
+  .stk.stamp .stk-art { animation: stkStamp .55s cubic-bezier(.2,.9,.3,1.2) both; animation-delay: var(--dl, 0ms); }
+  .stk.stamp .stk-label { animation: stkLabel .35s cubic-bezier(.34,1.56,.64,1) both; animation-delay: calc(var(--dl, 0ms) + 280ms); }
+  @keyframes stkStamp { 0% { opacity: 0; scale: 1.9; rotate: -14deg; } 45% { opacity: 1; scale: .86; rotate: 5deg; } 70% { scale: 1.08; rotate: -2deg; } 100% { opacity: 1; scale: 1; rotate: 0deg; } }
+  @keyframes stkLabel { from { opacity: 0; scale: .6; translate: 0 -6px; } to { opacity: 1; scale: 1; translate: 0 0; } }
+  .stk.ghost { z-index: 30; pointer-events: none; } .stk.ghost .stk-art { transform: translate(-50%, -50%) scale(1.15); filter: drop-shadow(0 6px 12px rgba(0,0,0,.5)); }
+  #stAuthor { position: absolute; left: 0; right: 0; top: 564px; height: 36px; display: flex; justify-content: center; align-items: center; gap: 7px; }
+  .st-av { position: relative; width: 35px; height: 35px; border-radius: 50%; overflow: hidden; border: 1.3px solid #7b7b7b; background: #d1d7de; flex: none; }
+  .st-av img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; max-width: none; }
+  #stName { font-size: 18px; font-weight: 700; letter-spacing: -.72px; }
+  .st-btn { position: absolute; display: grid; place-items: center; border-radius: 50%; background: rgba(63,63,63,.3); border: 1.4px solid #2d2d2d;
+    padding: 0; cursor: grab; touch-action: none; -webkit-tap-highlight-color: transparent; transition: transform .15s var(--ease), opacity .25s var(--ease); }
+  .st-btn:active { transform: scale(.9); }
+  .st-btn img { image-rendering: pixelated; pointer-events: none; }
+  #stHint { position: absolute; left: 0; right: 0; top: 729px; margin: 0; text-align: center; font-size: 14px; letter-spacing: -.56px; color: rgba(255,255,255,.7); }
+  #stMsg { position: absolute; left: 20px; top: 780px; width: 362px; height: 60px; border-radius: 40px; background: #282828; }
+  #stIn { width: 100%; height: 100%; padding: 0 70px 0 35px; border: 0; outline: 0; background: transparent; color: #fff; font: inherit; font-size: 18px; letter-spacing: -.72px; caret-color: #FF39C7; }
+  #stIn::placeholder { color: rgba(255,255,255,.8); }
+  #stSend { position: absolute; right: 9px; top: 8px; width: 44px; height: 44px; border-radius: 50%; border: 0; padding: 0; background: #FF39C7; display: grid; place-items: center; cursor: pointer; }
+  #stSend:active { transform: scale(.9); }
+  #stKbd { position: absolute; left: 0; top: 566px; width: 402px; height: 308px; transform: translateY(100%); pointer-events: none; }
+  #stPhoto, #stAuthor, #stMsg, #stSend, #stHint, #stKbd { transition: transform .4s cubic-bezier(.22,1,.36,1), top .4s cubic-bezier(.22,1,.36,1), height .4s cubic-bezier(.22,1,.36,1),
+    width .4s cubic-bezier(.22,1,.36,1), right .4s cubic-bezier(.22,1,.36,1), background .35s var(--ease), opacity .25s var(--ease); }
+  /* 메시지 입력: 사진이 작아지며 위로, 키보드가 올라옴 ('Lucky Moments_텍스트 입력' 시안) */
+  #story.typing #stPhoto { height: 442px; transform: translateY(-42px) scale(.73); }   /* 시안: 264×323 */
+  #story.typing #stAuthor { transform: translateY(-145px) scale(.83); }
+  #story.typing .st-btn, #story.typing #stHint { opacity: 0; pointer-events: none; }
+  #story.typing #stMsg { top: 501px; width: 356px; height: 52px; background: #2d2d2d; }
+  #story.typing #stIn { font-size: 17px; padding-left: 22px; }
+  #story.typing #stSend { top: 5px; right: 5px; width: 42px; height: 42px; }
+  #story.typing #stKbd { transform: none; }
+  #stBackHide { position: absolute; left: 18px; top: 56px; width: 52px; height: 52px; border-radius: 50%; background: #0e0e0e; opacity: 0; pointer-events: none; transition: opacity .25s var(--ease); }
+  #story.typing #stBackHide { opacity: 1; }   /* 입력 중에는 뒤로 버튼 없음 (시안) */
+  .ccard.wrap { z-index: 0 !important; animation: ccWrap .55s cubic-bezier(.65,0,.35,1); }
+  .ccard.leave { z-index: 2 !important; }
+  @keyframes ccWrap { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
   .ccard[data-slot="0"].pressed { transform: scale(.97); transition: transform .12s var(--ease-out); }
 
   /* 오늘의운세_화면: 딤2와 같은 자리의 카드라 부드럽게 겹쳐 바뀜 */
@@ -626,9 +706,11 @@
    <div class="inner">
     <div id="frScroll">
       <div class="fr-content">
-        <img src="__img_n_fr_top__" style="width:402px;height:544px" alt="운세 수다방 · 오늘의 행운 모먼트" draggable="false">
+        <img src="__img_n_fr_top__" style="width:402px;height:549px" alt="운세 수다방 · 오늘의 행운 모먼트" draggable="false">
         <div class="hot" id="luckyTalk" style="left:0;top:16px;width:300px;height:76px" aria-label="운세 수다방"></div>
-        <div class="hot" id="luckyTalkCard" style="left:103px;top:122px;width:196px;height:317px;border-radius:30px" aria-label="행운 공구방 입장하기"></div>
+        <div class="sb" data-fx="toast" data-msg="새 수다방 만들기는 곧 열려요" role="button" aria-label="수다방 추가" style="left:340px;top:19px;width:44px;height:44px;"></div>
+        <div class="sb" data-fx="toast" data-msg="내 행운 모먼트 올리기는 곧 열려요" role="button" aria-label="모먼트 추가" style="left:346px;top:491px;width:44px;height:44px;"></div>
+        <div id="rooms" aria-label="운세 수다방 목록"></div>
         <div id="frRow"><div class="fr-row-in"><img src="__img_fr_row__" alt="Lucky Moments" draggable="false">
           <button class="moment-hot" data-moment="unahynn" style="left:20px" aria-label="Unahynn의 스토리 보기"></button>
           <button class="moment-hot" data-moment="sumin" style="left:190px" aria-label="Sumin의 스토리 보기"></button>
@@ -644,8 +726,27 @@
    <div class="shade"></div>
   </div>
 
+  <!-- Lucky Moments (친구 스토리): 사진 + 기운 스티커 + 메시지 (1109 시안) -->
+  <div class="layer push" id="scr-story">
+   <div class="inner">
+    <div id="story">
+     <img class="abs" src="__img_lm_head__" style="left:0;top:0;width:402px;height:112px" alt="">
+     <div id="stPhoto"><img id="stImg" alt="" draggable="false"><div id="stCap"></div><div id="stStk"></div></div>
+     <div id="stAuthor"><span class="st-av"><img id="stAv" alt="" draggable="false"></span><b id="stName"></b></div>
+     <div id="stBtns"></div>
+     <p id="stHint">눌러서 기운 보내기</p>
+     <div id="stMsg"><input id="stIn" placeholder="메세지 남기기" autocomplete="off" inputmode="none" aria-label="메세지 남기기"><button type="button" id="stSend" aria-label="보내기"><svg width="30" height="31" viewBox="0 0 30 31" aria-hidden="true"><path fill="#fff" d="M23.95 14.18a.93.93 0 0 1-1.31 0l-6.77-6.77v18.18a.93.93 0 1 1-1.86 0V7.41l-6.77 6.77a.93.93 0 0 1-1.31-1.31l8.35-8.35a.93.93 0 0 1 1.31 0l8.35 8.35a.93.93 0 0 1 0 1.31z"/></svg></button></div>
+     <div class="home-indicator"></div>
+     <img id="stKbd" src="__img_lm_kbd__" alt="" draggable="false">
+     <i id="stBackHide"></i>
+     <div class="hot" id="stBack" style="left:12px;top:52px;width:64px;height:60px" aria-label="뒤로"></div>
+    </div>
+   </div>
+   <div class="shade"></div>
+  </div>
+
   <!-- 하단 내비: 홈·친구방·주파수 모두 같은 모양 (팀원 앱 내비와 동일) -->
-  <nav class="bottom-nav" id="appNav" aria-label="하단 메뉴"><ul class="bottom-nav__list"><li><button type="button" data-tab="home" class="bottom-nav__item"><svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.0098 3H15.0116V4.45584H16.0125V6.06766H17.0134V7.17687H18.0142V8.28609H19.0151V9.3953H20.016V10.5045H21.0169V11.6137H22.0178V12.7229H23.0187V13.8321H24.0196V14.9414H25.0205V16.0506H26.0214V17.1598H21.7752V25.9295H17.0134V19.3782H11.008V25.9295H6.36752V17.1598H2V16.0506H3.00089V14.9414H4.00178V13.8321H5.00267V12.7229H6.00356V11.6137H7.00445V10.5045H8.00534V9.3953H9.00623V8.28609H10.0071V7.17687H11.008V6.06766H12.0089V4.45584H13.0098V3Z"></path><rect x="9.03906" y="16.4648" width="10.1909" height="9.46296"></rect></svg><span>홈</span></button></li><li><button type="button" data-tab="myluck" class="bottom-nav__item"><svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor" aria-hidden="true"><path d="M15 13H13V11H11V9H9V3L13 3V5H15V3H19V9H17V11H15V13ZM15 13H17V11H19V9H25V13H23V15H25V19H19V17H17V15H15V13ZM9 19H3V15H5V13H3L3 9H9V11H11V13H13V15H11V17H9V19ZM9 19H11V17H13V15H15V17H17V19H19V25H15V23H13V25H9V19Z"></path></svg><span>아카이브</span></button></li><li><button type="button" data-tab="friends" class="bottom-nav__item"><svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.4116 3H16.9702V3.93174H17.8967V4.86348H18.8231V5.79521H19.7495V10.4539H18.8231V11.3856H17.8967V12.3174H16.9702V13.2491H11.4116V12.3174H10.4851V11.3856H9.55866V10.4539H8.63222V5.79521H9.55866V4.86348H10.4851V3.93174H11.4116V3ZM11.4116 15.1126H16.9702V16.0443H18.8231V16.9761H20.676V17.9078H21.6024V18.8395H22.5289V19.7713H23.4553V21.6348H24.3818V26.2934H23.4553V26.2094H4.92644V26.2934H4V21.6348H4.92644V19.7713H5.85289V18.8395H6.77933V17.9078H7.70578V16.9761H9.55866V16.0443H11.4116V15.1126Z"></path></svg><span>친구방</span></button></li><li><button type="button" data-tab="frequency" class="bottom-nav__item is-active" aria-current="page"><svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2322 0H15.2744V5.06944H16.2955V9.125H20.38V11.1528H19.3589V12.1667H22.4222V13.1806H26.5066V15.2083H22.4222V16.2222H19.3589V17.2361H20.38V19.2639H16.2955V23.3194H15.2744V28H13.2322V23.3194H12.2111V19.2639H8.12666V17.2361H9.14777V16.2222H6.08444V15.2083H2V13.1806H6.08444V12.1667H9.14777V11.1528H8.12666V9.125H12.2111V5.06944H13.2322V0Z"></path></svg><span>기운</span></button></li></ul><div class="home-indicator"></div></nav>
+  <nav class="bottom-nav" id="appNav" aria-label="하단 메뉴"><ul class="bottom-nav__list"><li><button type="button" data-tab="home" class="bottom-nav__item"><svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.0098 3H15.0116V4.45584H16.0125V6.06766H17.0134V7.17687H18.0142V8.28609H19.0151V9.3953H20.016V10.5045H21.0169V11.6137H22.0178V12.7229H23.0187V13.8321H24.0196V14.9414H25.0205V16.0506H26.0214V17.1598H21.7752V25.9295H17.0134V19.3782H11.008V25.9295H6.36752V17.1598H2V16.0506H3.00089V14.9414H4.00178V13.8321H5.00267V12.7229H6.00356V11.6137H7.00445V10.5045H8.00534V9.3953H9.00623V8.28609H10.0071V7.17687H11.008V6.06766H12.0089V4.45584H13.0098V3Z"></path><rect x="9.03906" y="16.4648" width="10.1909" height="9.46296"></rect></svg><span>홈</span></button></li><li><button type="button" data-tab="myluck" class="bottom-nav__item"><svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor" aria-hidden="true"><path d="M15 13H13V11H11V9H9V3L13 3V5H15V3H19V9H17V11H15V13ZM15 13H17V11H19V9H25V13H23V15H25V19H19V17H17V15H15V13ZM9 19H3V15H5V13H3L3 9H9V11H11V13H13V15H11V17H9V19ZM9 19H11V17H13V15H15V17H17V19H19V25H15V23H13V25H9V19Z"></path></svg><span>아카이브</span></button></li><li><button type="button" data-tab="friends" class="bottom-nav__item"><svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.4116 3H16.9702V3.93174H17.8967V4.86348H18.8231V5.79521H19.7495V10.4539H18.8231V11.3856H17.8967V12.3174H16.9702V13.2491H11.4116V12.3174H10.4851V11.3856H9.55866V10.4539H8.63222V5.79521H9.55866V4.86348H10.4851V3.93174H11.4116V3ZM11.4116 15.1126H16.9702V16.0443H18.8231V16.9761H20.676V17.9078H21.6024V18.8395H22.5289V19.7713H23.4553V21.6348H24.3818V26.2934H23.4553V26.2094H4.92644V26.2934H4V21.6348H4.92644V19.7713H5.85289V18.8395H6.77933V17.9078H7.70578V16.9761H9.55866V16.0443H11.4116V15.1126Z"></path></svg><span>친구방</span></button></li><li><button type="button" data-tab="frequency" class="bottom-nav__item is-active" aria-current="page"><svg width="28" height="28" viewBox="0 0 28 28" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.2322 0H15.2744V5.06944H16.2955V9.125H20.38V11.1528H19.3589V12.1667H22.4222V13.1806H26.5066V15.2083H22.4222V16.2222H19.3589V17.2361H20.38V19.2639H16.2955V23.3194H15.2744V28H13.2322V23.3194H12.2111V19.2639H8.12666V17.2361H9.14777V16.2222H6.08444V15.2083H2V13.1806H6.08444V12.1667H9.14777V11.1528H8.12666V9.125H12.2111V5.06944H13.2322V0Z"></path></svg><span>기운 충전</span></button></li></ul><div class="home-indicator"></div></nav>
 
   <!-- 주파수 (팀원 앱 chiring/ 을 폰 화면 안에 그대로) -->
   <div class="layer" id="freqLayer"><iframe id="freqFrame" title="주파수" src="about:blank"></iframe></div>
@@ -955,6 +1056,44 @@
    <div class="shade"></div>
   </div>
 
+  <!-- 운세겹쳐보기_오늘의 행운 아이템 연결 (Beige Muffler) -->
+  <div class="layer push" id="scr-mixitem">
+   <div class="inner">
+    <img class="abs d-in d-hero" src="__img_n_mxi_hero__" style="left:0;top:112px;width:402px;height:393px" alt="오늘의 행운 아이템 · Beige Muffler">
+    <img class="abs" src="__img_n_mxi_head__" style="left:0;top:0;width:402px;height:112px" alt="">
+    <img class="abs d-in d-body" src="__img_n_mxi_body__" style="left:20px;top:505px;width:362px;height:65px" alt="">
+    <img class="abs d-in d-icons" src="__img_n_mxi_icons__" style="left:14px;top:605px;width:374px;height:140px" alt="안정감 UP · 차분한 하루 · 흙의 기운">
+    <div class="sb" data-fx="tap" role="button" aria-label="기운" style="left:20px;top:616px;width:115px;height:115px;border-radius:24px;"></div>
+    <div class="sb" data-fx="tap" role="button" aria-label="기운" style="left:144px;top:616px;width:115px;height:115px;border-radius:24px;"></div>
+    <div class="sb" data-fx="tap" role="button" aria-label="기운" style="left:267px;top:616px;width:115px;height:115px;border-radius:24px;"></div>
+    <div class="abs d-in d-btn" style="left:14px;top:776px;width:374px;height:70px">
+      <img class="abs press mx-ok" role="button" src="__img_n_mxi_ok__" style="left:0;top:0;width:188px;height:70px;cursor:pointer" alt="확인">
+      <img class="abs press mx-share" id="mxiShare" role="button" src="__img_n_mxi_share__" style="left:188px;top:0;width:186px;height:70px;cursor:pointer" alt="아이템 공유하기">
+    </div>
+    <img class="abs" src="__img_n_mxi_bar__" style="left:120px;top:850px;width:162px;height:24px" alt="">
+    <div class="hot back" style="left:0;top:56px;width:72px;height:48px" aria-label="뒤로"></div>
+   </div>
+   <div class="shade"></div>
+  </div>
+  <!-- 운세겹쳐보기_오늘의 행운 플리 연결 (Freudian) -->
+  <div class="layer push" id="scr-mixmusic">
+   <div class="inner">
+    <img class="abs d-in d-hero" src="__img_n_mxm_hero__" style="left:0;top:112px;width:402px;height:393px" alt="오늘의 행운 플리 · Freudian">
+    <img class="abs" src="__img_n_mxm_head__" style="left:0;top:0;width:402px;height:112px" alt="">
+    <img class="abs d-in d-body" src="__img_n_mxm_body__" style="left:20px;top:505px;width:362px;height:65px" alt="">
+    <img class="abs d-in d-icons" src="__img_n_mxm_icons__" style="left:14px;top:605px;width:374px;height:140px" alt="집중력 UP · 차분한 마음 · 물의 기운">
+    <div class="sb" data-fx="tap" role="button" aria-label="기운" style="left:20px;top:616px;width:115px;height:115px;border-radius:24px;"></div>
+    <div class="sb" data-fx="tap" role="button" aria-label="기운" style="left:144px;top:616px;width:115px;height:115px;border-radius:24px;"></div>
+    <div class="sb" data-fx="tap" role="button" aria-label="기운" style="left:267px;top:616px;width:115px;height:115px;border-radius:24px;"></div>
+    <div class="abs d-in d-btn" style="left:14px;top:776px;width:374px;height:70px">
+      <img class="abs press mx-ok" role="button" src="__img_n_mxm_ok__" style="left:0;top:0;width:188px;height:70px;cursor:pointer" alt="확인">
+      <img class="abs press mx-share" id="mxmShare" role="button" src="__img_n_mxm_share__" style="left:188px;top:0;width:186px;height:70px;cursor:pointer" alt="플리 공유하기">
+    </div>
+    <img class="abs" src="__img_n_mxm_bar__" style="left:120px;top:850px;width:162px;height:24px" alt="">
+    <div class="hot back" style="left:0;top:56px;width:72px;height:48px" aria-label="뒤로"></div>
+   </div>
+   <div class="shade"></div>
+  </div>
   <!-- 운세겹쳐보기_오늘의 행운 장소 연결 (Mapo River) -->
   <div class="layer push" id="scr-mixplace">
    <div class="inner">
@@ -1141,8 +1280,17 @@ dragScroll(document.getElementById("frRow"), "x");
 // ── 홈 캐러셀: 가운데 = Lucky Item, 왼쪽 = Place, 오른쪽 = Music. 옆 카드 탭·좌우 밀기로 회전, 가운데 탭 → 상세
 const cards = [...document.querySelectorAll(".ccard")];
 const ctaEl = document.getElementById("ctaCapture");
+let carRotT = 0;
 function rotateCarousel(dir) {          // dir = 1: 오른쪽 카드가 가운데로
-  cards.forEach(c => { let s = +c.dataset.slot - dir; if (s > 1) s = -1; if (s < -1) s = 1; c.dataset.slot = s; });
+  cards.forEach(c => {
+    const old = +c.dataset.slot; let s = old - dir, wrap = false;
+    if (s > 1) { s = -1; wrap = true; } if (s < -1) { s = 1; wrap = true; }
+    c.classList.remove("wrap", "leave"); void c.offsetWidth;
+    c.classList.toggle("wrap", wrap);          // 반대편으로 넘어가는 카드: 가운데 카드 뒤로 지나감
+    c.classList.toggle("leave", old === 0);    // 가운데에서 빠지는 카드: 넘어가는 카드보다는 위
+    c.dataset.slot = s;
+  });
+  clearTimeout(carRotT); carRotT = setTimeout(() => cards.forEach(c => c.classList.remove("wrap", "leave")), 650);
 }
 function resetCarousel() {
   const base = { item: 0, place: -1, music: 1 };
@@ -1200,6 +1348,7 @@ function resetNav() {
   stack = ["home"]; setTab("home", true);
   if (phone.classList.contains("tab-freq")) { phone.classList.remove("tab-freq"); if (typeof freqSend === "function") freqSend("chiring:reset"); }
   if (typeof resetCarousel === "function") resetCarousel();
+  if (typeof resetRooms === "function") resetRooms();
   document.querySelectorAll(".push.on, .under, .under-m, .hcard.sel").forEach(e => e.classList.remove("on", "under", "under-m", "sel"));
   resetCamera(); stopCharm(); if (typeof resetChat === "function") resetChat();
   if (typeof stopPano === "function") { stopPano(); window.evStop && window.evStop(); }
@@ -1255,7 +1404,51 @@ function openChat() {
   resetChat(); push("chat");
 }
 document.getElementById("luckyTalk").addEventListener("click", openChat);
-document.getElementById("luckyTalkCard").addEventListener("click", openChat);
+// 운세 수다방 카드 (팀원 앱 FriendsRoom과 같은 데이터·배치). 가운데 = 행운 공구방
+const CLOVER = '<svg width="17" height="17" viewBox="0 0 17 17" fill="currentColor" aria-hidden="true"><path d="M9 7.5H7.5V6H6V4.5H4.5V0H7.5V1.5H9V0H12V4.5H10.5V6H9V7.5ZM9 7.5H10.5V6H12V4.5H16.5V7.5H15V9H16.5V12H12V10.5H10.5V9H9V7.5ZM4.5 12H0V9H1.5V7.5H0V4.5H4.5V6H6V7.5H7.5V9H6V10.5H4.5V12ZM4.5 12H6V10.5H7.5V9H9V10.5H10.5V12H12V16.5H9V15H7.5V16.5H4.5V12Z"/></svg>';
+const ROOMS = [
+  { title: "액운 반사단", mem: "민지님 외 3명", unread: 3, img: "__img_room_l__" },
+  { title: "행운 공구방", mem: "수민님 외 2명", unread: 8, img: "__img_room_c__", clover: true, baked: true, chat: true },
+  { title: "LuckyClub", mem: "권님 외 4명", unread: 2, img: "__img_room_r__" },
+  { title: "마음 수련방", mem: "지수님 외 5명", unread: 1, img: "__img_room_5__" },
+  { title: "공주모임", mem: "하늘님 외 1명", unread: 4, img: "__img_room_4__" },
+];
+const roomsEl = document.getElementById("rooms");
+let roomActive = 1, roomT = 0;
+const roomEls = ROOMS.map((r, i) => {
+  const b = document.createElement("button"); b.type = "button"; b.className = "room" + (r.baked ? " baked" : "");
+  b.innerHTML = `<img src="${r.img}" alt="" draggable="false"><i class="rm-grad"></i><i class="rm-dim"></i><span class="rm-badge">${r.unread}</span>` +
+    `<span class="rm-info"><span class="rm-mem">${r.mem}</span><span class="rm-title">${r.title}${r.clover ? CLOVER : ""}</span></span>`;
+  b.setAttribute("aria-label", r.title); roomsEl.appendChild(b); return b;
+});
+const roomOff = i => { const n = ROOMS.length; let d = ((i - roomActive) % n + n) % n; if (d > n / 2) d -= n; return d; };
+function layoutRooms(animate) {
+  roomEls.forEach((el, i) => {
+    const d = roomOff(i), old = el.dataset.pos === undefined ? d : +el.dataset.pos;
+    el.classList.remove("wrap"); if (animate && Math.abs(d - old) > 2) { void el.offsetWidth; el.classList.add("wrap"); }   // 끝에서 끝으로: 뒤로 지나감
+    el.dataset.pos = d;
+  });
+  clearTimeout(roomT); roomT = setTimeout(() => roomEls.forEach(el => el.classList.remove("wrap")), 600);
+}
+function rotateRooms(step) { roomActive = ((roomActive + step) % ROOMS.length + ROOMS.length) % ROOMS.length; layoutRooms(true); lock(420); }
+function resetRooms() { roomActive = 1; roomEls.forEach(el => el.classList.add("no-anim")); layoutRooms(false); void roomsEl.offsetWidth; roomEls.forEach(el => el.classList.remove("no-anim")); }
+layoutRooms(false);
+(() => {
+  let x0 = null, y0 = 0, swiped = false;
+  roomsEl.addEventListener("pointerdown", e => { x0 = e.clientX; y0 = e.clientY; swiped = false; });
+  roomsEl.addEventListener("pointerup", e => {
+    if (x0 === null) return; const k = phone.getBoundingClientRect().width / 402, dx = (e.clientX - x0) / k, dy = (e.clientY - y0) / k; x0 = null;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) && !busy) { swiped = true; rotateRooms(dx < 0 ? 1 : -1); }
+  });
+  roomsEl.addEventListener("pointercancel", () => { x0 = null; });
+  roomEls.forEach((el, i) => el.addEventListener("click", e => {
+    if (swiped) { swiped = false; return; }
+    if (busy || stack.length > 1 || tab !== "friends") return;
+    const d = roomOff(i);
+    if (d === 0) { if (ROOMS[i].chat) openChat(); else toast(`${ROOMS[i].title} 방은 곧 열려요`); }
+    else rotateRooms(d);
+  }));
+})();
 dragScroll(chMsgs, "y");
 
 // 운세 순위 비교: 처음엔 딤0(제목) → 딤1(1등 발표). '확인'하면 순위 바가 열리고 순위 비교 대화(A)가 이어서 나타남
@@ -1289,11 +1482,11 @@ document.getElementById("mixBubble").addEventListener("click", openMix);
 document.getElementById("chMixChip").addEventListener("click", openMix);
 document.getElementById("mxOk").addEventListener("click", closeMix);
 document.getElementById("mxStack").addEventListener("click", spreadMix);
-const mixGo = { mxItem: "item", mxPlace: "mixplace", mxMusic: "music" };
+const mixGo = { mxItem: "mixitem", mxPlace: "mixplace", mxMusic: "mixmusic" };   // 1109: 카드마다 겹쳐보기 전용 연결 화면
 Object.entries(mixGo).forEach(([id, to]) => document.getElementById(id).addEventListener("click", () => {
   if (!chat.classList.contains("spread")) { spreadMix(); return; }
   if (busy) return;
-  push(to); if (to === "mixplace") setTimeout(closeMix, 650);
+  push(to); setTimeout(closeMix, 650);
 }));
 // 장소 공유하기 → 채팅으로 돌아와 내가 장소를 보내고, 친구들이 답장 (화면이 따라 내려감)
 function showMsg(i) {
@@ -1301,6 +1494,13 @@ function showMsg(i) {
   requestAnimationFrame(() => scrollToY(nmBottom(m)));
 }
 document.getElementById("mpOk").addEventListener("click", () => { if (!busy) { pop(); setTimeout(closeMix, 300); } });
+// 아이템·플리 연결: 확인 → 채팅으로, 공유하기 → 채팅으로 돌아오며 공유 안내
+document.querySelectorAll("#scr-mixitem .mx-ok, #scr-mixmusic .mx-ok").forEach(b => b.addEventListener("click", () => { if (!busy) { pop(); setTimeout(closeMix, 300); } }));
+[["mxiShare", "mixitem", "오늘의 행운 아이템을 채팅방에 공유했어요"], ["mxmShare", "mixmusic", "오늘의 행운 플리를 채팅방에 공유했어요"]].forEach(([id, scr, msg]) =>
+  document.getElementById(id).addEventListener("click", () => {
+    if (busy || stack[stack.length - 1] !== scr) return;
+    pop(); closeMix(); setTimeout(() => toast(msg, 1800), 450);
+  }));
 document.getElementById("shareToChat").addEventListener("click", () => {
   if (busy || stack[stack.length - 1] !== "mixplace") return;
   pop(); closeMix(); clearMine();
@@ -1753,9 +1953,137 @@ chSend.addEventListener("pointerleave", () => chSend.classList.remove("pressed")
 chSend.addEventListener("click", sendMine);
 
 document.querySelectorAll(".moment-hot").forEach(el => el.addEventListener("click", () => {
-  if (stack.length > 1 || tab !== "friends" || phone.classList.contains("tab-freq")) return;
-  openFreq("moment-" + el.dataset.moment);
+  if (busy || stack.length > 1 || tab !== "friends" || phone.classList.contains("tab-freq")) return;
+  openStory(el.dataset.moment);
 }));
+
+/* ── Lucky Moments (친구 스토리) ─────────────
+   기운 버튼을 누르면 사진 위에 스티커가 '쿵' 찍히고 내 이름표가 붙음 (끌어서 원하는 곳에 놓아도 됨).
+   메시지 칸을 누르면 사진이 작아지며 올라가고 키보드가 올라옴. 옆으로 밀면 다음 친구 스토리. */
+const ST_ART = {   // 4배 픽셀 그림 → 화면에서는 1/4 크기, 채움색은 시안처럼 그라디언트
+  fire: { src: "__img_lm_st_fire__", w: 57, h: 66 }, water: { src: "__img_lm_st_water__", w: 39.5, h: 39.5 },
+  diamond: { src: "__img_lm_st_diamond__", w: 48.5, h: 41.75 }, leaf: { src: "__img_lm_st_leaf__", w: 35, h: 48.25 },
+  sprout: { src: "__img_lm_st_sprout__", w: 43.75, h: 30.75 } };
+const ST_BTNS = [
+  { type: "fire", label: "불의 기운", cx: 31, cy: 715, size: 72, k: .66 }, { type: "water", label: "물의 기운", cx: 108.8, cy: 678.5, size: 81.6, k: 1 },
+  { type: "diamond", label: "금의 기운", cx: 200.5, cy: 667.2, size: 88, k: 1 }, { type: "leaf", label: "나무의 기운", cx: 293.8, cy: 678.9, size: 81.6, k: 1 },
+  { type: "sprout", label: "흙의 기운", cx: 371, cy: 715.2, size: 72, k: 1 } ];
+const ST_ME = "나";
+const MOMENTS = [
+  { id: "unahynn", name: "Unahynn", photo: "__img_lm_m_unahynn__", av: "__img_lm_av_unahynn__", crop: [-43, 0, 75, 42], typed: "오늘 사진 분위기 미쳤다 ㅋㅋ 기운 받아 가 !!",
+    stk: [["water", "Sumin", 95, 278], ["sprout", "Minhee", 270, 148], ["diamond", "SSU", 255, 323]] },
+  { id: "sumin", name: "Sumin", photo: "__img_lm_m_sumin__", av: "__img_lm_av_sumin__", crop: [-12.8, -8, 56, 56], cap: "드디어 시험 D-DAY,,", pos: "50% 60%", typed: "불 기운이 시험날 좋대서 붙여둠 !! 야르 ㅋㅋ",
+    stk: [["fire", "MINJU", 295, 150], ["gem-pair", "Kwon", 63.5, 252], ["leaf-pair", "Minhee", 261.3, 334]] },
+  { id: "minhee", name: "Minhee", photo: "__img_lm_m_minhee__", av: "__img_lm_av_minhee__", cap: "하ㅏ 월요일 1교시 에바야 ㅠ", typed: "물 기운 보내줄게 오늘만 버티자 ㅠㅠ",
+    stk: [["fire", "Sumin", 280, 168], ["leaf-pair", "Kwon", 90, 278], ["water", "SSU", 250, 333]] },
+  { id: "ssu", name: "SSU", photo: "__img_lm_m_ssu__", av: "__img_lm_av_ssu__", crop: [-1, -3.1, 34.3, 36], typed: "여기 어디야 ?? 나도 데려가 ㅋㅋ",
+    stk: [["leaf", "Minhee", 95, 153], ["fire", "MINJU", 270, 268], ["gem-pair", "Kwon", 120, 338]] },
+  { id: "kwon", name: "Kwon", photo: "__img_lm_m_kwon__", av: "__img_lm_av_kwon__", crop: [-7.6, 0, 47, 32.2], typed: "오늘 운세 1등 기운 가득 받아 가 !!",
+    stk: [["gem-pair", "Sumin", 115, 168], ["sprout", "SSU", 265, 278], ["water", "Minhee", 95, 338]] },
+];
+const story = document.getElementById("story"), stPhoto = document.getElementById("stPhoto"), stStk = document.getElementById("stStk");
+const stIn = document.getElementById("stIn"), stMine = {};   // 내가 붙인 스티커는 친구별로 기억
+let stIdx = 1, stTypeT = 0;
+const artH = t => t === "gem-pair" ? 52 : t === "leaf-pair" ? 42.5 : ST_ART[t].h;
+function artHTML(t) {
+  const L = "__img_lm_st_leaf_small_a__", L2 = "__img_lm_st_leaf_small_b__", GA = "__img_lm_st_gem_a__", GB = "__img_lm_st_gem_b__";
+  if (t === "gem-pair") return `<span class="stk-art" style="width:73px;height:52px"><img src="${GA}" style="left:0;top:0;width:54.5px;height:49.75px" alt=""><img src="${GB}" style="left:29px;top:5px;width:44px;height:41.5px" alt=""></span>`;
+  if (t === "leaf-pair") return `<span class="stk-art" style="width:45px;height:42.5px"><img src="${L}" style="left:16.1px;top:3.9px;width:28.75px;height:38.5px" alt=""><img src="${L2}" style="left:0;top:0;width:24.25px;height:31.25px" alt=""></span>`;
+  const a = ST_ART[t]; return `<span class="stk-art" style="width:${a.w}px;height:${a.h}px"><img src="${a.src}" style="left:0;top:0;width:100%;height:100%" alt=""></span>`;
+}
+function stickerEl(t, from, x, y, label, delay) {
+  const d = document.createElement("div"); d.className = "stk stamp"; d.style.left = x + "px"; d.style.top = y + "px";
+  d.style.setProperty("--lo", (artH(t) / 2 + 8) + "px"); d.style.setProperty("--dl", delay + "ms");
+  d.innerHTML = artHTML(t) + (label ? `<span class="stk-label">${from}</span>` : ""); return d;
+}
+function renderStory(dir) {
+  const m = MOMENTS[stIdx];
+  const img = document.getElementById("stImg"); img.src = m.photo; img.style.objectPosition = m.pos || "50% 50%";   // 수민: 시안과 같은 부분이 보이게
+  document.getElementById("stCap").textContent = m.cap || "";
+  const av = document.getElementById("stAv"), c = m.crop, k = 35 / 32;
+  av.src = m.av; av.style.cssText = c ? `inset:auto;left:${c[0] * k}px;top:${c[1] * k}px;width:${c[2] * k}px;height:${c[3] * k}px;object-fit:fill` : "";
+  document.getElementById("stName").textContent = m.name;
+  stStk.innerHTML = "";
+  const all = m.stk.map(s => ({ t: s[0], from: s[1], x: s[2], y: s[3] })).concat(stMine[m.id] || []);
+  const lastOf = {}; all.forEach((s, i) => lastOf[s.from] = i);   // 이름표는 사람마다 마지막 스티커에만
+  all.forEach((s, i) => stStk.appendChild(stickerEl(s.t, s.from, s.x, s.y, lastOf[s.from] === i, 250 + i * 380)));
+  story.classList.remove("slide-l", "slide-r"); if (dir) { void story.offsetWidth; story.classList.add(dir > 0 ? "slide-l" : "slide-r"); }
+}
+function openStory(id) { stIdx = Math.max(0, MOMENTS.findIndex(m => m.id === id)); stopTyping(true); renderStory(0); push("story"); }
+function addMine(t, x, y) {
+  const m = MOMENTS[stIdx], list = stMine[m.id] = stMine[m.id] || [];
+  list.push({ t, from: ST_ME, x, y });
+  stStk.querySelectorAll(".stk").forEach(el => { if (el.querySelector(".stk-label") && el.querySelector(".stk-label").textContent === ST_ME) el.querySelector(".stk-label").remove(); });
+  stStk.appendChild(stickerEl(t, ST_ME, x, y, true, 0));
+  toast(`${m.name}님에게 ${ST_BTNS.find(b => b.type === t).label}을 보냈어요`, 1500);
+}
+const SPOTS = [[90, 120], [280, 110], [180, 230], [80, 360], [290, 380], [200, 330], [120, 190], [250, 210]];
+function freeSpot() {
+  const m = MOMENTS[stIdx], used = m.stk.map(s => [s[2], s[3]]).concat((stMine[m.id] || []).map(s => [s.x, s.y]));
+  let best = SPOTS[0], bd = -1;
+  SPOTS.forEach(p => { const d = Math.min(...used.map(u => Math.hypot(u[0] - p[0], u[1] - p[1])), 999); if (d > bd) { bd = d; best = p; } });
+  return [best[0] + (Math.random() * 16 - 8), best[1] + (Math.random() * 16 - 8)];
+}
+// 기운 버튼: 탭 → 빈 자리에 찍힘 / 끌어서 사진 위에 놓기
+const stBtns = document.getElementById("stBtns");
+ST_BTNS.forEach(b => {
+  const el = document.createElement("button"); el.type = "button"; el.className = "st-btn"; el.setAttribute("aria-label", b.label + " 보내기");
+  el.style.cssText = `left:${b.cx - b.size / 2}px;top:${b.cy - b.size / 2}px;width:${b.size}px;height:${b.size}px`;
+  const a = ST_ART[b.type]; el.innerHTML = `<img src="${a.src}" alt="" style="width:${a.w * b.k}px;height:${a.h * b.k}px">`;
+  stBtns.appendChild(el);
+  let start = null, ghost = null;
+  const toStory = e => { const r = story.getBoundingClientRect(), k = r.width / 402; return [(e.clientX - r.left) / k, (e.clientY - r.top) / k]; };
+  el.addEventListener("pointerdown", e => { e.preventDefault(); el.setPointerCapture(e.pointerId); start = toStory(e); });
+  el.addEventListener("pointermove", e => {
+    if (!start) return; const p = toStory(e);
+    if (!ghost && Math.hypot(p[0] - start[0], p[1] - start[1]) > 8) { ghost = stickerEl(b.type, "", 0, 0, false, 0); ghost.classList.remove("stamp"); ghost.classList.add("ghost"); story.appendChild(ghost); }
+    if (ghost) { ghost.style.left = p[0] + "px"; ghost.style.top = p[1] + "px"; }
+  });
+  const end = e => {
+    if (!start) return; const p = toStory(e); start = null;
+    if (ghost) {
+      ghost.remove(); ghost = null;
+      const x = p[0] - 20, y = p[1] - 125;   // 사진 안 좌표
+      if (x > 0 && x < 362 && y > 0 && y < 424 && !story.classList.contains("typing")) addMine(b.type, Math.min(342, Math.max(20, x)), Math.min(404, Math.max(20, y)));
+      return;
+    }
+    if (e.type === "pointerup" && !story.classList.contains("typing")) { const [x, y] = freeSpot(); addMine(b.type, x, y); }
+  };
+  el.addEventListener("pointerup", end); el.addEventListener("pointercancel", () => { start = null; if (ghost) { ghost.remove(); ghost = null; } });
+});
+// 메시지: 칸을 누르면 입력 화면, 데모 문장이 자동으로 써짐 (직접 쳐도 됨)
+function startTyping() {
+  if (story.classList.contains("typing")) return;
+  story.classList.add("typing"); stIn.value = "";
+  const text = MOMENTS[stIdx].typed; let i = 0; clearInterval(stTypeT);
+  stTypeT = setInterval(() => { if (i >= text.length) { clearInterval(stTypeT); return; } stIn.value = text.slice(0, ++i); }, 75);
+  setTimeout(() => { try { stIn.focus({ preventScroll: true }); } catch (e) {} }, 50);
+}
+function stopTyping(instant) { clearInterval(stTypeT); story.classList.remove("typing"); stIn.value = ""; try { stIn.blur(); } catch (e) {} }
+stIn.addEventListener("pointerdown", e => { e.preventDefault(); startTyping(); });
+stIn.addEventListener("focus", startTyping);
+stIn.addEventListener("input", () => clearInterval(stTypeT));
+stIn.addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("stSend").click(); });
+document.getElementById("stSend").addEventListener("pointerdown", e => e.preventDefault());
+document.getElementById("stSend").addEventListener("click", () => {
+  if (!story.classList.contains("typing")) { startTyping(); return; }
+  if (!stIn.value.trim()) return;
+  stopTyping(); toast(`${MOMENTS[stIdx].name}님에게 메시지를 남겼어요`, 1600);
+});
+document.getElementById("stBack").addEventListener("click", () => { if (story.classList.contains("typing")) { stopTyping(); return; } if (!busy) pop(); });
+stPhoto.addEventListener("click", () => { if (story.classList.contains("typing")) stopTyping(); });
+// 옆으로 밀면 다음·이전 친구
+(() => {
+  let p0 = null;
+  story.addEventListener("pointerdown", e => { if (e.target.closest(".st-btn, #stMsg, #stBack") || story.classList.contains("typing")) return; p0 = [e.clientX, e.clientY]; });
+  story.addEventListener("pointerup", e => {
+    if (!p0) return; const k = story.getBoundingClientRect().width / 402, dx = (e.clientX - p0[0]) / k, dy = (e.clientY - p0[1]) / k; p0 = null;
+    if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy)) return;
+    const n = stIdx + (dx < 0 ? 1 : -1); if (n < 0 || n >= MOMENTS.length) return;
+    stIdx = n; renderStory(dx < 0 ? 1 : -1);
+  });
+  story.addEventListener("pointercancel", () => { p0 = null; });
+})();
 addEventListener("message", e => {
   if (e.data === "chiring:home") closeFreq("home");
   if (e.data === "chiring:friends") closeFreq("friends");
