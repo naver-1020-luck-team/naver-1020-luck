@@ -1924,7 +1924,7 @@ document.getElementById("evHome").addEventListener("click", () => {
   veil.classList.add("on");
   setTimeout(() => { window.evStop(); markFortuneSeen(); onboarding = false; phone.classList.remove("onb"); start(false); requestAnimationFrame(() => requestAnimationFrame(() => veil.classList.remove("on"))); }, 380);
 });
-document.getElementById("evShare").addEventListener("click", () => toast("키링 링크를 복사했어요 · 친구에게 보내 보세요"));
+// 키링 '친구에게 공유': 알림 칩은 띄우지 않음 (버튼만 눌리는 반응)
 // 키링_2: 회전이 끝나는 순간 새 키링이 천천히 나타나 고리에 매달린 듯 작게 흔들리다 멈춤
 const evFinal = document.getElementById("evFinal"), evKey = document.getElementById("evKey");
 let keyRAF = 0, keyTimer = 0;
