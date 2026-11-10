@@ -8,7 +8,7 @@
 
 `index.html`의 `<style id="team-charm-fx">`와 `<script id="team-charm-js">`를 그대로 옮기면 돼요.
 - CSS → `src/screens/Frequency.css` 맨 아래
-- 스크립트(빛줄기·반짝임 요소를 참에 붙임) → 원본에서는 `gifted__charm` JSX 안에 `<i className="tcf-sheen" style={{maskImage:`url(${src})`}}/>`, `<i className="tcf-spark"/>`를 직접 넣는 게 더 깔끔해요.
+- 스크립트(빛줄기·반짝임 요소를 참에 붙임) → 원본에서는 `gifted__charm` JSX 안에 `tcf-sheen`(참 이미지를 mask-image로 지정)과 `tcf-spark` 요소를 직접 넣는 게 더 깔끔해요.
 
 ## 1-1. 온보딩 '나의 캐해 리포트' 확인 버튼: 떠 있는 버튼
 `<style id="team-onb-fx">`: `.report__footer`를 `position:sticky; bottom:25px`로 → 카드가 버튼 뒤로 스크롤돼요. `src/screens/Report.css`(또는 리포트 스타일 파일)에 옮겨 주세요.
