@@ -57,8 +57,12 @@
     })
     return mmLoading
   }
+  // 휴대폰에서는 AI 모델(TensorFlow WebGL)을 쓰지 않음: 이미지가 많은 화면 위에 WebGL까지 올리면
+  // iOS(특히 카카오톡 같은 앱 안 브라우저)가 그래픽 메모리 부족으로 화면을 통째로 지워 버림.
+  // 소리는 같은 규칙의 생성 패턴(fallbackMelody·FALLBACK_DRUMS)으로 계속 상황마다 바뀌며 연주돼요.
+  const LITE = (matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0) && Math.min(screen.width, screen.height) <= 500
   function loadModels() {
-    if (modelsLoading) return
+    if (modelsLoading || LITE) return
     modelsLoading = true
     ;(async () => { try { const m = new mm.MusicVAE(MEL_CKPT); await m.initialize(); melVae = m } catch (e) {} })()
     ;(async () => { try { const d = new mm.MusicVAE(DRUM_CKPT); await d.initialize(); drumVae = d } catch (e) {} })()
@@ -305,6 +309,6 @@
   setInterval(sync, 500)
   setTimeout(() => loadMM().catch(() => {}), 1500)           // 기운 충전 화면이 열리면 미리 받아 둠
   // 확인용: 지금 소리 상태
-  window.__teamSound = () => ({ mode, energy, bars: bar, melModel: !!melVae, drumModel: !!drumVae, rub: +rubLevel.toFixed(2),
+  window.__teamSound = () => ({ lite: LITE, mode, energy, bars: bar, melModel: !!melVae, drumModel: !!drumVae, rub: +rubLevel.toFixed(2),
     volumeDb: master ? Math.round(T.gainToDb(master.gain.value)) : null, cutoff: filt ? Math.round(filt.frequency.value) : null, ctx: T ? T.context.state : null })
 })()

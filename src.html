@@ -100,6 +100,8 @@
   .home-indicator { position: absolute; bottom: 8px; left: 50%; width: 134px; height: 5px; margin-left: -67px; border-radius: 100px; background: #fff; }
   #freqLayer { z-index: 40; background: #121212; visibility: hidden; }
   .tab-freq #freqLayer { visibility: visible; }
+  /* 기운 충전(팀원 앱)이 화면을 다 덮는 동안 그 아래 화면들은 그리지 않음 → 휴대폰 그래픽 메모리 절약 (덮인 화면이 그대로 남아 있으면 iOS가 화면을 통째로 지울 수 있음) */
+  .phone.tab-freq .layer:not(#freqLayer), .phone.tab-freq #appNav { visibility: hidden !important; }
   #freqFrame { position: absolute; inset: 0; width: 402px; height: 874px; border: 0; display: block; background: #121212; }
   /* ── 친구방 ── */
   #friends { background: #0e0e0e; visibility: hidden; }
@@ -380,10 +382,12 @@
   /* ── 오늘의운세_딤 → 딤2 ───────────── */
   #dim { transition: opacity .45s var(--ease); }
   /* 민트 배경이 화면을 덮은 뒤 딤 화면은 치워 둠 */
-  .s-fortune #dim { opacity: 0; pointer-events: none; transition: opacity 0s linear .8s; }
+  .s-fortune #dim { opacity: 0; pointer-events: none; transition: opacity 0s linear .8s, visibility 0s linear .8s; visibility: hidden; }
+  /* 딤 화면이 사라진 뒤에는 그리지도, 빛 애니메이션을 돌리지도 않음 (전체 화면 고해상도 이미지 2장 → 메모리 절약) */
+  .s-fortune #dimLive i, .s-fortune #dimUni { animation: none !important; }
   /* X로 닫을 때: 운세 화면은 건너뛰고(움직임 없이 숨김) 딤만 부드럽게 사라지며 홈이 드러남 */
   .x-close #fortune, .x-close #fortune * { visibility: hidden !important; transition: none !important; }
-  .x-close #dim { transition: opacity .45s var(--ease) !important; }
+  .x-close #dim { transition: opacity .45s var(--ease), visibility 0s linear .45s !important; }
   .x-close #home { transition: opacity .45s var(--ease), transform .6s var(--ease) !important; }
   #modal { left: 58px; top: 225px; width: 298px; height: 355px; overflow: hidden;
            -webkit-mask: url(__img_modal_mask__) 0 0 / 100% 100%; mask: url(__img_modal_mask__) 0 0 / 100% 100%;
