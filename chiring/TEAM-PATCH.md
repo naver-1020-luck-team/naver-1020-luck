@@ -18,8 +18,13 @@
 /* 참이 나오면 문지른 자리의 동그란 빛은 사라져요 (원형 효과 없음) */
 .gifted:has(.gifted__charm) .wish-glow{opacity:0;transition:opacity .5s ease-out}
 .gifted__btn{animation-delay:1.5s}
+/* 주파수 선택 → 메세지 보기: 시안 서체 (ZEN SERIF, 시안처럼 조금 굵고 촘촘하게) */
+.replay-card__message{font-family:'ZEN SERIF','Pretendard',serif;font-weight:400;font-size:31px;line-height:48px;letter-spacing:-1.4px;-webkit-text-stroke:.75px #000;paint-order:stroke fill}
 @media (prefers-reduced-motion:reduce){.gifted__charm,.gifted__charm img{animation:none}}
 ```
+
+## 1-2. 주파수 선택 → 메세지 보기 서체
+위 CSS 맨 아래 `.replay-card__message`: 시안처럼 ZEN SERIF, 31px / 줄 간격 48px, 조금 굵게(-webkit-text-stroke). `src/screens/FrequencyReplay.css`의 `.replay-card__message`에 옮겨 주세요.
 
 ## 2. 기운 주파수 소리 (magenta.js)
 - `team-sound.js` + `vendor/magentamusic-1.23.1.js` (@magenta/music 1.23.1, Apache-2.0)
