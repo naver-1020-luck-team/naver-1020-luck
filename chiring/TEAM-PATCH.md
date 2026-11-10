@@ -26,6 +26,9 @@
 ## 1-2. 주파수 선택 → 메세지 보기 서체
 위 CSS 맨 아래 `.replay-card__message`: 시안처럼 ZEN SERIF, 31px / 줄 간격 48px, 조금 굵게(-webkit-text-stroke). `src/screens/FrequencyReplay.css`의 `.replay-card__message`에 옮겨 주세요.
 
+## 1-3. 메세지 문구: 줄표 모양 (시안)
+시안의 `잠이나 자 ㅡㅡ`는 붙은 긴 줄표(`——`)가 아니라 한글 `ㅡ` 두 개예요. `src/` 메세지 데이터(`water-2`, Jiwon)의 `잠이나 자 ——`를 `잠이나 자 ㅡㅡ`로 바꿔 주세요. (`index.html`에는 직접 바꿔 두었어요)
+
 ## 2. 기운 주파수 소리 (magenta.js)
 - `team-sound.js` + `vendor/magentamusic-1.23.1.js` (@magenta/music 1.23.1, Apache-2.0)
 - magenta.js MusicVAE 두 모델이 상황마다 새로 생성: 선율(`mel_4bar_small_q2`, 4마디마다) · 드럼(`drums_2bar_lokl_small`, 2마디마다)
