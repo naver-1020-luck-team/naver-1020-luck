@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, interactive-widget=resizes-visual">
 <meta name="theme-color" content="#0e0e0e">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -1232,36 +1232,81 @@ const scaler = document.getElementById("scaler");
 const MOB = (matchMedia("(pointer: coarse)").matches || navigator.maxTouchPoints > 0) && Math.min(window.screen.width, window.screen.height) <= 500;
 document.documentElement.classList.toggle("mob", MOB);
 const safeProbe = document.createElement("div"); safeProbe.id = "safeProbe"; document.body.appendChild(safeProbe);
-let lastFitH = 0;
+// ── 모바일 화면 맞춤 + 키보드 ─────────────
+// 키보드가 올라와도 화면 크기는 그대로 두고 자판만 아래에서 덮듯 올라오게 (실제 앱처럼).
+// 입력 칸이 자판에 가려질 때만, 가려지지 않을 만큼만 화면을 위로 살짝 올림. iOS가 페이지를 스스로 밀어 올리는 것(visualViewport.offsetTop)은 되돌림.
+// 입력 칸은 이 페이지에도, 기운 충전(팀원 앱 iframe) 안에도 있음 → 둘 다 확인
+let base = null, kbShift = 0;
+function focusedField() {
+  const isField = el => el && (/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) || el.isContentEditable);
+  let el = document.activeElement;
+  if (el && el.tagName === "IFRAME") {
+    try { const inner = el.contentDocument && el.contentDocument.activeElement; if (isField(inner)) return { el: inner, frame: el }; } catch (e) {}
+    return null;
+  }
+  return isField(el) ? { el, frame: null } : null;
+}
+function layoutBase() {             // 키보드가 없을 때의 배율·위치
+  const cs = getComputedStyle(safeProbe), st = parseFloat(cs.paddingTop) || 0, sb = parseFloat(cs.paddingBottom) || 0;
+  const vw = document.documentElement.clientWidth || innerWidth;
+  const vh = window.visualViewport ? visualViewport.height : innerHeight;
+  let availH = vh - st - sb;
+  const sW = vw / 402;
+  const card = sW - availH / 803 > .012;          // 세로가 모자라 양옆이 남는 경우 → 위쪽만 둥근 카드 (위 6px 여유)
+  if (card) availH -= 6;
+  const s = Math.min(sW, availH / 803);
+  // 화면 아래 끝에 딱 붙임 (하단 내비가 화면 바닥까지 이어지게). 남는 세로 공간은 위쪽(상태 표시줄 쪽)으로
+  return { s, card, x: (vw - 402 * s) / 2, y: st + (card ? 6 : 0) + Math.max(0, availH - 803 * s), vh, vw };
+}
+function applyPhone(b, shift, offTop) {
+  phone.style.transform = `translate(${b.x.toFixed(2)}px,${(b.y - shift + offTop).toFixed(2)}px) scale(${b.s})`;
+}
 function fit() {   // 비율을 유지한 채 창 안에 맞춤
   if (MOB) {
-    const cs = getComputedStyle(safeProbe), st = parseFloat(cs.paddingTop) || 0, sb = parseFloat(cs.paddingBottom) || 0;
-    const vv = window.visualViewport;
-    const vw = vv ? vv.width : (document.documentElement.clientWidth || innerWidth);
-    let vh = (vv ? vv.height : innerHeight);
-    // 글자 입력 중(키보드가 올라와 높이가 줄어든 경우)에는 화면을 다시 줄이지 않음
-    const typing = /^(INPUT|TEXTAREA)$/.test((document.activeElement || {}).tagName || "");
-    if (typing && lastFitH && vh < lastFitH) vh = lastFitH; else lastFitH = vh;
-    let availH = vh - st - sb;
-    const sW = vw / 402;
-    const card = sW - availH / 803 > .012;          // 세로가 모자라 양옆이 남는 경우 → 둥근 카드 (위아래 6px 여유)
-    if (card) availH -= 12;
-    const s = Math.min(sW, availH / 803);
-    document.documentElement.classList.toggle("mob-card", card);
-    const x = (vw - 402 * s) / 2, y = st + (card ? 6 : 0) + Math.max(0, (availH - 803 * s) / 2);
-    phone.style.transform = `translate(${x.toFixed(2)}px,${y.toFixed(2)}px) scale(${s})`;
-    phone.style.borderRadius = card ? (22 / s).toFixed(1) + "px" : "0";
-    // 소수 배율로 줄이면 겹친 화면들의 가장자리 1픽셀이 반투명하게 그려져 아래 화면이 가는 선처럼 비침 → 가장자리 1px 안쪽에서 잘라 냄
-    phone.style.clipPath = `inset(${(1 / s).toFixed(2)}px round ${card ? (22 / s).toFixed(1) : 0}px)`;
+    const vv = window.visualViewport, f = focusedField();
+    const offTop = vv ? vv.offsetTop : 0;
+    if (f && base && vv && vv.height < base.vh - 80) {
+      // 키보드가 올라온 상태: 배율·크기는 그대로. 입력 칸 아래가 자판 위 12px 안에 들어오도록만 올림
+      const r = f.el.getBoundingClientRect();
+      let bottom = r.bottom;                         // 입력 칸 아래 끝 (화면 기준)
+      if (f.frame) { const fr = f.frame.getBoundingClientRect(); bottom = fr.top + r.bottom * base.s; }
+      const fieldInPhone = bottom - phone.getBoundingClientRect().top;   // 폰 윗변에서 입력 칸 아래까지 (올린 정도와 무관)
+      // 입력 칸 아래가 '자판 위 12px'보다 내려가 있으면 그만큼만 올림. 단, 폰 아래 끝이 자판 위로 떠오르지는 않게
+      kbShift = Math.max(0, Math.min(base.y + fieldInPhone - (vv.height - 12), base.y + 803 * base.s - vv.height));
+      document.documentElement.classList.add("kb-open");
+      applyPhone(base, kbShift, offTop);
+      return;
+    }
+    kbShift = 0; document.documentElement.classList.remove("kb-open");
+    base = layoutBase();
+    document.documentElement.classList.toggle("mob-card", base.card);
+    applyPhone(base, 0, offTop);
+    // 둥근 모서리는 위쪽 두 곳만 (하단 내비 아래쪽은 각지게, 시안처럼)
+    const R = base.card ? (22 / base.s).toFixed(1) + "px" : "0px";
+    phone.style.borderRadius = `${R} ${R} 0 0`;
+    // 소수 배율로 줄이면 겹친 화면들의 가장자리 1픽셀이 반투명하게 그려져 아래 화면이 가는 선처럼 비침 → 좌·우·위는 1px 안쪽에서 잘라 냄 (아래는 화면 끝에 붙어 있어 그대로)
+    const e1 = (1 / base.s).toFixed(2);
+    phone.style.clipPath = `inset(${e1}px ${e1}px 0 ${e1}px round ${R} ${R} 0 0)`;
     phone.style.marginBottom = "";
     return;
   }
   const s = Math.min(1, innerWidth / 402, innerHeight / 874);
   phone.style.transform = `scale(${s})`;
 }
-addEventListener("resize", fit); addEventListener("orientationchange", () => setTimeout(fit, 250));
-if (window.visualViewport) visualViewport.addEventListener("resize", fit);
-addEventListener("focusout", () => setTimeout(() => { lastFitH = 0; fit(); }, 300));   // 키보드가 내려가면 다시 맞춤
+addEventListener("resize", fit); addEventListener("orientationchange", () => setTimeout(() => { base = null; fit(); }, 250));
+if (window.visualViewport) { visualViewport.addEventListener("resize", fit); visualViewport.addEventListener("scroll", fit); }
+// iOS가 입력 칸으로 페이지를 스크롤해 올리면 즉시 원래 자리로 (화면은 위 fit이 필요한 만큼만 올림)
+addEventListener("scroll", () => { if (MOB && (scrollX || scrollY)) scrollTo(0, 0); }, { passive: true });
+function onFocusChange() { if (!MOB) return; scrollTo(0, 0); fit(); [120, 320, 600].forEach(t => setTimeout(fit, t)); }
+addEventListener("focusin", onFocusChange); addEventListener("focusout", () => setTimeout(onFocusChange, 60));
+// 기운 충전(iframe) 안의 입력 칸도 같은 방식으로
+document.getElementById("freqFrame").addEventListener("load", e => {
+  try {
+    const d = e.target.contentDocument; if (!d) return;
+    d.addEventListener("focusin", onFocusChange); d.addEventListener("focusout", () => setTimeout(onFocusChange, 60));
+    d.addEventListener("input", () => { if (MOB) fit(); });   // 여러 줄로 늘어나면 따라 올림
+  } catch (err) {}
+});
 fit();
 
 let timer;

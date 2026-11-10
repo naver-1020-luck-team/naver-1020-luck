@@ -61,7 +61,7 @@ for n in set(re.findall(r'__snd_([a-z0-9_]+?)__', h)):   # 사운드
 open(f'{d}/artifact.html', 'w').write(h)
 # GitHub Pages용: 완전한 HTML 문서 (doctype·문자 인코딩·뷰포트 포함 → 표준 모드로 정확히 렌더링)
 full = ('<!DOCTYPE html>\n<html lang="ko">\n<head>\n<meta charset="utf-8">\n'
-        '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
+        '<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, interactive-widget=resizes-visual">\n'
         '<meta name="theme-color" content="#0e0e0e">\n'
         '<meta name="apple-mobile-web-app-capable" content="yes">\n<meta name="mobile-web-app-capable" content="yes">\n'
         '<meta name="apple-mobile-web-app-status-bar-style" content="black">\n<meta name="apple-mobile-web-app-title" content="오늘의 행운">\n' + h + '\n</html>\n')
