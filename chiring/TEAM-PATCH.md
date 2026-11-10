@@ -23,6 +23,12 @@
 - **아카이브 임시 화면 높이:** `D` 컴포넌트(`아카이브 화면은 곧 만들 예정이에요`)가 `minHeight:700`이라, sticky 하단 내비가 화면 바닥(780px)이 아니라 내용 끝(606px)에 붙어 위로 떠 보였어요. → `minHeight:874, paddingBottom:94` (화면을 꽉 채우고 문구는 내비 위 가운데).
 - **팀 프로토타입에서 아카이브 열기:** 홈·친구방에서 아카이브를 누르면 `chiring:myluck` 신호를 보내요. `TeamApp.tsx`의 message 처리에 `chiring:myluck` → `setOnboarding(null)`, 단계 `home`, 탭 `myluck` 을 추가해 주세요. (홈·친구방·기운 충전 어디서 눌러도 같은 아카이브 화면)
 
+## 1-5. 나의 캐해 리포트 '주의 포인트' 상자 색 (1110 시안 수정)
+네 방향으로 뒤집어 붙인 SVG 그라디언트(가운데 진한 청록 + 모서리 연한 색)를 시안처럼 한 방향 그라디언트로 바꿨어요.
+리포트 상자 정의의 `caution`을 아래로 바꿔 주세요.
+- `bg`: `linear-gradient(206deg, #00888a 0%, #13a28d 25%, #29bf91 50%, #41da95 75%, #58f499 100%)`
+- `inset`: `inset 0 0 1px rgba(255, 255, 255, 0.3), inset 0 0 34px rgba(222, 250, 198, 0.78)`
+
 ## 2. 기운 주파수 소리 (magenta.js)
 - `team-sound.js` + `vendor/magentamusic-1.23.1.js` (@magenta/music 1.23.1, Apache-2.0)
 - magenta.js MusicVAE 두 모델이 상황마다 새로 생성: 선율(`mel_4bar_small_q2`, 4마디마다) · 드럼(`drums_2bar_lokl_small`, 2마디마다)
