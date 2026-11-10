@@ -88,7 +88,11 @@
   .bottom-nav { position: absolute; left: 0; top: 780px; width: 402px; height: 94px; margin: 0; background: rgba(40, 40, 40, .9);
                 -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); border-radius: 30px 30px 0 0;
                 font-family: "Pretendard", -apple-system, BlinkMacSystemFont, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
-  .bottom-nav__list { display: grid; grid-template-columns: repeat(4, 1fr); padding: 12px 28px 0; margin: 0; list-style: none; }
+  /* 탭 위치: 기운 충전 탭(팀원 앱)과 똑같이 — 칸을 균등 분할하지 않고 탭마다 정해진 중심 위치(14.43% · 37.44% · 61.19% · 84.83%) */
+  .bottom-nav__list { position: relative; height: 94px; padding: 0; margin: 0; list-style: none; }
+  .bottom-nav__list > li { position: absolute; top: 12px; width: 84px; transform: translateX(-50%); }
+  .bottom-nav__list > li:nth-child(1) { left: 14.43%; } .bottom-nav__list > li:nth-child(2) { left: 37.44%; }
+  .bottom-nav__list > li:nth-child(3) { left: 61.19%; } .bottom-nav__list > li:nth-child(4) { left: 84.83%; }
   .bottom-nav__item { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0; border: 0; background: none;
                       color: #6e767c; font: inherit; font-size: 13px; font-weight: 400; line-height: 2; letter-spacing: -.065px; cursor: pointer; }
   .bottom-nav__item.is-active { color: #fff; font-weight: 600; }
@@ -1237,6 +1241,8 @@ function fit() {   // 비율을 유지한 채 창 안에 맞춤
     const x = (vw - 402 * s) / 2, y = st + (card ? 6 : 0) + Math.max(0, (availH - 803 * s) / 2);
     phone.style.transform = `translate(${x.toFixed(2)}px,${y.toFixed(2)}px) scale(${s})`;
     phone.style.borderRadius = card ? (22 / s).toFixed(1) + "px" : "0";
+    // 소수 배율로 줄이면 겹친 화면들의 가장자리 1픽셀이 반투명하게 그려져 아래 화면이 가는 선처럼 비침 → 가장자리 1px 안쪽에서 잘라 냄
+    phone.style.clipPath = `inset(${(1 / s).toFixed(2)}px round ${card ? (22 / s).toFixed(1) : 0}px)`;
     phone.style.marginBottom = "";
     return;
   }
@@ -1313,7 +1319,8 @@ function syncNav(name) {
 appNav.querySelectorAll(".bottom-nav__item").forEach(b => b.addEventListener("click", () => {
   if (stack.length > 1 || !phone.classList.contains("s-home")) return;
   const k = b.dataset.tab;
-  if (k === "myluck") { toast("아카이브는 곧 열려요"); return; }
+  clearTimeout(freqShowT);
+  if (k === "myluck") { openFreq("myluck"); return; }   // 아카이브: 기운 충전 탭에서 누를 때와 같은 화면 (팀원 앱 안)
   if (k === "frequency") openFreq("frequency");
   else if (k === "home" || k === "friends") setTab(k);
 }));
@@ -1958,9 +1965,16 @@ freqFrame.addEventListener("load", () => {
   freqLoaded = true; const q = freqQueue; freqQueue = []; q.forEach(freqSend);
 });
 function ensureFreq() { if (!freqFrame.dataset.started) { freqFrame.dataset.started = "1"; freqFrame.src = "chiring/index.html#frequency"; } }
+let freqShowT = 0;                                 // 아카이브를 보여 주기 직전의 대기 (다른 탭을 누르면 취소)
 function openFreq(where) {
-  ensureFreq();
+  ensureFreq(); clearTimeout(freqShowT);
   if (typeof where === "string" && where.startsWith("moment-")) freqSend("chiring:moment:" + where.slice(7));
+  if (where === "myluck") {                        // 아카이브: 팀원 앱을 아카이브 화면으로 바꾼 뒤 보여 줌 → 기운 충전 화면이 번쩍 보이지 않음
+    freqSend("chiring:myluck");
+    if (phone.classList.contains("tab-freq")) return;
+    freqShowT = setTimeout(() => phone.classList.add("tab-freq"), freqLoaded ? 60 : 400);
+    return;
+  }
   phone.classList.add("tab-freq");                 // 누르면 항상 바로 보임
 }
 // ── 처음 시작: 팀원 앱의 온보딩(사주 설정 → 나의 캐해 리포트) → 끝나면 오늘의 운세 ─────────────
@@ -1977,6 +1991,7 @@ function endOnboarding() {
   start(true);                                     // 사주 설정을 마치면 오늘의 운세가 도착
 }
 function closeFreq(to) {
+  clearTimeout(freqShowT);
   if (onboarding) { endOnboarding(); return; }
   if (stack.length > 1) { resetNav(); }
   setTab(to === "friends" ? "friends" : "home", true);

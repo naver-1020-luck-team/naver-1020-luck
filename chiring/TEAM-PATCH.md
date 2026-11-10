@@ -19,6 +19,10 @@
 ## 1-3. 메세지 문구: 줄표 모양 (시안)
 시안의 `잠이나 자 ㅡㅡ`는 붙은 긴 줄표(`——`)가 아니라 한글 `ㅡ` 두 개예요. `src/` 메세지 데이터(`water-2`, Jiwon)의 `잠이나 자 ——`를 `잠이나 자 ㅡㅡ`로 바꿔 주세요. (`index.html`에는 직접 바꿔 두었어요)
 
+## 1-4. 아카이브 탭
+- **아카이브 임시 화면 높이:** `D` 컴포넌트(`아카이브 화면은 곧 만들 예정이에요`)가 `minHeight:700`이라, sticky 하단 내비가 화면 바닥(780px)이 아니라 내용 끝(606px)에 붙어 위로 떠 보였어요. → `minHeight:874, paddingBottom:94` (화면을 꽉 채우고 문구는 내비 위 가운데).
+- **팀 프로토타입에서 아카이브 열기:** 홈·친구방에서 아카이브를 누르면 `chiring:myluck` 신호를 보내요. `TeamApp.tsx`의 message 처리에 `chiring:myluck` → `setOnboarding(null)`, 단계 `home`, 탭 `myluck` 을 추가해 주세요. (홈·친구방·기운 충전 어디서 눌러도 같은 아카이브 화면)
+
 ## 2. 기운 주파수 소리 (magenta.js)
 - `team-sound.js` + `vendor/magentamusic-1.23.1.js` (@magenta/music 1.23.1, Apache-2.0)
 - magenta.js MusicVAE 두 모델이 상황마다 새로 생성: 선율(`mel_4bar_small_q2`, 4마디마다) · 드럼(`drums_2bar_lokl_small`, 2마디마다)
