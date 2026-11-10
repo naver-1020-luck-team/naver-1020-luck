@@ -32,14 +32,19 @@
     .replay { display: none; }
   }
   .scaler { position: absolute; left: 0; top: 0; width: 402px; height: 874px; transform-origin: 0 0; }
-  /* 휴대폰으로 볼 때: 시안 속 가짜 상태바(9:41, 위 47px)를 잘라 내 실제 폰 상태바와 겹치지 않게, 화면을 꽉 채움 */
-  /* 휴대폰: 화면 너비를 꽉 채움 (양옆 여백 없음). 시안의 가짜 상태바(위 47px)·홈 막대(아래 24px)는 잘라 내고
-     실제 폰 상태바·홈 막대를 씀. 세로가 조금 모자라면 살짝 스크롤 → 브라우저 주소창이 접히며 화면이 커짐 */
-  html.mob, html.mob body { height: auto; min-height: 100%; overflow-x: hidden; overflow-y: auto; background: #0e0e0e; }
-  html.mob body { display: block; place-items: normal; justify-items: start; text-align: left; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
-  html.mob .phone { height: 803px; border-radius: 0; box-shadow: none; transform-origin: 0 0; background: #0e0e0e; margin-left: 0 !important; margin-right: 0 !important; left: 0; display: block; }
+  /* 휴대폰: 시안의 가짜 상태바(위 47px)·홈 막대(아래 24px)는 잘라 내고, 실제로 보이는 영역(visualViewport, 노치 안전 영역 제외)에
+     화면 전체가 들어오게 맞춤. 카카오톡·인스타 같은 앱 안 브라우저는 아래 도구 막대가 접히지 않아서, 스크롤로 맞추면 아래가 잘림.
+     → 너비에 꽉 맞추되, 세로가 모자라면 전체를 살짝 줄여 다 보이게 하고 그때는 둥근 카드처럼 보여 줌 (Figma 프로토타입 'Fit' 방식) */
+  html.mob, html.mob body { height: 100%; overflow: hidden; background: #0e0e0e; overscroll-behavior: none; }
+  html.mob body { display: block; position: relative; padding: 0; }
+  html.mob .phone { position: absolute; left: 0; top: 0; height: 803px; border-radius: 0; box-shadow: none; transform-origin: 0 0; background: #0e0e0e;
+                    margin: 0 !important; display: block; transition: border-radius .3s var(--ease); }
+  html.mob.mob-card, html.mob.mob-card body { background: #050505; }
+  html.mob.mob-card .phone { box-shadow: 0 0 0 1px rgba(255,255,255,.06), 0 12px 40px rgba(0,0,0,.55); }
   html.mob .scaler { top: -47px; }
   html.mob .replay { display: none; }
+  #safeProbe { position: fixed; left: 0; top: 0; width: 0; visibility: hidden; pointer-events: none;
+               padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
   .layer { position: absolute; inset: 0; }
   .abs { position: absolute; display: block; }
   .no-anim, .no-anim * { transition: none !important; }
@@ -313,9 +318,18 @@
   .ev-status .icons { display: flex; gap: 6px; align-items: center; }
   .ev-title { position: absolute; top: 112px; left: 20px; z-index: 40; font-size: 28px; line-height: 1.36; font-weight: 600; letter-spacing: -.6px; }
   .ev-title span { display: block; opacity: 0; will-change: transform, opacity, filter; }
+  /* 궤도 카드: 매 프레임 바뀌는 건 transform·opacity뿐 (GPU 합성만) → 뒤쪽 카드가 뚝뚝 끊기지 않음.
+     흐림은 미리 흐리게 만든 사본(.b)을 겹쳐 두고 그 투명도만 바꿈 (filter 값을 매 프레임 바꾸면 매번 다시 그려서 끊김) */
+  #homeVeil { position: absolute; inset: 0; z-index: 900; background: #0e0e0e; opacity: 0; pointer-events: none; transition: opacity .55s var(--ease); }
+  #homeVeil.on { opacity: 1; pointer-events: auto; transition: opacity .38s var(--ease); }
   .ev-card { position: absolute; left: 0; top: 0; width: 148px; height: 148px; margin: -74px 0 0 -74px;
-    border-radius: 30%; overflow: hidden; background: #2a2a2a; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+    will-change: transform, opacity; backface-visibility: hidden; contain: layout style; }
+  .ev-card > i { position: absolute; inset: 0; display: block; border-radius: 30%; overflow: hidden; background: #2a2a2a; }
+  .ev-card .s { box-shadow: 0 10px 30px rgba(0,0,0,.35); will-change: opacity; }
   .ev-card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ev-card .b { opacity: 0; will-change: opacity; background: transparent; overflow: visible; }
+  .ev-card .b img { filter: blur(5px); border-radius: 30%; transform: scale(1.04); }
+  .ev-card .g { opacity: 0; will-change: opacity; background: #fff; }
   .ev-keyring { position: absolute; left: 36px; top: 243px; width: 330px; height: 495px; z-index: 300; opacity: 0; will-change: transform, opacity; }
   .ev-part { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
   .ev-part img { position: absolute; display: block; }
@@ -706,6 +720,7 @@
 </style>
 <div class="phone" id="phone">
  <div class="scaler" id="scaler">
+  <div id="homeVeil"></div>
 
   <!-- 4·5. 홈_기본 / 홈_탭했을 때 -->
   <div class="layer" id="home">
@@ -1202,16 +1217,36 @@ const scaler = document.getElementById("scaler");
 // 휴대폰(터치 + 좁은 화면)에서 열면 모바일 보기
 const MOB = (matchMedia("(pointer: coarse)").matches || navigator.maxTouchPoints > 0) && Math.min(window.screen.width, window.screen.height) <= 500;
 document.documentElement.classList.toggle("mob", MOB);
+const safeProbe = document.createElement("div"); safeProbe.id = "safeProbe"; document.body.appendChild(safeProbe);
+let lastFitH = 0;
 function fit() {   // 비율을 유지한 채 창 안에 맞춤
-  if (MOB) {                                      // 너비에 꽉 맞춤 (높이는 레이아웃도 같이 줄여서 빈 스크롤이 생기지 않게)
-    const w = document.documentElement.clientWidth || innerWidth, s = w / 402;
-    phone.style.transform = `scale(${s})`; phone.style.marginBottom = (803 * s - 803) + "px";
+  if (MOB) {
+    const cs = getComputedStyle(safeProbe), st = parseFloat(cs.paddingTop) || 0, sb = parseFloat(cs.paddingBottom) || 0;
+    const vv = window.visualViewport;
+    const vw = vv ? vv.width : (document.documentElement.clientWidth || innerWidth);
+    let vh = (vv ? vv.height : innerHeight);
+    // 글자 입력 중(키보드가 올라와 높이가 줄어든 경우)에는 화면을 다시 줄이지 않음
+    const typing = /^(INPUT|TEXTAREA)$/.test((document.activeElement || {}).tagName || "");
+    if (typing && lastFitH && vh < lastFitH) vh = lastFitH; else lastFitH = vh;
+    let availH = vh - st - sb;
+    const sW = vw / 402;
+    const card = sW - availH / 803 > .012;          // 세로가 모자라 양옆이 남는 경우 → 둥근 카드 (위아래 6px 여유)
+    if (card) availH -= 12;
+    const s = Math.min(sW, availH / 803);
+    document.documentElement.classList.toggle("mob-card", card);
+    const x = (vw - 402 * s) / 2, y = st + (card ? 6 : 0) + Math.max(0, (availH - 803 * s) / 2);
+    phone.style.transform = `translate(${x.toFixed(2)}px,${y.toFixed(2)}px) scale(${s})`;
+    phone.style.borderRadius = card ? (22 / s).toFixed(1) + "px" : "0";
+    phone.style.marginBottom = "";
     return;
   }
   const s = Math.min(1, innerWidth / 402, innerHeight / 874);
   phone.style.transform = `scale(${s})`;
 }
-addEventListener("resize", fit); fit();
+addEventListener("resize", fit); addEventListener("orientationchange", () => setTimeout(fit, 250));
+if (window.visualViewport) visualViewport.addEventListener("resize", fit);
+addEventListener("focusout", () => setTimeout(() => { lastFitH = 0; fit(); }, 300));   // 키보드가 내려가면 다시 맞춤
+fit();
 
 let timer;
 function go(state) {
@@ -1732,8 +1767,8 @@ document.getElementById("collectOk").addEventListener("click", () => {
                 introSpin: Math.PI * 1.6, omega: .5, spinTurns: Math.PI * 2 * 2.6 };
   const stage = document.getElementById("ev-stage");
   const cards = PHOTOS.map((src, i) => {
-    const el = document.createElement("div"); el.className = "ev-card"; el.innerHTML = `<img src="${src}" alt="">`;
-    stage.appendChild(el); return { el, base: (i / PHOTOS.length) * Math.PI * 2 + .3 };
+    const el = document.createElement("div"); el.className = "ev-card"; el.innerHTML = `<i class="s"><img src="${src}" alt=""></i><i class="b"><img src="${src}" alt=""></i><i class="g"></i>`;
+    stage.appendChild(el); return { el, s: el.querySelector(".s"), b: el.querySelector(".b"), g: el.querySelector(".g"), base: (i / PHOTOS.length) * Math.PI * 2 + .3, z: -1, bk: -1, gk: -1 };
   });
   function project(theta, r) {
     const x = ORB.rx * r * Math.sin(theta), y = -ORB.ry * r * Math.cos(theta);
@@ -1753,17 +1788,21 @@ document.getElementById("collectOk").addEventListener("click", () => {
     const radius = lerp(.12, 1, open) * (1 + out * .22);
     const hidden = t > T.cardsOutB + 50;
     stage.style.display = hidden ? "none" : "";
-    if (hidden) { cards.forEach(c => { c.el.style.filter = "none"; }); return; }
+    if (hidden) return;
     cards.forEach((c, i) => {
       const p = project(c.base + rot, radius);
       const scale = lerp(ORB.backScale, 1, p.depth) * lerp(.62, 1, open);
       const opacity = lerp(ORB.backOpacity, 1, p.depth) * clamp01(.35 + open * 2) * clamp01(t / 250) * (1 - out);
       const blur = (1 - p.depth) * ORB.backBlur * open + (1 - open) * 2.5 + Math.min(9, speed * .55);
       const angle = p.angle + (1 - open) * 14 * (i % 2 ? 1 : -1);
-      c.el.style.transform = `translate3d(${p.x}px,${p.y}px,0) rotate(${angle}deg) scale(${scale})`;
+      c.el.style.transform = `translate3d(${p.x.toFixed(2)}px,${p.y.toFixed(2)}px,0) rotate(${angle.toFixed(3)}deg) scale(${scale.toFixed(4)})`;
       c.el.style.opacity = opacity.toFixed(3);
-      c.el.style.filter = `blur(${blur.toFixed(2)}px) brightness(${(1 + Math.min(.5, speed * .015)).toFixed(2)})`;
-      c.el.style.zIndex = String(Math.round(p.depth * 100));
+      // 흐림 = 흐린 사본의 투명도 (0~5px 흐림 ≈ 0~1), 빨리 돌 때 밝아짐 = 흰 빛 겹침의 투명도
+      const bk = Math.min(1, blur / 5).toFixed(3), gk = Math.min(.5, speed * .015).toFixed(3);
+      if (bk !== c.bk) { c.b.style.opacity = bk; c.s.style.opacity = (1 - bk * .85).toFixed(3); c.bk = bk; }
+      if (gk !== c.gk) { c.g.style.opacity = (gk * .45).toFixed(3); c.gk = gk; }
+      const z = Math.round(p.depth * 100);
+      if (z !== c.z) { c.el.style.zIndex = String(z); c.z = z; }
     });
   }
   const PARTS = {"ring": {"box": [252, 61, 200, 277], "com": [344.5, 197.0]}, "leaf": {"box": [90, 243, 188, 279], "com": [178.4, 389.8]}, "pearl": {"box": [251, 258, 72, 130], "com": [289.3, 320.4]}, "flower": {"box": [81, 284, 281, 450], "com": [212.2, 583.9]}, "key": {"box": [241, 287, 188, 581], "com": [339.6, 589.7]}, "bow": {"box": [375, 308, 132, 151], "com": [437.1, 388.6]}, "snow": {"box": [402, 419, 237, 319], "com": [507.2, 595.0]}};
@@ -1867,10 +1906,13 @@ document.getElementById("collectOk").addEventListener("click", () => {
   renderOrbit(-1); renderChrome(-1);
 })();
 
-// 키링 '홈으로 가기' → 맨 처음 화면(오늘의운세_딤1)부터
+// 키링 '홈으로 가기' → 홈_기본 (오늘의 운세는 서비스에 처음 들어왔을 때만)
 document.getElementById("evHome").addEventListener("click", () => {
   if (stack[stack.length - 1] !== "evening") return;
-  window.evStop(); start(true);
+  // 키링 화면 → 어둡게 살짝 덮였다가 홈이 부드럽게 드러남 (뚝 끊기지 않게)
+  const veil = document.getElementById("homeVeil");
+  veil.classList.add("on");
+  setTimeout(() => { window.evStop(); markFortuneSeen(); onboarding = false; phone.classList.remove("onb"); start(false); requestAnimationFrame(() => requestAnimationFrame(() => veil.classList.remove("on"))); }, 380);
 });
 document.getElementById("evShare").addEventListener("click", () => toast("키링 링크를 복사했어요 · 친구에게 보내 보세요"));
 // 키링_2: 회전이 끝나는 순간 새 키링이 천천히 나타나 고리에 매달린 듯 작게 흔들리다 멈춤

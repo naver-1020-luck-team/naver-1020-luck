@@ -2,26 +2,16 @@
 
 `index.html`은 빌드 결과물이라, 원본에서 다시 빌드하면 아래 두 가지가 사라져요. 원본(unahynn/chiring)에 옮겨 두면 다시 빌드해도 유지돼요.
 
-## 1. 기운 선물 완료 → 참 등장 효과
-시나리오 1(홈에서 나무 참 받기)처럼 살살: 아래 빛이 천천히 차오르고 → 참이 살짝 위에서 내려오며 아주 조금 흔들리다 멈추고 → 살짝 떠 있어요. 원형 파동·둥근 빛 맥동은 없고, 참이 나오면 문지른 자리의 동그란 빛도 사라져요.
+## 1. 기운 선물 완료 → 참 등장 효과 (1110 개선)
+시나리오 1 '오늘 행운 담기_참' 등장과 같은 결로 바꿨어요: 아래 빛이 먼저 차오름 → 참이 0.8초에 걸쳐 나타나며 살짝 위(-16px)에서 내려와 자리 잡고(.97→1) → 입체로 살짝 기울었다 잦아듦(rotateY) → 빛줄기가 한 번 훑고 반짝임 → 둥실.
+이전 버전은 참을 위 꼭짓점 기준으로 매달린 듯 흔들어서, 고리가 없는 별 참에서 어색했어요.
 
-`src/screens/Frequency.css` 맨 아래에 그대로 붙이면 돼요.
+`index.html`의 `<style id="team-charm-fx">`와 `<script id="team-charm-js">`를 그대로 옮기면 돼요.
+- CSS → `src/screens/Frequency.css` 맨 아래
+- 스크립트(빛줄기·반짝임 요소를 참에 붙임) → 원본에서는 `gifted__charm` JSX 안에 `<i className="tcf-sheen" style={{maskImage:`url(${src})`}}/>`, `<i className="tcf-spark"/>`를 직접 넣는 게 더 깔끔해요.
 
-```css
-/* 팀 프로토타입: 기운 선물 완료 → 참 등장 (시나리오 1 나무 참처럼 살살: 아래 빛이 천천히 차오르고, 참이 살짝 위에서 내려와 아주 조금 흔들리다 멈춤) */
-.gifted:has(.gifted__charm) .gifted__glow{animation:tcf-glow-rise 2.2s cubic-bezier(.22,.8,.3,1) both,gifted-glow 5s ease-in-out 2.2s infinite alternate}
-@keyframes tcf-glow-rise{0%{transform:scaleY(.75);opacity:.7}100%{transform:scaleY(1);opacity:1}}
-.gifted__charm{transform-origin:50% 8%;animation:tcf-charm-fade .9s cubic-bezier(.65,0,.35,1) .45s both,tcf-charm-drop 2.4s cubic-bezier(.22,1,.36,1) .45s both}
-@keyframes tcf-charm-fade{from{opacity:0}to{opacity:1}}
-@keyframes tcf-charm-drop{0%{transform:translateY(-16px) scale(.97) rotate(0)}30%{transform:translateY(-3px) scale(.99) rotate(2.2deg)}52%{transform:translateY(0) scale(1) rotate(-1.4deg)}72%{transform:rotate(.7deg)}88%{transform:rotate(-.25deg)}100%{transform:none}}
-.gifted__charm img{animation:charm-float 3.4s ease-in-out 2.6s infinite}
-/* 참이 나오면 문지른 자리의 동그란 빛은 사라져요 (원형 효과 없음) */
-.gifted:has(.gifted__charm) .wish-glow{opacity:0;transition:opacity .5s ease-out}
-.gifted__btn{animation-delay:1.5s}
-/* 주파수 선택 → 메세지 보기: 시안 서체 (ZEN SERIF, 시안처럼 조금 굵고 촘촘하게) */
-.replay-card__message{font-family:'ZEN SERIF','Pretendard',serif;font-weight:400;font-size:31px;line-height:48px;letter-spacing:-1.4px;-webkit-text-stroke:.75px #000;paint-order:stroke fill}
-@media (prefers-reduced-motion:reduce){.gifted__charm,.gifted__charm img{animation:none}}
-```
+## 1-1. 온보딩 '나의 캐해 리포트' 확인 버튼: 떠 있는 버튼
+`<style id="team-onb-fx">`: `.report__footer`를 `position:sticky; bottom:25px`로 → 카드가 버튼 뒤로 스크롤돼요. `src/screens/Report.css`(또는 리포트 스타일 파일)에 옮겨 주세요.
 
 ## 1-2. 주파수 선택 → 메세지 보기 서체
 위 CSS 맨 아래 `.replay-card__message`: 시안처럼 ZEN SERIF, 31px / 줄 간격 48px, 조금 굵게(-webkit-text-stroke). `src/screens/FrequencyReplay.css`의 `.replay-card__message`에 옮겨 주세요.
