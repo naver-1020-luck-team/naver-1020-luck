@@ -577,10 +577,11 @@ fn rayStrength(
 @media (prefers-reduced-motion:reduce){.gifted__charm,.gifted__charm img,.gifted__charm .tcf-sheen,.gifted__charm .tcf-spark{animation:none}}
 </style>
 <style id="team-onb-fx">
-/* 팀 프로토타입: 온보딩 '나의 캐해 리포트' 확인 버튼을 화면 아래에 떠 있게 (시안: 카드가 버튼 뒤로 스크롤됨, 아래에서 25px) */
-.report__footer{position:sticky;bottom:25px;z-index:6;margin-top:32px;pointer-events:none}
+/* 팀 프로토타입: 온보딩 '나의 캐해 리포트' 확인 버튼을 화면 아래에 떠 있게 (카드가 버튼 뒤로 스크롤됨).
+   위치는 바로 앞 '사주 설정' 화면의 '나의 캐해 확인하기' 버튼과 같게: 위 784px · 아래에서 34px */
+.report__footer{position:sticky;bottom:34px;z-index:6;margin-top:32px;margin-bottom:34px;pointer-events:none}
 .report__footer .cta{pointer-events:auto;box-shadow:0 6px 24px rgba(0,0,0,.28)}
-.report--onboarding .report__scroll{padding-bottom:25px}
+.report--onboarding .report__scroll{padding-bottom:0}
 </style>
 <script id="team-charm-js">
 /* 참이 화면에 붙는 순간 빛줄기(참 이미지 모양으로 마스크)·반짝임을 덧붙임 */

@@ -11,7 +11,7 @@
 - 스크립트(빛줄기·반짝임 요소를 참에 붙임) → 원본에서는 `gifted__charm` JSX 안에 `tcf-sheen`(참 이미지를 mask-image로 지정)과 `tcf-spark` 요소를 직접 넣는 게 더 깔끔해요.
 
 ## 1-1. 온보딩 '나의 캐해 리포트' 확인 버튼: 떠 있는 버튼
-`<style id="team-onb-fx">`: `.report__footer`를 `position:sticky; bottom:25px`로 → 카드가 버튼 뒤로 스크롤돼요. `src/screens/Report.css`(또는 리포트 스타일 파일)에 옮겨 주세요.
+`<style id="team-onb-fx">`: `.report__footer`를 `position:sticky; bottom:34px; margin-bottom:34px`, `.report__scroll` 아래 여백 0 → 카드가 버튼 뒤로 스크롤되고, 버튼 위치가 앞 화면 '나의 캐해 확인하기'와 같아요(위 784px · 아래에서 34px). `src/screens/Report.css`(또는 리포트 스타일 파일)에 옮겨 주세요.
 
 ## 1-2. 주파수 선택 → 메세지 보기 서체
 위 CSS 맨 아래 `.replay-card__message`: 시안처럼 ZEN SERIF, 31px / 줄 간격 48px, 조금 굵게(-webkit-text-stroke). `src/screens/FrequencyReplay.css`의 `.replay-card__message`에 옮겨 주세요.
