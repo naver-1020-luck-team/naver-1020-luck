@@ -495,6 +495,10 @@
   @keyframes stkStamp { 0% { opacity: 0; scale: 1.9; rotate: -14deg; } 45% { opacity: 1; scale: .86; rotate: 5deg; } 70% { scale: 1.08; rotate: -2deg; } 100% { opacity: 1; scale: 1; rotate: 0deg; } }
   @keyframes stkLabel { from { opacity: 0; scale: .6; translate: 0 -6px; } to { opacity: 1; scale: 1; translate: 0 0; } }
   .stk.ghost { z-index: 30; pointer-events: none; } .stk.ghost .stk-art { transform: translate(-50%, -50%) scale(1.15); filter: drop-shadow(0 6px 12px rgba(0,0,0,.5)); }
+  /* 끌어 놓기: 들고 있던 크기·그림자 그대로 이어서 '쿵' 내려앉음 (사라졌다가 다시 찍히지 않게) */
+  .stk.drop .stk-art { animation: stkDrop .5s cubic-bezier(.3,.9,.35,1.15) both; }
+  .stk.drop .stk-label { animation: stkLabel .35s cubic-bezier(.34,1.56,.64,1) .22s both; }
+  @keyframes stkDrop { 0% { scale: 1.15; filter: drop-shadow(0 6px 12px rgba(0,0,0,.5)); } 40% { scale: .86; filter: drop-shadow(0 1px 2px rgba(0,0,0,.3)); } 70% { scale: 1.05; } 100% { scale: 1; filter: none; } }
   #stAuthor { position: absolute; left: 0; right: 0; top: 564px; height: 36px; display: flex; justify-content: center; align-items: center; gap: 7px; }
   .st-av { position: relative; width: 35px; height: 35px; border-radius: 50%; overflow: hidden; border: 1.3px solid #7b7b7b; background: #d1d7de; flex: none; }
   .st-av img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; max-width: none; }
@@ -517,7 +521,7 @@
   #story.typing #stAuthor { transform: translateY(-145px) scale(.83); }
   #story.typing .st-btn, #story.typing #stHint { opacity: 0; pointer-events: none; }
   #story.typing #stMsg { top: 501px; width: 356px; height: 52px; background: #2d2d2d; }
-  #story.typing #stIn { font-size: 17px; padding-left: 22px; }
+  #story.typing #stIn { font-size: 17px; padding-left: 22px; padding-right: 56px; }
   #story.typing #stSend { top: 5px; right: 5px; width: 42px; height: 42px; }
   #story.typing #stKbd { transform: none; }
   #stBackHide { position: absolute; left: 18px; top: 56px; width: 52px; height: 52px; border-radius: 50%; background: #0e0e0e; opacity: 0; pointer-events: none; transition: opacity .25s var(--ease); }
@@ -2168,11 +2172,13 @@ function renderStory(dir) {
   story.classList.remove("slide-l", "slide-r"); if (dir) { void story.offsetWidth; story.classList.add(dir > 0 ? "slide-l" : "slide-r"); }
 }
 function openStory(id) { stIdx = Math.max(0, MOMENTS.findIndex(m => m.id === id)); stopTyping(true); renderStory(0); push("story"); }
-function addMine(t, x, y) {
+function addMine(t, x, y, dropped) {
   const m = MOMENTS[stIdx], list = stMine[m.id] = stMine[m.id] || [];
   list.push({ t, from: ST_ME, x, y });
   stStk.querySelectorAll(".stk").forEach(el => { if (el.querySelector(".stk-label") && el.querySelector(".stk-label").textContent === ST_ME) el.querySelector(".stk-label").remove(); });
-  stStk.appendChild(stickerEl(t, ST_ME, x, y, true, 0));
+  const el = stickerEl(t, ST_ME, x, y, true, 0);
+  if (dropped) el.classList.replace("stamp", "drop");   // 끌어 놓은 건 들고 있던 모습에서 이어서 내려앉음
+  stStk.appendChild(el);
   toast(`${m.name}님에게 ${ST_BTNS.find(b => b.type === t).label}을 보냈어요`, 1500);
 }
 const SPOTS = [[90, 120], [280, 110], [180, 230], [80, 360], [290, 380], [200, 330], [120, 190], [250, 210]];
@@ -2202,7 +2208,7 @@ ST_BTNS.forEach(b => {
     if (ghost) {
       ghost.remove(); ghost = null;
       const x = p[0] - 20, y = p[1] - 125;   // 사진 안 좌표
-      if (x > 0 && x < 362 && y > 0 && y < 424 && !story.classList.contains("typing")) addMine(b.type, Math.min(342, Math.max(20, x)), Math.min(404, Math.max(20, y)));
+      if (x > 0 && x < 362 && y > 0 && y < 424 && !story.classList.contains("typing")) addMine(b.type, Math.min(342, Math.max(20, x)), Math.min(404, Math.max(20, y)), true);
       return;
     }
     if (e.type === "pointerup" && !story.classList.contains("typing")) { const [x, y] = freeSpot(); addMine(b.type, x, y); }
@@ -2214,7 +2220,7 @@ function startTyping() {
   if (story.classList.contains("typing")) return;
   story.classList.add("typing"); stIn.value = "";
   const text = MOMENTS[stIdx].typed; let i = 0; clearInterval(stTypeT);
-  stTypeT = setInterval(() => { if (i >= text.length) { clearInterval(stTypeT); return; } stIn.value = text.slice(0, ++i); }, 75);
+  stTypeT = setInterval(() => { if (i >= text.length) { clearInterval(stTypeT); return; } stIn.value = text.slice(0, ++i); stIn.scrollLeft = stIn.scrollWidth; }, 75);   // 긴 문장도 끝(방금 친 글자)이 보이게
   setTimeout(() => { try { stIn.focus({ preventScroll: true }); } catch (e) {} }, 50);
 }
 function stopTyping(instant) { clearInterval(stTypeT); story.classList.remove("typing"); stIn.value = ""; try { stIn.blur(); } catch (e) {} }
