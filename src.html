@@ -1,4 +1,5 @@
 <title>오늘의 운세 프로토타입</title>
+<link rel="icon" href="data:,">
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,800..900&display=swap" />
 <style>
@@ -17,7 +18,8 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { height: 100%; background: #050505; }
-  body { display: grid; place-items: center; -webkit-font-smoothing: antialiased;
+  /* 칸을 창 크기로 고정(minmax 0) → 창이 874px보다 낮아도 줄어든 폰이 가운데에 (칸이 폰 원래 높이만큼 늘어나 위에 붙고 아래가 잘리던 문제) */
+  body { display: grid; place-items: center; grid-template: minmax(0, 1fr) / minmax(0, 1fr); -webkit-font-smoothing: antialiased;
          font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", sans-serif; }
   .phone {
     position: relative; width: 402px; height: 874px; overflow: hidden; background: #0e0e0e;
