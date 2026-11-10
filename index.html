@@ -42,12 +42,12 @@
     .replay { display: none; }
   }
   .scaler { position: absolute; left: 0; top: 0; width: 402px; height: 874px; transform-origin: 0 0; }
-  /* 휴대폰: 시안의 가짜 상태바(위 47px)·홈 막대(아래 24px)는 잘라 내고, 실제로 보이는 영역(visualViewport, 노치 안전 영역 제외)에
+  /* 휴대폰: 시안의 가짜 상태바(위 47px)는 잘라 내고(아래 홈 막대 자리 24px 여백은 데스크톱처럼 유지), 실제로 보이는 영역(visualViewport, 노치 안전 영역 제외)에
      화면 전체가 들어오게 맞춤. 카카오톡·인스타 같은 앱 안 브라우저는 아래 도구 막대가 접히지 않아서, 스크롤로 맞추면 아래가 잘림.
      → 너비에 꽉 맞추되, 세로가 모자라면 전체를 살짝 줄여 다 보이게 하고 그때는 둥근 카드처럼 보여 줌 (Figma 프로토타입 'Fit' 방식) */
   html.mob, html.mob body { height: 100%; overflow: hidden; background: #0e0e0e; overscroll-behavior: none; }
   html.mob body { display: block; position: relative; padding: 0; }
-  html.mob .phone { position: absolute; left: 0; top: 0; height: 803px; border-radius: 0; box-shadow: none; transform-origin: 0 0; background: #0e0e0e;
+  html.mob .phone { position: absolute; left: 0; top: 0; height: 827px; border-radius: 0; box-shadow: none; transform-origin: 0 0; background: #0e0e0e;
                     margin: 0 !important; display: block; transition: border-radius .3s var(--ease); }
   html.mob.mob-card, html.mob.mob-card body { background: #050505; }
   html.mob.mob-card .phone { box-shadow: 0 0 0 1px rgba(255,255,255,.06), 0 12px 40px rgba(0,0,0,.55); }
@@ -1246,17 +1246,18 @@ function focusedField() {
   }
   return isField(el) ? { el, frame: null } : null;
 }
+const MOB_H = 827;                   // 모바일 화면 높이: 시안 874에서 가짜 상태바(위 47px)만 잘라 냄. 아래 여백(홈 막대 자리 24px)은 데스크톱처럼 그대로
 function layoutBase() {             // 키보드가 없을 때의 배율·위치
   const cs = getComputedStyle(safeProbe), st = parseFloat(cs.paddingTop) || 0, sb = parseFloat(cs.paddingBottom) || 0;
   const vw = document.documentElement.clientWidth || innerWidth;
   const vh = window.visualViewport ? visualViewport.height : innerHeight;
   let availH = vh - st - sb;
   const sW = vw / 402;
-  const card = sW - availH / 803 > .012;          // 세로가 모자라 양옆이 남는 경우 → 위쪽만 둥근 카드 (위 6px 여유)
+  const card = sW - availH / MOB_H > .012;          // 세로가 모자라 양옆이 남는 경우 → 위쪽만 둥근 카드 (위 6px 여유)
   if (card) availH -= 6;
-  const s = Math.min(sW, availH / 803);
+  const s = Math.min(sW, availH / MOB_H);
   // 화면 아래 끝에 딱 붙임 (하단 내비가 화면 바닥까지 이어지게). 남는 세로 공간은 위쪽(상태 표시줄 쪽)으로
-  return { s, card, x: (vw - 402 * s) / 2, y: st + (card ? 6 : 0) + Math.max(0, availH - 803 * s), vh, vw };
+  return { s, card, x: (vw - 402 * s) / 2, y: st + (card ? 6 : 0) + Math.max(0, availH - MOB_H * s), vh, vw };
 }
 function applyPhone(b, shift, offTop) {
   phone.style.transform = `translate(${b.x.toFixed(2)}px,${(b.y - shift + offTop).toFixed(2)}px) scale(${b.s})`;
@@ -1272,7 +1273,7 @@ function fit() {   // 비율을 유지한 채 창 안에 맞춤
       if (f.frame) { const fr = f.frame.getBoundingClientRect(); bottom = fr.top + r.bottom * base.s; }
       const fieldInPhone = bottom - phone.getBoundingClientRect().top;   // 폰 윗변에서 입력 칸 아래까지 (올린 정도와 무관)
       // 입력 칸 아래가 '자판 위 12px'보다 내려가 있으면 그만큼만 올림. 단, 폰 아래 끝이 자판 위로 떠오르지는 않게
-      kbShift = Math.max(0, Math.min(base.y + fieldInPhone - (vv.height - 12), base.y + 803 * base.s - vv.height));
+      kbShift = Math.max(0, Math.min(base.y + fieldInPhone - (vv.height - 12), base.y + MOB_H * base.s - vv.height));
       document.documentElement.classList.add("kb-open");
       applyPhone(base, kbShift, offTop);
       return;
