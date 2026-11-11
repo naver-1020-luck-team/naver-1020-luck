@@ -1868,8 +1868,9 @@ document.getElementById("collectOk").addEventListener("click", () => {
     const zv = z3 * Math.cos(PITCH), persp = CAM / (CAM - zv);                           // 앞은 크게, 뒤는 작게 (옆 = 1)
     const x = x3 * persp, y = -z3 * Math.sin(PITCH) * persp;                             // 앞쪽이 위, 뒤쪽이 아래 (기존 사선 궤도 그대로)
     const c = Math.cos(ORB.tilt), s = Math.sin(ORB.tilt);
-    const tangent = Math.atan2(Math.sin(PITCH) * Math.sin(theta), Math.cos(theta));
-    return { x: ORB.cx + x * c - y * s, y: ORB.cy + LIFT * r + x * s + y * c, depth: (Math.cos(theta) + 1) / 2, persp, angle: tangent * .06 * 180 / Math.PI };   // 카드는 거의 똑바로 선 채로 돎
+    // 카드 기울기: 궤도 방향을 따라 아주 살짝(최대 1.6°). 각도 함수(atan2)는 맨 뒤를 지날 때 +180°→-180°로 넘어가 카드가 뚝 꺾였음 → 끊김 없는 sin(2θ)로
+    const tilt = 1.6 * Math.sin(2 * theta);
+    return { x: ORB.cx + x * c - y * s, y: ORB.cy + LIFT * r + x * s + y * c, depth: (Math.cos(theta) + 1) / 2, persp, angle: tilt };   // 카드는 거의 똑바로 선 채로 돎
   }
   const spinCurve = k => Math.pow(k, 3.2);
   const outExpo = k => k >= 1 ? 1 : 1 - Math.pow(2, -9 * k);
