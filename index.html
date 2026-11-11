@@ -1852,8 +1852,8 @@ document.getElementById("collectOk").addEventListener("click", () => {
               cardsOutA: 3950 + D, cardsOutB: 4500 + D, ringA: 4000 + D, ringB: 5600 + D, t1OutA: 3000 + D, t1OutB: 3700 + D,
               t2InA: 4900 + D, t2InB: 5900 + D, sheenA: 5600 + D, sheenB: 7200 + D };
   // 오늘 모은 사진들로 궤도를 구성
-  const PHOTOS = [PANO_IMG.bunny, PANO_IMG.girl, PANO_IMG.poster, PANO_IMG.item, PANO_IMG.doll,
-                  PANO_IMG.place, PANO_IMG.blob, PANO_IMG.music, PANO_IMG.coffee];
+  const PHOTOS = [PANO_IMG.bunny, PANO_IMG.girl, PANO_IMG.poster, PANO_IMG.item, PANO_IMG.doll, PANO_IMG.beads,
+                  PANO_IMG.place, PANO_IMG.blob, PANO_IMG.music, PANO_IMG.coffee];   // 10장: 뒤쪽 궤도도 빈틈없이
   const ORB = { cx: 203, cy: 505, rx: 228, ry: 100, tilt: -16 * Math.PI / 180, backScale: .6, backOpacity: .5, backBlur: 2.4,
                 introSpin: Math.PI * 1.6, omega: .5, spinTurns: Math.PI * 2 * 2.6 };
   const stage = document.getElementById("ev-stage");
@@ -1861,11 +1861,15 @@ document.getElementById("collectOk").addEventListener("click", () => {
     const el = document.createElement("div"); el.className = "ev-card"; el.innerHTML = `<i class="s"><img src="${src}" alt=""></i><i class="b"><img src="${src}" alt=""></i><i class="g"></i>`;
     stage.appendChild(el); return { el, s: el.querySelector(".s"), b: el.querySelector(".b"), g: el.querySelector(".g"), base: (i / PHOTOS.length) * Math.PI * 2 + .3, z: -1, bk: -1, gk: -1 };
   });
+  // 실제 원근: 기울어진 3D 원 궤도를 카메라(거리 CAM)로 투영 → 뒤쪽은 카드만 작아지는 게 아니라 궤도 폭·간격도 함께 좁아져 빈틈이 생기지 않음
+  const CAM = 820, PITCH = 27 * Math.PI / 180, LIFT = 20;   // LIFT: 원근으로 앞쪽이 더 올라간 만큼 궤도 중심을 내려 화면 균형 유지
   function project(theta, r) {
-    const x = ORB.rx * r * Math.sin(theta), y = -ORB.ry * r * Math.cos(theta);
+    const R = ORB.rx * r, x3 = R * Math.sin(theta), z3 = R * Math.cos(theta);            // z3 > 0 : 앞쪽(카메라 쪽)
+    const zv = z3 * Math.cos(PITCH), persp = CAM / (CAM - zv);                           // 앞은 크게, 뒤는 작게 (옆 = 1)
+    const x = x3 * persp, y = -z3 * Math.sin(PITCH) * persp;                             // 앞쪽이 위, 뒤쪽이 아래 (기존 사선 궤도 그대로)
     const c = Math.cos(ORB.tilt), s = Math.sin(ORB.tilt);
-    const tangent = Math.atan2(ORB.ry * Math.sin(theta), ORB.rx * Math.cos(theta));
-    return { x: ORB.cx + x * c - y * s, y: ORB.cy + x * s + y * c, depth: (Math.cos(theta) + 1) / 2, angle: tangent * .06 * 180 / Math.PI };   // 카드는 거의 똑바로 선 채로 돎
+    const tangent = Math.atan2(Math.sin(PITCH) * Math.sin(theta), Math.cos(theta));
+    return { x: ORB.cx + x * c - y * s, y: ORB.cy + LIFT * r + x * s + y * c, depth: (Math.cos(theta) + 1) / 2, persp, angle: tangent * .06 * 180 / Math.PI };   // 카드는 거의 똑바로 선 채로 돎
   }
   const spinCurve = k => Math.pow(k, 3.2);
   const outExpo = k => k >= 1 ? 1 : 1 - Math.pow(2, -9 * k);
@@ -1882,7 +1886,7 @@ document.getElementById("collectOk").addEventListener("click", () => {
     if (hidden) return;
     cards.forEach((c, i) => {
       const p = project(c.base + rot, radius);
-      const scale = lerp(ORB.backScale, 1, p.depth) * lerp(.62, 1, open);
+      const scale = p.persp * .75 * lerp(.62, 1, open);                                  // 카드 크기도 같은 원근 (앞 1 · 옆 .75 · 뒤 .6)
       const opacity = lerp(ORB.backOpacity, 1, p.depth) * clamp01(.35 + open * 2) * clamp01(t / 250) * (1 - out);
       const blur = (1 - p.depth) * ORB.backBlur * open + (1 - open) * 2.5 + Math.min(9, speed * .55);
       const angle = p.angle + (1 - open) * 14 * (i % 2 ? 1 : -1);
