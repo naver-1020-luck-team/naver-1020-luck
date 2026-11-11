@@ -29,16 +29,10 @@
 - `bg`: `linear-gradient(206deg, #00888a 0%, #13a28d 25%, #29bf91 50%, #41da95 75%, #58f499 100%)`
 - `inset`: `inset 0 0 1px rgba(255, 255, 255, 0.3), inset 0 0 34px rgba(222, 250, 198, 0.78)`
 
-## 1-6. 기운 선물: 카드 문지르기 인터랙션 (1111)
-시안 '나에게 기운 충전 완료!'처럼 문지른 만큼 카드 둘레 빛이 두껍게 차오르도록 바꾸고, 실제로 문지르는 느낌을 더했어요.
-- 손가락이 닿으면 카드가 살짝 눌리고(.982) 누른 쪽으로 기울어요(최대 약 3.5도). 문지르는 방향으로 조금 끌려갔다 돌아와요(마찰, 최대 5px).
-- 손가락 자리에 빛이 맺혀요. 빨리 문지를수록 밝아지고, 카드 가운데부터 빛이 차올라요.
-- 주변의 빛 알갱이가 손가락 쪽으로 빨려 들어와요. 바깥 빛은 2단(9px·38px), 아래 빛은 문지른 만큼 올라와요.
-- 다 모이면 카드가 환하게 부풀었다가 빛으로 흩어지고(.75초), 그 사이 참이 나타나요.
-
-`index.html`의 `<!--team-rub-->` 사이(`<style id="team-rub-fx">`, `<script id="team-rub-js">`)에 있어요. 같은 내용이 `team-rub.html`에도 있어요.
-- CSS → `src/screens/Frequency.css` 맨 아래
-- 스크립트 → 원본에서는 `gifted` 화면의 포인터 처리(`onPointerDown`·`onPointerMove`)에서 같은 값(`--tx --ty --dx --dy --press --sx --sy`, 루트의 `--heat --rr`)을 넣고, `gifted__card` 안에 `tr-core`·`tr-touch`·`tr-sheen` 요소, 화면에 `tr-dust` 캔버스를 직접 두는 게 깔끔해요.
+## 1-6. 기운 선물·충전: 카드 위에도 문지른 기운 빛 (1111)
+문지른 자리의 기운 빛(`wish-glow` 캔버스)이 카드 뒤(z-index 0)에 깔려 카드 밖에서만 보였어요. 카드 위를 문질러도 빛이 보이도록 카드보다 위로 올렸어요.
+- `src/screens/Frequency.css`: `.gifted .wish-glow{z-index:2}` (카드 `.gifted__card`는 z-index 1)
+- `index.html`의 `<style id="team-rub-fx">`에 있어요.
 
 ## 2. 기운 주파수 소리 (magenta.js)
 - `team-sound.js` + `vendor/magentamusic-1.23.1.js` (@magenta/music 1.23.1, Apache-2.0)
