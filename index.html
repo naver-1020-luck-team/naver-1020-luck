@@ -114,7 +114,9 @@
   .tab-freq #freqLayer { visibility: visible; }
   /* 기운 충전(팀원 앱)이 화면을 다 덮는 동안 그 아래 화면들은 그리지 않음 → 휴대폰 그래픽 메모리 절약 (덮인 화면이 그대로 남아 있으면 iOS가 화면을 통째로 지울 수 있음) */
   .phone.tab-freq .layer:not(#freqLayer), .phone.tab-freq #appNav { visibility: hidden !important; }
-  #freqFrame { position: absolute; inset: 0; width: 402px; height: 874px; border: 0; display: block; background: #121212; }
+  #freqFrame { position: absolute; inset: 0; width: 402px; height: 874px; border: 0; display: block; background: #121212; transition: opacity .28s ease-out; }
+  /* 처음 온보딩: 팀원 앱이 첫 화면을 다 그린 뒤에 부드럽게 나타남 (그 전엔 같은 바탕색만 → 빈 화면이 깜빡이지 않음) */
+  .phone.onb-wait #freqFrame { opacity: 0; transition: none; }
   /* ── 친구방 ── */
   #friends { background: #0e0e0e; visibility: hidden; }
   .tab-friends #friends { visibility: visible; }
@@ -750,6 +752,8 @@
   @keyframes cgDriftR { 0%, 100% { transform: translate(0, -20px); } 50% { transform: translate(-120px, 24px); } }
 </style>
 <div class="phone" id="phone">
+<script>/* 첫 화면: 기본 주소(온보딩부터)면 화면을 그리기 전에 바로 온보딩 상태로 둠 → 오늘의 운세(기운 도착) 화면이 잠깐 비쳤다 사라지지 않음 */
+(function () { var h = location.hash.slice(1); if (["home", "friends", "keyring", "fortune"].indexOf(h) < 0) { window.BOOT_ONB = true; document.getElementById("phone").classList.add("tab-freq", "onb", "onb-wait"); } })();</script>
  <div class="scaler" id="scaler">
   <div id="homeVeil"></div>
 
@@ -821,6 +825,8 @@
 
   <!-- 주파수 (팀원 앱 chiring/ 을 폰 화면 안에 그대로) -->
   <div class="layer" id="freqLayer"><iframe id="freqFrame" title="주파수" src="about:blank"></iframe></div>
+<script>/* 온보딩으로 시작하면 팀원 앱을 바로 불러오기 시작 (다른 이미지가 다 받아질 때까지 기다리지 않음) */
+if (window.BOOT_ONB) { var ff = document.getElementById("freqFrame"); ff.dataset.started = "1"; ff.src = "chiring/index.html#onboarding"; }</script>
 
   <!-- 1·2. 오늘의운세_딤 / 딤2 -->
   <div class="layer" id="dim">
@@ -1321,13 +1327,15 @@ addEventListener("scroll", () => { if (MOB && (scrollX || scrollY)) scrollTo(0, 
 function onFocusChange() { if (!MOB) return; scrollTo(0, 0); fit(); [120, 320, 600].forEach(t => setTimeout(fit, t)); }
 addEventListener("focusin", onFocusChange); addEventListener("focusout", () => setTimeout(onFocusChange, 60));
 // 기운 충전(iframe) 안의 입력 칸도 같은 방식으로
-document.getElementById("freqFrame").addEventListener("load", e => {
+function hookFreqFocus() {
   try {
-    const d = e.target.contentDocument; if (!d) return;
+    const d = document.getElementById("freqFrame").contentDocument; if (!d || d.__focusHooked || !/chiring/.test(d.URL)) return; d.__focusHooked = true;
     d.addEventListener("focusin", onFocusChange); d.addEventListener("focusout", () => setTimeout(onFocusChange, 60));
     d.addEventListener("input", () => { if (MOB) fit(); });   // 여러 줄로 늘어나면 따라 올림
   } catch (err) {}
-});
+}
+document.getElementById("freqFrame").addEventListener("load", hookFreqFocus);
+try { if (document.getElementById("freqFrame").contentDocument.readyState === "complete") hookFreqFocus(); } catch (e) {}   // 이미 불러온 경우
 fit();
 
 let timer;
@@ -2036,10 +2044,20 @@ function freqSend(msg) {
   if (freqLoaded) { try { freqFrame.contentWindow.postMessage(msg, "*"); } catch (e) {} }
   else freqQueue.push(msg);
 }
-freqFrame.addEventListener("load", () => {
-  if (!freqFrame.getAttribute("src") || freqFrame.getAttribute("src") === "about:blank") return;
+function onFreqLoad() {
+  if (!freqFrame.getAttribute("src") || freqFrame.getAttribute("src") === "about:blank" || freqLoaded) return;
   freqLoaded = true; const q = freqQueue; freqQueue = []; q.forEach(freqSend);
-});
+  if (phone.classList.contains("onb-wait")) {      // 첫 온보딩: 앱이 실제로 화면을 그렸는지 확인한 뒤 보여 줌
+    const t0 = performance.now();
+    const ready = () => { try { const r = freqFrame.contentDocument.getElementById("root"); return r && r.children.length && freqFrame.contentDocument.fonts.status === "loaded"; } catch (e) { return true; } };
+    const reveal = () => requestAnimationFrame(() => requestAnimationFrame(() => phone.classList.remove("onb-wait")));
+    (function wait() { if (ready() || performance.now() - t0 > 2500) reveal(); else setTimeout(wait, 30); })();
+  }
+}
+freqFrame.addEventListener("load", onFreqLoad);
+// 이 코드가 실행되기 전에 이미 다 불러왔을 수도 있음 → 그때는 바로 처리
+try { const d = freqFrame.contentDocument; if (freqFrame.dataset.started && d && d.readyState === "complete" && /chiring/.test(d.URL)) onFreqLoad(); } catch (e) {}
+setTimeout(() => phone.classList.remove("onb-wait"), 6000);   // 안전장치: 어떤 경우에도 화면이 가려진 채 남지 않게
 function ensureFreq() { if (!freqFrame.dataset.started) { freqFrame.dataset.started = "1"; freqFrame.src = "chiring/index.html#frequency"; } }
 let freqShowT = 0;                                 // 아카이브를 보여 주기 직전의 대기 (다른 탭을 누르면 취소)
 function openFreq(where) {
@@ -2058,7 +2076,7 @@ let onboarding = false;
 function startOnboarding() {
   clearTimeout(timer); resetNav(); go("home"); onboarding = true;
   phone.classList.add("tab-freq", "onb");
-  if (freqFrame.dataset.started) freqSend("chiring:onboarding");
+  if (freqFrame.dataset.started) { if (freqLoaded || !freqFrame.src.endsWith("#onboarding")) freqSend("chiring:onboarding"); }   // 이미 온보딩으로 불러오는 중이면 다시 보내지 않음
   else { freqFrame.dataset.started = "1"; freqFrame.src = "chiring/index.html#onboarding"; }
 }
 function endOnboarding() {
@@ -2284,10 +2302,12 @@ function boot() {
     setTimeout(() => { busy = false; push("evening"); window.evStart(); }, 60);
   } else if (h === "fortune") start(false);   // 온보딩 없이 오늘의 운세부터
   else {                                      // 기본: 팀원 앱의 온보딩부터 (팀원 앱 파일이 없는 곳에서는 오늘의 운세부터)
-    fetch("chiring/index.html", { method: "HEAD", cache: "no-store" }).then(r => r.ok ? startOnboarding() : start(false)).catch(() => start(false));
+    startOnboarding();                        // 바로 온보딩 (첫 화면 결정은 위에서 이미 끝남)
+    const fallback = () => { onboarding = false; phone.classList.remove("tab-freq", "onb", "onb-wait"); start(false); };   // 팀원 앱 파일이 없을 때만 오늘의 운세부터
+    fetch("chiring/index.html", { method: "HEAD", cache: "no-store" }).then(r => { if (!r.ok) fallback(); }).catch(fallback);
   }
 }
-if (document.readyState === "complete") boot(); else addEventListener("load", boot, { once: true });
+if (window.BOOT_ONB || document.readyState === "complete") boot(); else addEventListener("load", boot, { once: true });   // 온보딩은 바로, 오늘의 운세는 이미지가 다 준비된 뒤
 </script>
 
 </html>
