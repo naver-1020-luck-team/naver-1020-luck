@@ -1753,7 +1753,7 @@ document.getElementById("resultOk").addEventListener("click", () => {
 const PANO = ["coffee", "poster", "girl", "place", "item", "music", "beads", "blob", "doll", "bunny", "umbrella"];
 const PANO_IMG = { coffee: "__img_col_coffee__", poster: "__img_col_poster__", girl: "__img_col_girl__",
   place: "__img_col_place__", item: "__img_col_item__", music: "__img_col_music__", beads: "__img_col_beads__",
-  blob: "__img_col_blob__", doll: "__img_col_doll__", bunny: "__img_col_bunny__", umbrella: "__img_col_umbrella__" };
+  blob: "__img_col_blob__", doll: "__img_col_doll__", bunny: "__img_col_bunny__", umbrella: "__img_col_umbrella__", hangang: "__img_col_hangang__" };
 const PV = { R: 262, Z0: 232, step: 33, spread: 1300, speed: 1.4 };   // 반지름·카메라 위치·카드 간격(도)·초당 카드 수
 const panoEl = document.getElementById("pano"), panoRing = document.getElementById("panoRing");
 const pcards = PANO.map((k, i) => {
@@ -1842,8 +1842,8 @@ document.getElementById("collectOk").addEventListener("click", () => {
               cardsOutA: 3950 + D, cardsOutB: 4500 + D, ringA: 4000 + D, ringB: 5600 + D, t1OutA: 3000 + D, t1OutB: 3700 + D,
               t2InA: 4900 + D, t2InB: 5900 + D, sheenA: 5600 + D, sheenB: 7200 + D };
   // 오늘 모은 사진들로 궤도를 구성
-  const PHOTOS = [PANO_IMG.bunny, PANO_IMG.girl, PANO_IMG.poster, PANO_IMG.item, PANO_IMG.doll, PANO_IMG.beads,
-                  PANO_IMG.place, PANO_IMG.blob, PANO_IMG.music, PANO_IMG.coffee];   // 10장: 뒤쪽 궤도도 빈틈없이
+  const PHOTOS = [PANO_IMG.bunny, PANO_IMG.girl, PANO_IMG.poster, PANO_IMG.item, PANO_IMG.hangang, PANO_IMG.doll, PANO_IMG.beads,
+                  PANO_IMG.place, PANO_IMG.blob, PANO_IMG.music, PANO_IMG.coffee];   // 11장 (오늘 담은 한강 노을 참 포함): 뒤쪽 궤도도 빈틈없이
   const ORB = { cx: 203, cy: 505, rx: 228, ry: 100, tilt: -16 * Math.PI / 180, backScale: .6, backOpacity: .5, backBlur: 2.4,
                 introSpin: Math.PI * 1.6, omega: .5, spinTurns: Math.PI * 2 * 2.6 };
   const stage = document.getElementById("ev-stage");
