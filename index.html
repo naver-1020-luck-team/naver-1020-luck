@@ -1288,10 +1288,24 @@ function layoutBase() {             // 키보드가 없을 때의 배율·위치
 function applyPhone(b, shift, offTop) {
   phone.style.transform = `translate(${b.x.toFixed(2)}px,${(b.y - shift + offTop).toFixed(2)}px) scale(${b.s})`;
 }
+// 자판이 오르내리는 동안(입력 칸을 누르고 있을 때 + 포커스가 빠진 직후 자판이 내려가는 동안)에는 보이는 높이가 줄어도 화면 배율을 다시 계산하지 않음
+// (예전에는 줄어든 높이로 다시 맞춰서, 자판을 닫는 순간 화면 전체가 작아졌다가 돌아오는 오류가 있었음)
+let kbUntil = 0;
+function kbClosing() { if (!MOB) return; kbUntil = performance.now() + 900; setTimeout(fit, 950); }
 function fit() {   // 비율을 유지한 채 창 안에 맞춤
   if (MOB) {
     const vv = window.visualViewport, f = focusedField();
     const offTop = vv ? vv.offsetTop : 0;
+    const vh = vv ? vv.height : innerHeight, vw = document.documentElement.clientWidth || innerWidth;
+    if (base && Math.abs(vw - base.vw) < 2 && vh < base.vh - .5 && (f || performance.now() < kbUntil)) {
+      if (!(f && vh < base.vh - 80)) {               // 자판이 아직 덜 올라왔거나 내려가는 중: 크기 그대로
+        // 올라가 있던 화면은 내려가는 자판을 따라 같이 내려옴 (한 번에 툭 떨어지지 않게)
+        kbShift = f ? 0 : Math.min(kbShift, Math.max(0, base.y + MOB_H * base.s - vh));
+        document.documentElement.classList.toggle("kb-open", kbShift > 0);
+        applyPhone(base, kbShift, offTop);
+        return;
+      }
+    }
     if (f && base && vv && vv.height < base.vh - 80) {
       // 키보드가 올라온 상태: 배율·크기는 그대로. 입력 칸 아래가 자판 위 12px 안에 들어오도록만 올림
       const r = f.el.getBoundingClientRect();
@@ -1325,12 +1339,12 @@ if (window.visualViewport) { visualViewport.addEventListener("resize", fit); vis
 // iOS가 입력 칸으로 페이지를 스크롤해 올리면 즉시 원래 자리로 (화면은 위 fit이 필요한 만큼만 올림)
 addEventListener("scroll", () => { if (MOB && (scrollX || scrollY)) scrollTo(0, 0); }, { passive: true });
 function onFocusChange() { if (!MOB) return; scrollTo(0, 0); fit(); [120, 320, 600].forEach(t => setTimeout(fit, t)); }
-addEventListener("focusin", onFocusChange); addEventListener("focusout", () => setTimeout(onFocusChange, 60));
+addEventListener("focusin", onFocusChange); addEventListener("focusout", () => { kbClosing(); setTimeout(onFocusChange, 60); });
 // 기운 충전(iframe) 안의 입력 칸도 같은 방식으로
 function hookFreqFocus() {
   try {
     const d = document.getElementById("freqFrame").contentDocument; if (!d || d.__focusHooked || !/chiring/.test(d.URL)) return; d.__focusHooked = true;
-    d.addEventListener("focusin", onFocusChange); d.addEventListener("focusout", () => setTimeout(onFocusChange, 60));
+    d.addEventListener("focusin", onFocusChange); d.addEventListener("focusout", () => { kbClosing(); setTimeout(onFocusChange, 60); });
     d.addEventListener("input", () => { if (MOB) fit(); });   // 여러 줄로 늘어나면 따라 올림
   } catch (err) {}
 }
