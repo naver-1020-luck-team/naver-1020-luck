@@ -558,14 +558,21 @@
   #mixBubble { transition: transform .4s var(--spring); }
   #mixBubble:active { transform: scale(.97); }
   #mxDim { background: #1a0f1a; }
-  /* 겹쳐보기 카드: 물음표 묶음에서 세 장이 탄력 있게 펼쳐짐 */
-  #mxDim .mxc2 { opacity: 0; cursor: pointer; transform: translate(var(--tx), var(--ty)) rotate(var(--r)) scale(.82);
-                 transition: opacity .2s, transform .2s; }
-  .mixing.spread #mxDim .mxc2 { opacity: 1; transform: none;
-                 transition: opacity .3s var(--ease), transform .62s cubic-bezier(.3, 1.35, .55, 1); }
-  .mixing.spread #mxPlace { transition-delay: .05s, .05s; } .mixing.spread #mxMusic { transition-delay: .1s, .1s; }
+  /* 겹쳐보기 카드: 물음표 묶음 = 세 장의 실제 카드가 겹쳐 있는 모습(겹친 앞면 n_mix_face_*) → 그 카드들이 그대로 탄력 있게 펼쳐지며 앞면이 걷힘
+     (묶음 그림이 사라지고 새 카드가 나타나지 않게. 자리·기울기 값은 make_mix_faces.py가 계산) */
+  #mxStack { visibility: hidden; }
+  #mxItem, #mxItemF { z-index: 1; } #mxItemF { z-index: 2; } #mxMusic { z-index: 3; } #mxMusicF { z-index: 4; } #mxPlace { z-index: 5; } #mxPlaceF { z-index: 6; }
+  #mxDim .mxf { pointer-events: none; }
+  #mxDim .mxc2, #mxDim .mxf { opacity: 0; cursor: pointer; transform: translate(var(--tx), calc(var(--ty) + 12px)) rotate(var(--r)) scale(var(--s));
+                 transition: opacity .2s var(--ease), transform .2s var(--ease); }
+  .mixing #mxDim .mxc2 { opacity: 0; transform: translate(var(--tx), var(--ty)) rotate(var(--r)) scale(var(--s)); transition: transform .7s var(--ease-out) .18s; }   /* 겹쳐 있을 땐 앞면(같은 모양·그림자)만 보임 */
+  .mixing #mxDim .mxf { opacity: 1; transform: translate(var(--tx), var(--ty)) rotate(var(--r)) scale(var(--s));
+                 transition: opacity .5s var(--ease) .18s, transform .7s var(--ease-out) .18s; }
+  .mixing.spread #mxDim .mxc2 { opacity: 1; transform: none; transition: opacity 0s, transform .62s cubic-bezier(.3, 1.35, .55, 1) var(--dl, 0s); }
+  .mixing.spread #mxDim .mxf { opacity: 0; transform: none;
+                 transition: transform .62s cubic-bezier(.3, 1.35, .55, 1) var(--dl, 0s), opacity .34s var(--ease) calc(var(--dl, 0s) + .06s); }
+  #mxPlace, #mxPlaceF { --dl: 0s; } #mxMusic, #mxMusicF { --dl: .05s; } #mxItem, #mxItemF { --dl: .1s; }
   .mixing.spread #mxDim .mxc2:active { transform: scale(.96); transition: transform .12s; }
-  #mxStack { cursor: pointer; }
 
 
   /* ═════ 시나리오 2 ═════ */
@@ -1109,9 +1116,12 @@
       <img class="abs" src="__img_n_mix_bg__" style="left:0;top:0;width:402px;height:874px" alt="">
       <img class="abs pop mx-intro" src="__img_n_mix_title__" style="left:90px;top:140px;width:222px;height:145px;transition-delay:.08s" alt="운세 겹쳐보기 · 오늘 우리에게 필요한 기운은?">
       <img class="abs pop mx-intro" id="mxStack" src="__img_n_mix_stack__" style="left:70px;top:320px;width:275px;height:360px;transition-delay:.18s" role="button" alt="겹친 카드">
-      <img class="abs mxc2" id="mxItem" src="__img_n_mix_item__" style="left:30px;top:80px;width:242px;height:232px;--tx:89.2px;--ty:307.0px;--r:6.2deg" role="button" alt="Lucky Item">
-      <img class="abs mxc2" id="mxPlace" src="__img_n_mix_place__" style="left:160px;top:228px;width:240px;height:254px;--tx:-62.4px;--ty:147.3px;--r:-22.8deg" role="button" alt="Lucky Place">
-      <img class="abs mxc2" id="mxMusic" src="__img_n_mix_music__" style="left:70px;top:448px;width:230px;height:254px;--tx:26.0px;--ty:-74.0px;--r:27.7deg" role="button" alt="Lucky Music">
+      <img class="abs mxc2" id="mxItem" src="__img_n_mix_item__" style="left:30px;top:80px;width:242px;height:232px;--tx:60.5px;--ty:253.6px;--r:-2.8deg;--s:1.1385" role="button" alt="Lucky Item">
+      <img class="abs mxf" id="mxItemF" src="__img_n_mix_face_item__" style="left:30px;top:80px;width:242px;height:232px;--tx:60.5px;--ty:253.6px;--r:-2.8deg;--s:1.1385" alt="">
+      <img class="abs mxc2" id="mxPlace" src="__img_n_mix_place__" style="left:160px;top:228px;width:240px;height:254px;--tx:-62.1px;--ty:202.5px;--r:-22.8deg;--s:1.1384" role="button" alt="Lucky Place">
+      <img class="abs mxf" id="mxPlaceF" src="__img_n_mix_face_place__" style="left:160px;top:228px;width:240px;height:254px;--tx:-62.1px;--ty:202.5px;--r:-22.8deg;--s:1.1384" alt="">
+      <img class="abs mxc2" id="mxMusic" src="__img_n_mix_music__" style="left:70px;top:448px;width:230px;height:254px;--tx:54.6px;--ty:-87.3px;--r:42.7deg;--s:1.1381" role="button" alt="Lucky Music">
+      <img class="abs mxf" id="mxMusicF" src="__img_n_mix_face_music__" style="left:70px;top:448px;width:230px;height:254px;--tx:54.6px;--ty:-87.3px;--r:42.7deg;--s:1.1381" alt="">
       <img class="abs mx-after" src="__img_n_mix_caption__" style="left:80px;top:730px;width:242px;height:35px" alt="카드를 눌러 자세히 확인해 보세요">
       <img class="abs mx-after press" src="__img_n_mix_ok__" id="mxOkImg" style="left:14px;top:778px;width:190px;height:68px;cursor:pointer" alt="확인">
       <img class="abs mx-after press" src="__img_n_mix_share__" style="left:204px;top:778px;width:184px;height:68px;cursor:pointer" alt="결과 공유하기">
@@ -1621,7 +1631,7 @@ const mixGo = { mxItem: "mixitem", mxPlace: "mixplace", mxMusic: "mixmusic" };  
 Object.entries(mixGo).forEach(([id, to]) => document.getElementById(id).addEventListener("click", () => {
   if (!chat.classList.contains("spread")) { spreadMix(); return; }
   if (busy) return;
-  push(to); setTimeout(closeMix, 650);
+  push(to);   // 뒤로(<) → 펼쳐진 카드로 돌아와 다른 카드도 볼 수 있음 · 확인/공유하기 → 겹쳐보기를 닫고 채팅으로
 }));
 // 장소 공유하기 → 채팅으로 돌아와 내가 장소를 보내고, 친구들이 답장 (화면이 따라 내려감)
 function showMsg(i) {
