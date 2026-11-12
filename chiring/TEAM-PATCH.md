@@ -34,6 +34,11 @@
 - `src/screens/Frequency.css`: `.gifted .wish-glow{z-index:2}` (카드 `.gifted__card`는 z-index 1)
 - `index.html`의 `<style id="team-rub-fx">`에 있어요.
 
+## 1-7. 휴대폰에서는 '기운 생성중' 빛을 WebGPU 대신 CSS로 (1112)
+'주파수 만들기'를 누른 뒤 '기운 생성중' 화면의 빛(`loading__rays`)은 WebGPU 셰이더예요. iOS Safari 26부터 WebGPU가 켜지면서, 휴대폰에서 이 화면이 그래픽 메모리를 넘겨 앱 화면 전체가 빈 회색으로 지워졌어요.
+휴대폰(터치 + 화면 짧은 변 500px 이하, 소리의 `LITE`와 같은 기준)에서는 WebGPU 장치를 요청하지 않게 해서, 앱에 이미 있는 `loading__fallback`(CSS 그라디언트 빛)이 나오도록 했어요. 데스크톱은 그대로 셰이더.
+- 원본: WebGPU 장치를 얻는 함수(`navigator.gpu` → `requestAdapter` → `requestDevice`) 맨 앞에 위 휴대폰 조건이면 `throw`를 넣어 주세요.
+
 ## 2. 기운 주파수 소리 (magenta.js)
 - `team-sound.js` + `vendor/magentamusic-1.23.1.js` (@magenta/music 1.23.1, Apache-2.0)
 - magenta.js MusicVAE 두 모델이 상황마다 새로 생성: 선율(`mel_4bar_small_q2`, 4마디마다) · 드럼(`drums_2bar_lokl_small`, 2마디마다)
