@@ -51,3 +51,9 @@
 - **휴대폰에서는 AI 모델을 쓰지 않아요 (`LITE`).** MusicVAE는 TensorFlow WebGL(그래픽 메모리)을 쓰는데, 이미지가 많은 화면 위에서 iOS(특히 카카오톡 같은 앱 안 브라우저)가 그래픽 메모리 부족으로 화면을 통째로 지워 버리는 문제가 있었어요. 휴대폰에서는 같은 규칙의 생성 패턴(`fallbackMelody`·`FALLBACK_DRUMS`)으로 연주해요. 데스크톱은 그대로 모델 사용.
 - 원본에서는 `team.html`(빌드 진입 파일)의 `</body>` 앞에 `<script src="team-sound.js"></script>`를 넣고, 두 파일을 `public/`에 두면 돼요.
 - **아카이브 임시 화면 문구:** `D` 컴포넌트에서 label이 `아카이브`일 때 문구를 `라이팅 아카이브 기능은 곧 열릴 예정이에요.`로 바꿨어요. (다른 탭의 임시 화면 문구는 그대로)
+
+## 3. 시연용 바로가기 `#gift`
+- `chiring/index.html#gift` → '친구에게 기운 보내기 → Sumin → 내용 → 기운 → 주파수 만들기 → 카드 → 메시지 → 기운 보내기'를 자동으로 진행해 **'Sumin님께 기운 선물 완료!' 카드 문지르기 화면**에서 시작 (약 7초, 진행 중에는 화면을 어둡게 덮음)
+- 파일: `team-gift-link.js` (index.html `</body>` 앞 `<script src="team-gift-link.js"></script>`)
+- 주소 끝이 `#gift`일 때만 작동 — `#frequency` · `#onboarding` · 프로토타입 안 기운 충전 탭에는 영향 없음
+- 원본을 다시 빌드하면 이 연결이 빠져 `#gift` 주소는 기운 충전 첫 화면으로 열림. 유지하려면 원본 `team.html`에 위 스크립트 줄을 넣고 파일을 `public/`에 두기
