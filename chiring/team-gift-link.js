@@ -12,7 +12,12 @@
 
   // 진행하는 동안 덮개
   const cover = document.createElement('div')
-  cover.style.cssText = 'position:fixed;inset:0;z-index:2147483647;background:#121212;transition:opacity .5s ease;pointer-events:none'
+  cover.style.cssText = 'position:fixed;inset:0;z-index:2147483647;background:#121212;transition:opacity .5s ease;pointer-events:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-family:Pretendard,-apple-system,sans-serif'
+  cover.innerHTML = '<style>@keyframes tgl-spin{to{transform:rotate(360deg)}}</style>' +
+    '<div style="width:34px;height:34px;border-radius:50%;border:3px solid rgba(255,255,255,.18);border-top-color:#fff;animation:tgl-spin .9s linear infinite"></div>' +
+    '<div style="color:rgba(255,255,255,.85);font-size:15px;letter-spacing:-.3px">기운 선물 완료 화면으로 이동하는 중…</div>' +
+    '<div id="tgl-step" style="color:rgba(255,255,255,.45);font-size:13px">친구를 고르는 중</div>'
+  const say = (t) => { const el = cover.querySelector('#tgl-step'); if (el) el.textContent = t }
   const addCover = () => document.body && !cover.isConnected && document.body.appendChild(cover)
   addCover()
   const done = () => { cover.style.opacity = '0'; setTimeout(() => cover.remove(), 600); clearInterval(timer) }
@@ -30,13 +35,18 @@
     el.dispatchEvent(new PointerEvent('pointerup', o)); el.dispatchEvent(new MouseEvent('mouseup', o)); el.dispatchEvent(new MouseEvent('click', o))
   }
   const once = new Set()
-  const step = (key, fn) => { if (once.has(key)) return false; once.add(key); fn(); return true }
+  let lastMove = Date.now()
+  const LABEL = { 'friend-entry': '친구를 고르는 중', friend: '친구를 고르는 중', 'compose-open': '보낼 내용을 적는 중', 'compose-done': '보낼 내용을 적는 중',
+    chip: '기운을 고르는 중', make: '주파수를 만드는 중', pick: '카드를 고르는 중', send: '기운을 보내는 중' }
+  const step = (key, fn) => { if (once.has(key)) return false; once.add(key); lastMove = Date.now(); say(LABEL[key] || '다음 화면으로'); fn(); return true }
 
   const started = Date.now()
   const timer = setInterval(() => {
     addCover()
     if (document.querySelector('.gifted')) { done(); return }          // 도착
     if (Date.now() - started > 30000) { done(); return }              // 30초가 지나면 덮개만 걷고 멈춤
+    if (Date.now() - lastMove > 12000) { done(); return }             // 12초 동안 진행이 없으면(화면이 다르면) 덮개를 걷고 그 화면 그대로
+    if (document.querySelector('.loading')) lastMove = Date.now()     // '기운 생성중'은 기다림
     let b
     if ((b = btn(/^친구에게 기운 보내기/))) return step('friend-entry', () => press(b))
     if ((b = [...document.querySelectorAll('button')].find((x) => visible(x) && FRIEND.test(x.innerText || '')))
